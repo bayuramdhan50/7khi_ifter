@@ -14,6 +14,14 @@ class User extends Authenticatable
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
+     * Role constants
+     */
+    const ROLE_SISWA = 'siswa';
+    const ROLE_ORANGTUA = 'orangtua';
+    const ROLE_GURU = 'guru';
+    const ROLE_ADMIN = 'admin';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -21,6 +29,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'role',
         'password',
     ];
 
@@ -48,5 +57,45 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
+     * Check if user is siswa
+     */
+    public function isSiswa(): bool
+    {
+        return $this->hasRole(self::ROLE_SISWA);
+    }
+
+    /**
+     * Check if user is orangtua
+     */
+    public function isOrangtua(): bool
+    {
+        return $this->hasRole(self::ROLE_ORANGTUA);
+    }
+
+    /**
+     * Check if user is guru
+     */
+    public function isGuru(): bool
+    {
+        return $this->hasRole(self::ROLE_GURU);
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(self::ROLE_ADMIN);
     }
 }

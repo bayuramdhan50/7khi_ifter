@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -31,6 +33,31 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+        $this->configureLoginResponse();
+    }
+
+    /**
+     * Configure login response based on user role.
+     */
+    private function configureLoginResponse(): void
+    {
+        $this->app->instance(LoginResponse::class, new class implements LoginResponse
+        {
+            public function toResponse($request)
+            {
+                $user = $request->user();
+
+                $redirectTo = match ($user->role) {
+                    User::ROLE_SISWA => route('siswa.dashboard'),
+                    User::ROLE_ORANGTUA => route('orangtua.dashboard'),
+                    User::ROLE_GURU => route('guru.dashboard'),
+                    User::ROLE_ADMIN => route('admin.dashboard'),
+                    default => route('dashboard'),
+                };
+
+                return redirect()->intended($redirectTo);
+            }
+        });
     }
 
     /**
