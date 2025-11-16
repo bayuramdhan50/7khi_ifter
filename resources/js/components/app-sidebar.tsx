@@ -11,9 +11,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { dashboard as siswaDashboard, biodata as siswaBiodata, lagu as siswaLagu } from '@/routes/siswa';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, Folder, LayoutGrid, User, Music, Calendar } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +22,29 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+];
+
+const siswaNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: siswaDashboard(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Biodata',
+        href: siswaBiodata(),
+        icon: User,
+    },
+    {
+        title: 'Lagu',
+        href: siswaLagu(),
+        icon: Music,
+    },
+    {
+        title: 'Kegiatan Harian',
+        href: siswaDashboard(),
+        icon: Calendar,
     },
 ];
 
@@ -38,6 +62,11 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const userRole = auth.user.role;
+
+    // Determine which nav items to show based on role
+    const navItems = userRole === 'siswa' ? siswaNavItems : mainNavItems;
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -53,7 +82,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>

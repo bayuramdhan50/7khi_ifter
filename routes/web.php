@@ -22,6 +22,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Siswa Routes
     Route::prefix('siswa')->name('siswa.')->middleware('role:siswa')->group(function () {
         Route::get('dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
+        Route::get('activity/{activity}', [SiswaDashboardController::class, 'show'])->name('activity.show');
+        Route::get('activity/{activity}/history', [SiswaDashboardController::class, 'history'])->name('activity.history');
+        Route::get('biodata', [SiswaDashboardController::class, 'biodata'])->name('biodata');
+        Route::get('biodata/edit', [SiswaDashboardController::class, 'biodataEdit'])->name('biodata.edit');
+        Route::get('lagu', [SiswaDashboardController::class, 'lagu'])->name('lagu');
     });
 
     // Orangtua Routes
