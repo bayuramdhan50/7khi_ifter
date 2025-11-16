@@ -19,21 +19,12 @@ interface SiswaDashboardProps {
             role: string;
         };
     };
+    activities: Activity[];
 }
 
-export default function SiswaDashboard({ auth }: SiswaDashboardProps) {
+export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps) {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentMonth, setCurrentMonth] = useState(new Date());
-
-    const activities: Activity[] = [
-        { id: 1, title: 'Bangun Pagi', icon: '☀️', color: 'bg-orange-100', completed: false },
-        { id: 2, title: 'Berbakti', icon: '🙏', color: 'bg-blue-100', completed: false },
-        { id: 3, title: 'Berolahraga', icon: '⚽', color: 'bg-green-100', completed: false },
-        { id: 4, title: 'Gemar Belajar', icon: '📚', color: 'bg-yellow-100', completed: false },
-        { id: 5, title: 'Makan Makanan Sehat dan Bergizi', icon: '🍎', color: 'bg-pink-100', completed: false },
-        { id: 6, title: 'Bermasyarakat', icon: '👨‍👩‍👧‍👦', color: 'bg-purple-100', completed: false },
-        { id: 7, title: 'Tidur Cepat', icon: '🌙', color: 'bg-indigo-100', completed: false },
-    ];
 
     const getDaysInMonth = (date: Date) => {
         const year = date.getFullYear();
