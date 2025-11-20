@@ -4,7 +4,8 @@ import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { dashboard } from '@/routes/siswa';
-import { show as showActivity, history as activityHistory } from '@/routes/siswa/activity';
+import { show as showActivity } from '@/routes/siswa/activity';
+import { history } from '@/routes/siswa/activities/tidur-cepat';
 
 interface Activity {
     id: number;
@@ -13,7 +14,7 @@ interface Activity {
     color: string;
 }
 
-interface ActivityDetailProps {
+interface TidurCepatDetailProps {
     auth: {
         user: {
             name: string;
@@ -26,10 +27,10 @@ interface ActivityDetailProps {
     previousActivity?: Activity | null;
 }
 
-export default function ActivityDetail({ auth, activity, nextActivity, previousActivity }: ActivityDetailProps) {
+export default function TidurCepatDetail({ auth, activity, nextActivity, previousActivity }: TidurCepatDetailProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(1);
-    const [waktu, setWaktu] = useState('');
+    const [jamTidur, setJamTidur] = useState('');
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
 
@@ -56,10 +57,9 @@ export default function ActivityDetail({ auth, activity, nextActivity, previousA
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission
         console.log({
             tanggal: selectedDate,
-            waktu,
+            jamTidur,
             approvalOrangTua,
             image
         });
@@ -81,7 +81,7 @@ export default function ActivityDetail({ auth, activity, nextActivity, previousA
                         </Link>
 
                         <Link
-                            href={activityHistory.url(activity.id)}
+                            href={history.url()}
                             className="bg-gray-800 text-white hover:bg-gray-700 rounded-lg px-6 py-2 inline-block"
                         >
                             Riwayat
@@ -171,22 +171,21 @@ export default function ActivityDetail({ auth, activity, nextActivity, previousA
                                             max="31"
                                             value={selectedDate}
                                             onChange={(e) => setSelectedDate(Number(e.target.value))}
-                                            className="w-12 h-12 text-center text-2xl font-bold bg-transparent border-none focus:outline-none"
+                                            className="w-12 h-12 text-center text-2xl font-bold text-gray-900 bg-transparent border-none focus:outline-none"
                                         />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Time Input */}
+                            {/* Jam Tidur Input */}
                             <div className="flex items-center gap-4">
-                                <label className="w-48 font-semibold text-gray-700">WAKTU</label>
+                                <label className="w-48 font-semibold text-gray-700">JAM TIDUR</label>
                                 <div className="flex-1 flex items-center gap-4">
                                     <input
-                                        type="text"
-                                        value={waktu}
-                                        onChange={(e) => setWaktu(e.target.value)}
-                                        placeholder="Masukan Jawaban"
-                                        className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        type="time"
+                                        value={jamTidur}
+                                        onChange={(e) => setJamTidur(e.target.value)}
+                                        className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                     <Button
                                         type="button"
@@ -242,7 +241,13 @@ export default function ActivityDetail({ auth, activity, nextActivity, previousA
 
                             {/* Timestamp */}
                             <div className="text-right text-sm text-gray-500">
-                                Apr 1, 2025 9:41 AM
+                                {new Date().toLocaleString('id-ID', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
                             </div>
                         </form>
                     </div>
