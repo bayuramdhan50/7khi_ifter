@@ -14,7 +14,7 @@ import { dashboard } from '@/routes';
 import { dashboard as siswaDashboard, biodata as siswaBiodata, lagu as siswaLagu } from '@/routes/siswa';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, User, Music, Calendar } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, User, Music, Calendar, Users, GraduationCap, UserCog } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -48,6 +48,33 @@ const siswaNavItems: NavItem[] = [
     },
 ];
 
+const adminNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/admin/dashboard',
+        icon: LayoutGrid,
+        items: [
+            {
+                title: 'Siswa',
+                href: '/admin/siswa-dashboard',
+            },
+            {
+                title: 'Guru',
+                href: '/admin/guru-dashboard',
+            },
+            {
+                title: 'Orang Tua',
+                href: '/admin/orangtua-dashboard',
+            },
+        ],
+    },
+    {
+        title: 'Kelola Pengguna',
+        href: '/admin/users',
+        icon: UserCog,
+    },
+];
+
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
@@ -66,7 +93,12 @@ export function AppSidebar() {
     const userRole = auth.user.role;
 
     // Determine which nav items to show based on role
-    const navItems = userRole === 'siswa' ? siswaNavItems : mainNavItems;
+    let navItems = mainNavItems;
+    if (userRole === 'siswa') {
+        navItems = siswaNavItems;
+    } else if (userRole === 'admin') {
+        navItems = adminNavItems;
+    }
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

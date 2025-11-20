@@ -46,6 +46,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('users', [AdminDashboardController::class, 'users'])->name('users');
+        
+        // Siswa Routes
+        Route::get('siswa-dashboard', [AdminDashboardController::class, 'siswaDashboard'])->name('siswa.dashboard');
+        Route::get('siswa/kelas/{classId}', [AdminDashboardController::class, 'classStudents'])->name('siswa.class');
+        Route::get('siswa-management', [AdminDashboardController::class, 'siswaManagement'])->name('siswa.management');
+        
+        // Guru Routes
+        Route::get('guru-dashboard', [AdminDashboardController::class, 'guruDashboard'])->name('guru.dashboard');
+        Route::get('guru-management', [AdminDashboardController::class, 'guruManagement'])->name('guru.management');
+        
+        // Orang Tua Routes
+        Route::get('orangtua-dashboard', [AdminDashboardController::class, 'orangtuaDashboard'])->name('orangtua.dashboard');
+        Route::get('orangtua/kelas/{classId}', [AdminDashboardController::class, 'classParents'])->name('orangtua.class');
+        Route::get('orangtua-management', [AdminDashboardController::class, 'orangtuaManagement'])->name('orangtua.management');
     });
 });
 
