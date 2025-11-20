@@ -20,11 +20,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Siswa Routes
     Route::prefix('siswa')->name('siswa.')->middleware('role:siswa')->group(function () {
         Route::get('dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
-        Route::get('activity/{activity}', [SiswaDashboardController::class, 'show'])->name('activity.show');
-        Route::get('activity/{activity}/history', [SiswaDashboardController::class, 'history'])->name('activity.history');
         Route::get('biodata', [SiswaDashboardController::class, 'biodata'])->name('biodata');
         Route::get('biodata/edit', [SiswaDashboardController::class, 'biodataEdit'])->name('biodata.edit');
         Route::get('lagu', [SiswaDashboardController::class, 'lagu'])->name('lagu');
+
+        // Activity History Routes (MUST be before detail routes to avoid route conflicts)
+        Route::get('activities/berbakti/history', [SiswaDashboardController::class, 'berbaktiHistory'])->name('activities.berbakti.history');
+        Route::get('activities/{activity}/beribadah/history', [SiswaDashboardController::class, 'beribadahHistory'])->name('activities.beribadah.history');
+        Route::get('activities/bangun-pagi/history', [SiswaDashboardController::class, 'bangunPagiHistory'])->name('activities.bangun-pagi.history');
+        Route::get('activities/berolahraga/history', [SiswaDashboardController::class, 'berolahragaHistory'])->name('activities.berolahraga.history');
+        Route::get('activities/gemar-belajar/history', [SiswaDashboardController::class, 'gemarBelajarHistory'])->name('activities.gemar-belajar.history');
+        Route::get('activities/makan-sehat/history', [SiswaDashboardController::class, 'makanSehatHistory'])->name('activities.makan-sehat.history');
+        Route::get('activities/bermasyarakat/history', [SiswaDashboardController::class, 'bermasyarakatHistory'])->name('activities.bermasyarakat.history');
+        Route::get('activities/tidur-cepat/history', [SiswaDashboardController::class, 'tidurCepatHistory'])->name('activities.tidur-cepat.history');
+
+        // Activity Detail Routes (specific pages for each activity)
+        // Note: berbakti route removed - "Berbakti" in database is rendered as beribadah muslim/nonmuslim
+        Route::get('activities/beribadah-muslim/{activity}', [SiswaDashboardController::class, 'beribadahMuslimDetail'])->name('activities.beribadah-muslim.detail');
+        Route::get('activities/beribadah-nonmuslim/{activity}', [SiswaDashboardController::class, 'beribadahNonmuslimDetail'])->name('activities.beribadah-nonmuslim.detail');
+        Route::get('activities/bangun-pagi/{activity}', [SiswaDashboardController::class, 'bangunPagiDetail'])->name('activities.bangun-pagi.detail');
+        Route::get('activities/berolahraga/{activity}', [SiswaDashboardController::class, 'berolahragaDetail'])->name('activities.berolahraga.detail');
+        Route::get('activities/gemar-belajar/{activity}', [SiswaDashboardController::class, 'gemarBelajarDetail'])->name('activities.gemar-belajar.detail');
+        Route::get('activities/makan-sehat/{activity}', [SiswaDashboardController::class, 'makanSehatDetail'])->name('activities.makan-sehat.detail');
+        Route::get('activities/bermasyarakat/{activity}', [SiswaDashboardController::class, 'bermasyarakatDetail'])->name('activities.bermasyarakat.detail');
+        Route::get('activities/tidur-cepat/{activity}', [SiswaDashboardController::class, 'tidurCepatDetail'])->name('activities.tidur-cepat.detail');
+
+        // Generic activity route (fallback)
+        Route::get('activity/{activity}', [SiswaDashboardController::class, 'show'])->name('activity.show');
     });
 
     // Orangtua Routes

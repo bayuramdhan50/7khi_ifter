@@ -15,7 +15,7 @@ class ActivitySeeder extends Seeder
     {
         $activities = [
             ['title' => 'Bangun Pagi', 'icon' => '☀️', 'color' => 'bg-orange-100', 'order' => 1],
-            ['title' => 'Berbakti', 'icon' => '🙏', 'color' => 'bg-blue-100', 'order' => 2],
+            ['title' => 'Beribadah', 'icon' => '🙏', 'color' => 'bg-blue-100', 'order' => 2],
             ['title' => 'Berolahraga', 'icon' => '⚽', 'color' => 'bg-green-100', 'order' => 3],
             ['title' => 'Gemar Belajar', 'icon' => '📚', 'color' => 'bg-yellow-100', 'order' => 4],
             ['title' => 'Makan Makanan Sehat dan Bergizi', 'icon' => '🍎', 'color' => 'bg-pink-100', 'order' => 5],

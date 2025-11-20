@@ -18,6 +18,7 @@ interface SiswaDashboardProps {
             name: string;
             email: string;
             role: string;
+            religion?: string;
         };
     };
     activities: Activity[];
@@ -26,6 +27,38 @@ interface SiswaDashboardProps {
 export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps) {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentMonth, setCurrentMonth] = useState(new Date());
+
+    // Determine the activity detail route based on activity title
+    const getActivityDetailRoute = (activity: Activity) => {
+        const title = activity.title.toLowerCase();
+        const activityId = activity.id;
+
+        // Handle berbakti/beribadah - route to appropriate page based on religion
+        if (title.includes('berbakti') || title.includes('beribadah')) {
+            // Check user religion to determine which page
+            const userReligion = auth.user.religion || 'muslim';
+            if (userReligion === 'muslim') {
+                return `/siswa/activities/beribadah-muslim/${activityId}`;
+            } else {
+                return `/siswa/activities/beribadah-nonmuslim/${activityId}`;
+            }
+        } else if (title.includes('bangun pagi')) {
+            return `/siswa/activities/bangun-pagi/${activityId}`;
+        } else if (title.includes('berolahraga')) {
+            return `/siswa/activities/berolahraga/${activityId}`;
+        } else if (title.includes('gemar belajar')) {
+            return `/siswa/activities/gemar-belajar/${activityId}`;
+        } else if (title.includes('makan') && title.includes('sehat')) {
+            return `/siswa/activities/makan-sehat/${activityId}`;
+        } else if (title.includes('bermasyarakat')) {
+            return `/siswa/activities/bermasyarakat/${activityId}`;
+        } else if (title.includes('tidur cepat')) {
+            return `/siswa/activities/tidur-cepat/${activityId}`;
+        }
+
+        // Fallback to generic activity detail
+        return showActivity.url(activityId);
+    };
 
     const getDaysInMonth = (date: Date) => {
         const year = date.getFullYear();
@@ -146,7 +179,7 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
                                 {activities.map((activity) => (
                                     <Link
                                         key={activity.id}
-                                        href={showActivity.url(activity.id)}
+                                        href={getActivityDetailRoute(activity)}
                                         className="relative bg-white rounded-3xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer border-4 border-gray-800"
                                     >
                                         {/* Badge */}
