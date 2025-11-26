@@ -48,7 +48,7 @@ export default function AdminDashboard({ auth, classes = [] }: AdminDashboardPro
 
     const handleClassClick = (classId: number) => {
         // TODO: Navigate to class detail page
-        router.visit(`/admin/kelas/${classId}`);
+        router.visit(`/admin/siswa/kelas/${classId}`);
     };
 
     return (

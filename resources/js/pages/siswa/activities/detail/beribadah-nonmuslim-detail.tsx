@@ -83,20 +83,20 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
         <AppLayout>
             <Head title={`Kebiasaan ${activity.id}: ${activity.title.toUpperCase()}`} />
 
-            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-8">
-                <div className="container mx-auto px-4 max-w-4xl">
+            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-4 sm:py-8">
+                <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
                     {/* Header with Navigation */}
-                    <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center justify-between mb-4 sm:mb-8 gap-2">
                         <Link
                             href={previousActivity ? showActivity.url(previousActivity.id) : dashboard.url()}
-                            className="bg-gray-800 text-white hover:bg-gray-700 rounded-lg px-6 py-2 inline-block"
+                            className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
                         >
                             ← Kembali
                         </Link>
 
                         <Link
                             href={`/siswa/activities/${activity.id}/beribadah/history`}
-                            className="bg-gray-800 text-white hover:bg-gray-700 rounded-lg px-6 py-2 inline-block"
+                            className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
                         >
                             Riwayat
                         </Link>
@@ -104,7 +104,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                         {nextActivity ? (
                             <Link
                                 href={showActivity.url(nextActivity.id)}
-                                className="bg-gray-800 text-white hover:bg-gray-700 rounded-lg px-6 py-2 inline-block"
+                                className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
                             >
                                 Lanjut →
                             </Link>
@@ -178,7 +178,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                             <div className="flex items-center gap-4">
                                 <label className="w-48 font-semibold text-gray-700">TANGGAL</label>
                                 <div className="flex items-center gap-2">
-                                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300">
+                                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
                                         <input
                                             type="number"
                                             min="1"
@@ -193,24 +193,24 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
 
                             {/* Worship Activities */}
                             {worshipNames.map((worship) => (
-                                <div key={worship.key} className="flex items-center gap-4">
-                                    <label className="w-48 font-semibold text-gray-700">{worship.label}</label>
-                                    <div className="flex-1 flex items-center gap-4">
+                                <div key={worship.key} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                    <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">{worship.label}</label>
+                                    <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
                                         <div className="flex items-center gap-2 flex-1">
                                             <input
                                                 type="checkbox"
                                                 checked={worshipActivities[worship.key as keyof typeof worshipActivities]}
                                                 onChange={(e) => setWorshipActivities(prev => ({ ...prev, [worship.key]: e.target.checked }))}
-                                                className="w-6 h-6 rounded border-2 border-gray-300 text-blue-500 focus:ring-2 focus:ring-blue-500"
+                                                className="w-6 h-6 rounded border-2 border-gray-300 text-blue-500 hover:border-blue-400 transition-all duration-200 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                             />
-                                            <span className="text-gray-600">
-                                                {worshipActivities[worship.key as keyof typeof worshipActivities] ? 'Sudah dikerjakan' : 'Belum dikerjakan'}
+                                            <span className="text-gray-600 text-sm sm:text-base">
+                                                {worshipActivities[worship.key as keyof typeof worshipActivities] ? 'Belum dikerjakan' : 'Belum dikerjakan'}
                                             </span>
                                         </div>
                                         <Button
                                             type="button"
                                             onClick={() => handleWorshipSubmit(worship.key)}
-                                            className="bg-gray-800 hover:bg-gray-700 text-white px-8"
+                                            className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base"
                                         >
                                             Submit
                                         </Button>
@@ -219,19 +219,19 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                             ))}
 
                             {/* Approval Toggle */}
-                            <div className="flex items-center gap-4">
-                                <label className="w-48 font-semibold text-gray-700">APPROVAL ORANG TUA</label>
-                                <div className="flex items-center gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">APPROVAL ORANG TUA</label>
+                                <div className="flex items-center gap-3 sm:gap-4">
                                     <button
                                         type="button"
                                         disabled
-                                        className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${
                                             approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
                                         }`}
                                     >
                                         <span
-                                            className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform ${
-                                                approvalOrangTua ? 'translate-x-11' : 'translate-x-1'
+                                            className={`inline-block h-6 w-6 sm:h-8 sm:w-8 transform rounded-full bg-white transition-transform ${
+                                                approvalOrangTua ? 'translate-x-9 sm:translate-x-11' : 'translate-x-1'
                                             }`}
                                         />
                                     </button>
@@ -244,7 +244,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                             onChange={handleImageChange}
                                             className="hidden"
                                         />
-                                        <div className="w-16 h-16 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-blue-50 hover:border-blue-400 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md">
                                             {image ? (
                                                 <img
                                                     src={URL.createObjectURL(image)}
@@ -252,7 +252,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                                     className="w-full h-full object-cover rounded-lg"
                                                 />
                                             ) : (
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
                                             )}
@@ -262,7 +262,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                             </div>
 
                             {/* Timestamp */}
-                            <div className="text-right text-sm text-gray-500">
+                            <div className="text-right text-xs sm:text-sm text-gray-500">
                                 {new Date().toLocaleString('id-ID', {
                                     year: 'numeric',
                                     month: 'short',

@@ -38,6 +38,10 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
     });
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
+    const [mengaji, setMengaji] = useState(false);
+    const [berdoa, setBerdoa] = useState(false);
+    const [bersedekah, setBersedekah] = useState(false);
+    const [lainnya, setLainnya] = useState(false);
 
     const monthNames = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
@@ -217,6 +221,67 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                     </div>
                                 </div>
                             ))}
+
+                            {/* Kegiatan Setelah Beribadah Label */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">KEGIATAN SETELAH BERIBADAH</label>
+                            </div>
+
+                            {/* Mengaji */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">MENGAJI</label>
+                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                    <input
+                                        type="checkbox"
+                                        checked={mengaji}
+                                        onChange={(e) => setMengaji(e.target.checked)}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                    />
+                                    <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button>
+                                </div>
+                            </div>
+
+                            {/* Berdoa */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">BERDOA</label>
+                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                    <input
+                                        type="checkbox"
+                                        checked={berdoa}
+                                        onChange={(e) => setBerdoa(e.target.checked)}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                    />
+                                    <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button>
+                                </div>
+                            </div>
+
+                            {/* Bersedekah */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">BERSEDEKAH</label>
+                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                    <input
+                                        type="checkbox"
+                                        checked={bersedekah}
+                                        onChange={(e) => setBersedekah(e.target.checked)}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                    />
+                                    <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button>
+                                </div>
+                            </div>
+
+                            {/* Lainnya */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">LAINNYA</label>
+                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                    <input
+                                        type="checkbox"
+                                        checked={lainnya}
+                                        onChange={(e) => setLainnya(e.target.checked)}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                    />
+                                    <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button>
+                                </div>
+                            </div>
 
                             {/* Approval Toggle */}
                             <div className="flex items-center gap-4">

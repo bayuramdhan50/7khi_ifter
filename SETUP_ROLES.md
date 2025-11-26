@@ -106,7 +106,6 @@ Setelah menjalankan seeder, Anda dapat login dengan:
 | Siswa     | siswa@example.com      | password  | /siswa/dashboard          |
 | Orangtua  | orangtua@example.com   | password  | /orangtua/dashboard       |
 | Guru      | guru@example.com       | password  | /guru/dashboard           |
-| Admin     | admin@example.com      | password  | /admin/dashboard          |
 
 ## Dashboard Siswa Features
 
