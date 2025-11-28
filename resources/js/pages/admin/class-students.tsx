@@ -1,10 +1,16 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit, Trash2, X, Upload } from 'lucide-react';
 
 interface Student {
     id: number;
+    name: string;
+    religion: string;
+    gender: string;
+}
+
+interface ImportedStudent {
     name: string;
     religion: string;
     gender: string;
@@ -23,8 +29,130 @@ interface ClassStudentsProps {
     students: Student[];
 }
 
+interface FormData {
+    name: string;
+    religion: string;
+    gender: string;
+}
+
 export default function ClassStudents({ auth, className, classId, students }: ClassStudentsProps) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [importedData, setImportedData] = useState<ImportedStudent[]>([]);
+    const [importFile, setImportFile] = useState<File | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+    const [formData, setFormData] = useState<FormData>({
+        name: '',
+        religion: '',
+        gender: '',
+    });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const parseCSVFile = (file: File) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const csv = event.target?.result as string;
+                const lines = csv.split('\n').filter(line => line.trim());
+                
+                // Skip header row
+                const dataLines = lines.slice(1);
+                const parsed: ImportedStudent[] = dataLines.map(line => {
+                    const [, nama, agama, jenisKelamin] = line.split('|').map(item => item.trim());
+                    return {
+                        name: nama || '',
+                        religion: agama || '',
+                        gender: jenisKelamin || '',
+                    };
+                }).filter(item => item.name); // Filter out empty rows
+                
+                setImportedData(parsed);
+                setImportFile(file);
+            } catch (error) {
+                console.error('Error parsing CSV:', error);
+                alert('Gagal membaca file. Pastikan format CSV benar.');
+            }
+        };
+        reader.readAsText(file);
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            parseCSVFile(file);
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
+            parseCSVFile(file);
+        } else {
+            alert('Silakan upload file CSV');
+        }
+    };
+
+    const handleImportSubmit = () => {
+        console.log('Importing data:', importedData);
+        // TODO: Kirim data ke backend
+        alert(`${importedData.length} siswa akan diimport`);
+        setImportedData([]);
+        setImportFile(null);
+        setShowImportModal(false);
+    };
+
+    const handleAddSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log('Add form submitted:', formData);
+        // TODO: Kirim data ke backend
+        setFormData({ name: '', religion: '', gender: '' });
+        setShowAddModal(false);
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log('Edit form submitted:', formData);
+        // TODO: Kirim data ke backend
+        setFormData({ name: '', religion: '', gender: '' });
+        setShowEditModal(false);
+    };
+
+    const openViewModal = (student: Student) => {
+        setSelectedStudent(student);
+        setShowViewModal(true);
+    };
+
+    const openEditModal = (student: Student) => {
+        setSelectedStudent(student);
+        setFormData({
+            name: student.name,
+            religion: student.religion,
+            gender: student.gender,
+        });
+        setShowEditModal(true);
+    };
 
     // Mock data jika backend belum siap
     const mockStudents: Student[] = [
@@ -72,36 +200,64 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                     </div>
 
                     {/* Action Bar */}
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6">
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4 items-stretch">
-                            {/* Tambah User Button */}
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm sm:text-base">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg p-2 sm:p-4 mb-4 sm:mb-6">
+                        {/* Mobile Layout: Buttons stacked vertically */}
+                        <div className="flex flex-col gap-2 mb-3 sm:hidden">
+                            <button 
+                                onClick={() => setShowAddModal(true)}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                                 </svg>
                                 Tambah User
                             </button>
-
-                            {/* Export Button */}
-                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-5 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm sm:text-base">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <button className="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                                 </svg>
                                 Export File
                             </button>
+                            <button 
+                                onClick={() => setShowImportModal(true)}
+                                className="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
+                                <Upload className="h-4 w-4" />
+                                Import File
+                            </button>
+                        </div>
 
-                            {/* Search Box */}
-                            <div className="relative flex-1 sm:max-w-64">
+                        {/* Desktop Layout: Buttons and search in a row */}
+                        <div className="hidden sm:flex flex-col lg:flex-row gap-2 lg:gap-3">
+                            <button 
+                                onClick={() => setShowAddModal(true)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm lg:text-base">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 lg:h-5 lg:w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                                </svg>
+                                Tambah User
+                            </button>
+                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm lg:text-base">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 lg:h-5 lg:w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                                Export File
+                            </button>
+                            <button 
+                                onClick={() => setShowImportModal(true)}
+                                className="bg-purple-600 hover:bg-purple-700 text-white px-4 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm lg:text-base">
+                                <Upload className="h-4 w-4 lg:h-5 lg:w-5" />
+                                Import File
+                            </button>
+                            <div className="relative flex-1 lg:max-w-sm">
                                 <input
                                     type="text"
-                                    placeholder="Cari Kegiatan"
+                                    placeholder="Cari Siswa"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                                    className="w-full pl-9 lg:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base"
                                 />
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 sm:h-5 sm:w-5 absolute left-3 top-2.5 text-gray-400"
+                                    className="h-4 w-4 lg:h-5 lg:w-5 absolute left-3 top-2.5 text-gray-400"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -110,55 +266,77 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                 </svg>
                             </div>
                         </div>
+
+                        {/* Search Box for Mobile (Below buttons) */}
+                        <div className="relative sm:hidden">
+                            <input
+                                type="text"
+                                placeholder="Cari Siswa"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 absolute left-3 top-2.5 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
                     </div>
 
                     {/* Students Table */}
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+                    <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table className="w-full min-w-[640px]">
+                            <table className="w-full">
                                 <thead>
                                     <tr className="border-b-2 border-gray-300 bg-gray-100">
-                                        <th className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-xs sm:text-sm">NO</th>
-                                        <th className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-xs sm:text-sm">NAMA</th>
-                                        <th className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-xs sm:text-sm">AGAMA</th>
-                                        <th className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-xs sm:text-sm">JENIS KELAMIN</th>
-                                        <th className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-xs sm:text-sm">AKSI</th>
+                                        <th className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm">NO</th>
+                                        <th className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm">NAMA</th>
+                                        <th className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm">AGAMA</th>
+                                        <th className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm hidden sm:table-cell">JENIS KELAMIN</th>
+                                        <th className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm">AKSI</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredStudents.map((student, index) => (
                                         <tr key={student.id} className="border-b border-gray-200 hover:bg-gray-50">
-                                            <td className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center">
-                                                <span className="font-semibold text-gray-900 text-xs sm:text-sm">{index + 1}.</span>
+                                            <td className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center">
+                                                <span className="font-semibold text-gray-900 text-[11px] sm:text-xs lg:text-sm">{index + 1}.</span>
                                             </td>
-                                            <td className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center">
-                                                <span className="font-bold text-gray-900 text-xs sm:text-sm">{student.name}</span>
+                                            <td className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center">
+                                                <span className="font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm">{student.name}</span>
                                             </td>
-                                            <td className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center">
-                                                <span className="font-bold text-gray-900 text-xs sm:text-sm">{student.religion}</span>
+                                            <td className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center">
+                                                <span className="font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm">{student.religion}</span>
                                             </td>
-                                            <td className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6 text-center">
-                                                <span className="font-bold text-gray-900 text-xs sm:text-sm">{student.gender}</span>
+                                            <td className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6 text-center hidden sm:table-cell">
+                                                <span className="font-bold text-gray-900 text-[11px] sm:text-xs lg:text-sm">{student.gender}</span>
                                             </td>
-                                            <td className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6">
-                                                <div className="flex justify-center gap-1 sm:gap-2">
+                                            <td className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6">
+                                                <div className="flex justify-center gap-0.5 sm:gap-2">
                                                     <button 
-                                                        className="bg-gray-800 hover:bg-gray-900 text-white p-1.5 sm:p-2 rounded-lg transition-colors"
+                                                        onClick={() => openViewModal(student)}
+                                                        className="bg-gray-800 hover:bg-gray-900 text-white p-1 sm:p-2 rounded transition-colors flex-shrink-0"
                                                         title="Lihat Detail"
                                                     >
-                                                        <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                        <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </button>
                                                     <button 
-                                                        className="bg-gray-800 hover:bg-gray-900 text-white p-2 rounded-lg transition-colors"
+                                                        onClick={() => openEditModal(student)}
+                                                        className="bg-gray-800 hover:bg-gray-900 text-white p-1 sm:p-2 rounded transition-colors flex-shrink-0"
                                                         title="Edit"
                                                     >
-                                                        <Edit className="h-5 w-5" />
+                                                        <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </button>
                                                     <button 
-                                                        className="bg-gray-800 hover:bg-gray-900 text-white p-2 rounded-lg transition-colors"
+                                                        className="bg-gray-800 hover:bg-gray-900 text-white p-1 sm:p-2 rounded transition-colors flex-shrink-0"
                                                         title="Hapus"
                                                     >
-                                                        <Trash2 className="h-5 w-5" />
+                                                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </button>
                                                 </div>
                                             </td>
@@ -176,6 +354,368 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                         )}
                     </div>
                 </div>
+
+                {/* Modal Tambah Siswa */}
+                {showAddModal && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
+                            <button 
+                                onClick={() => setShowAddModal(false)}
+                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                                aria-label="Close modal"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Tambah Siswa Baru</h2>
+                                <p className="text-sm text-gray-600 mt-1">Isi form di bawah untuk menambah data siswa</p>
+                            </div>
+
+                            <form onSubmit={handleAddSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Nama Siswa
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleInputChange}
+                                        placeholder="Masukkan nama siswa"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Agama
+                                    </label>
+                                    <select
+                                        name="religion"
+                                        value={formData.religion}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        required
+                                    >
+                                        <option value="">Pilih Agama</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Kristen">Kristen</option>
+                                        <option value="Katolik">Katolik</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Buddha">Buddha</option>
+                                        <option value="Konghucu">Konghucu</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Jenis Kelamin
+                                    </label>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        required
+                                    >
+                                        <option value="">Pilih Jenis Kelamin</option>
+                                        <option value="L">Laki-laki</option>
+                                        <option value="P">Perempuan</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAddModal(false)}
+                                        className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition-colors text-sm"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm"
+                                    >
+                                        Simpan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal Lihat Detail Siswa */}
+                {showViewModal && selectedStudent && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
+                            <button 
+                                onClick={() => setShowViewModal(false)}
+                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                                aria-label="Close modal"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Detail Siswa</h2>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Nama Siswa
+                                    </label>
+                                    <p className="text-gray-900 font-semibold">{selectedStudent.name}</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Agama
+                                    </label>
+                                    <p className="text-gray-900 font-semibold">{selectedStudent.religion}</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Jenis Kelamin
+                                    </label>
+                                    <p className="text-gray-900 font-semibold">{selectedStudent.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
+                                </div>
+
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowViewModal(false)}
+                                        className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition-colors text-sm"
+                                    >
+                                        Tutup
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowViewModal(false);
+                                            openEditModal(selectedStudent);
+                                        }}
+                                        className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm"
+                                    >
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal Edit Siswa */}
+                {showEditModal && selectedStudent && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
+                            <button 
+                                onClick={() => setShowEditModal(false)}
+                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                                aria-label="Close modal"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Edit Data Siswa</h2>
+                                <p className="text-sm text-gray-600 mt-1">Ubah informasi siswa di bawah</p>
+                            </div>
+
+                            <form onSubmit={handleEditSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Nama Siswa
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleInputChange}
+                                        placeholder="Masukkan nama siswa"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Agama
+                                    </label>
+                                    <select
+                                        name="religion"
+                                        value={formData.religion}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        required
+                                    >
+                                        <option value="">Pilih Agama</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Kristen">Kristen</option>
+                                        <option value="Katolik">Katolik</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Buddha">Buddha</option>
+                                        <option value="Konghucu">Konghucu</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Jenis Kelamin
+                                    </label>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        required
+                                    >
+                                        <option value="">Pilih Jenis Kelamin</option>
+                                        <option value="L">Laki-laki</option>
+                                        <option value="P">Perempuan</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEditModal(false)}
+                                        className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition-colors text-sm"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm"
+                                    >
+                                        Simpan Perubahan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal Import Siswa */}
+                {showImportModal && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+                            <button 
+                                onClick={() => {
+                                    setShowImportModal(false);
+                                    setImportedData([]);
+                                    setImportFile(null);
+                                }}
+                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors sticky"
+                                aria-label="Close modal"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Import Data Siswa</h2>
+                                <p className="text-sm text-gray-600 mt-1">Unggah file CSV untuk import data siswa secara massal</p>
+                            </div>
+
+                            {!importedData.length ? (
+                                <>
+                                    {/* Drag Drop Area */}
+                                    <div
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                                            isDragging
+                                                ? 'border-blue-500 bg-blue-50'
+                                                : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+                                        }`}
+                                    >
+                                        <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                                        <p className="text-sm font-semibold text-gray-900 mb-2">
+                                            Drag dan drop file CSV di sini
+                                        </p>
+                                        <p className="text-xs text-gray-600 mb-4">atau</p>
+                                        <label className="inline-block">
+                                            <input
+                                                type="file"
+                                                accept=".csv"
+                                                onChange={handleFileSelect}
+                                                className="hidden"
+                                            />
+                                            <span className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors cursor-pointer text-sm">
+                                                Pilih File
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    {/* Format Info */}
+                                    <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                        <p className="text-sm font-semibold text-blue-900 mb-3">Format CSV yang diharapkan:</p>
+                                        <pre className="text-xs text-blue-800 bg-white p-3 rounded border border-blue-200 overflow-x-auto">
+{`NO | NAMA | AGAMA | JENIS_KELAMIN
+1 | Ahmad Fauzi | Islam | L
+2 | Siti Nurhaliza | Islam | P
+3 | Budi Santoso | Islam | L`}
+                                        </pre>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    {/* Preview Data */}
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-4">Preview Data ({importedData.length} siswa)</h3>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-sm">
+                                                <thead>
+                                                    <tr className="border-b-2 border-gray-300 bg-gray-100">
+                                                        <th className="py-2 px-3 text-center font-bold text-gray-900">NO</th>
+                                                        <th className="py-2 px-3 text-center font-bold text-gray-900">NAMA</th>
+                                                        <th className="py-2 px-3 text-center font-bold text-gray-900">AGAMA</th>
+                                                        <th className="py-2 px-3 text-center font-bold text-gray-900">JENIS KELAMIN</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {importedData.map((student, index) => (
+                                                        <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                                                            <td className="py-2 px-3 text-center text-gray-900">{index + 1}</td>
+                                                            <td className="py-2 px-3 text-center text-gray-900">{student.name}</td>
+                                                            <td className="py-2 px-3 text-center text-gray-900">{student.religion}</td>
+                                                            <td className="py-2 px-3 text-center text-gray-900">{student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex gap-3 pt-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setImportedData([]);
+                                                setImportFile(null);
+                                            }}
+                                            className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-semibold transition-colors text-sm"
+                                        >
+                                            Pilih File Lain
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleImportSubmit}
+                                            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors text-sm"
+                                        >
+                                            Import Data
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </AppLayout>
     );
