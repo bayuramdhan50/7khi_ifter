@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { Eye, Edit, Trash2, X, Upload } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface Student {
     id: number;
@@ -123,6 +124,28 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
         setShowImportModal(false);
     };
 
+    const downloadCSVTemplate = () => {
+        const data = [
+            { 'NO': 1, 'NAMA': 'Ahmad Fauzi', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'L' },
+            { 'NO': 2, 'NAMA': 'Siti Nurhaliza', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'P' },
+            { 'NO': 3, 'NAMA': 'Budi Santoso', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'L' },
+        ];
+        
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Siswa');
+        
+        // Set column widths
+        worksheet['!cols'] = [
+            { wch: 5 },  // NO
+            { wch: 20 }, // NAMA
+            { wch: 12 }, // AGAMA
+            { wch: 15 }  // JENIS_KELAMIN
+        ];
+        
+        XLSX.writeFile(workbook, 'format_siswa.xlsx');
+    };
+
     const handleAddSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Add form submitted:', formData);
@@ -201,27 +224,21 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
 
                     {/* Action Bar */}
                     <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg p-2 sm:p-4 mb-4 sm:mb-6">
-                        {/* Mobile Layout: Buttons stacked vertically */}
-                        <div className="flex flex-col gap-2 mb-3 sm:hidden">
+                        {/* Mobile Layout: Buttons side by side */}
+                        <div className="flex gap-2 mb-3 sm:hidden">
                             <button 
                                 onClick={() => setShowAddModal(true)}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                                 </svg>
                                 Tambah User
                             </button>
-                            <button className="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                                Export File
-                            </button>
                             <button 
                                 onClick={() => setShowImportModal(true)}
-                                className="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
+                                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
                                 <Upload className="h-4 w-4" />
-                                Import File
+                                Import tabel
                             </button>
                         </div>
 
@@ -234,12 +251,6 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                                 </svg>
                                 Tambah User
-                            </button>
-                            <button className="bg-green-600 hover:bg-green-700 text-white px-4 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm lg:text-base">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 lg:h-5 lg:w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                                Export File
                             </button>
                             <button 
                                 onClick={() => setShowImportModal(true)}
@@ -290,6 +301,18 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
 
                     {/* Students Table */}
                     <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg overflow-hidden">
+                        {/* Table Header with Export Button */}
+                        <div className="border-b border-gray-200 px-4 py-3 sm:px-6 flex items-center justify-between bg-gray-50">
+                            <h3 className="text-sm sm:text-base font-bold text-gray-900">Data Siswa</h3>
+                            <button 
+                                onClick={downloadCSVTemplate}
+                                className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 text-xs sm:text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                                Export Table
+                            </button>
+                        </div>
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
@@ -609,13 +632,13 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                     setImportedData([]);
                                     setImportFile(null);
                                 }}
-                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors sticky"
+                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10"
                                 aria-label="Close modal"
                             >
                                 <X className="h-6 w-6" />
                             </button>
 
-                            <div className="mb-6">
+                            <div className="mb-6 pr-6">
                                 <h2 className="text-2xl font-bold text-gray-900">Import Data Siswa</h2>
                                 <p className="text-sm text-gray-600 mt-1">Unggah file CSV untuk import data siswa secara massal</p>
                             </div>
@@ -653,13 +676,19 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
 
                                     {/* Format Info */}
                                     <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                        <p className="text-sm font-semibold text-blue-900 mb-3">Format CSV yang diharapkan:</p>
-                                        <pre className="text-xs text-blue-800 bg-white p-3 rounded border border-blue-200 overflow-x-auto">
-{`NO | NAMA | AGAMA | JENIS_KELAMIN
-1 | Ahmad Fauzi | Islam | L
-2 | Siti Nurhaliza | Islam | P
-3 | Budi Santoso | Islam | L`}
-                                        </pre>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <p className="text-sm font-semibold text-blue-900">Download template file Excel:</p>
+                                            <button
+                                                onClick={downloadCSVTemplate}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg font-semibold transition-colors text-xs flex items-center gap-1"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                </svg>
+                                                Download
+                                            </button>
+                                        </div>
+                                        <p className="text-sm text-blue-900">Silahkan isi data dari file berikut, lalu upload ulang di menu atas</p>
                                     </div>
                                 </>
                             ) : (
