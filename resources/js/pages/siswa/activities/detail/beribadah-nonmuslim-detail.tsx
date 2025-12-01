@@ -86,17 +86,17 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-4 sm:py-8">
                 <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
                     {/* Header with Navigation */}
-                    <div className="flex items-center justify-between mb-4 sm:mb-8 gap-2">
+                    <div className="flex flex-row sm:flex-row items-center justify-center sm:justify-between gap-3 mb-8 flex-wrap">
                         <Link
                             href={previousActivity ? showActivity.url(previousActivity.id) : dashboard.url()}
-                            className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
+                            className="bg-gray-800 text-white hover:bg-gray-700 rounded-md px-5 sm:px-8 py-2 inline-block text-sm sm:text-base shadow-sm min-w-[90px] sm:min-w-[110px] text-center"
                         >
                             ← Kembali
                         </Link>
 
                         <Link
                             href={`/siswa/activities/${activity.id}/beribadah/history`}
-                            className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
+                            className="bg-gray-800 text-white hover:bg-gray-700 rounded-md px-5 sm:px-8 py-2 inline-block text-sm sm:text-base shadow-sm min-w-[90px] sm:min-w-[110px] text-center"
                         >
                             Riwayat
                         </Link>
@@ -104,7 +104,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                         {nextActivity ? (
                             <Link
                                 href={showActivity.url(nextActivity.id)}
-                                className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
+                                className="bg-gray-800 text-white hover:bg-gray-700 rounded-md px-5 sm:px-8 py-2 inline-block text-sm sm:text-base shadow-sm min-w-[90px] sm:min-w-[110px] text-center"
                             >
                                 Lanjut →
                             </Link>
@@ -112,7 +112,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                             <button
                                 type="button"
                                 disabled
-                                className="bg-gray-400 text-white rounded-lg px-6 py-2 cursor-not-allowed opacity-50"
+                                className="bg-gray-400 text-white rounded-md px-6 py-2 cursor-not-allowed opacity-50 min-w-[90px] sm:min-w-[110px]"
                             >
                                 Lanjut →
                             </button>
@@ -175,9 +175,9 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                         {/* Form */}
                         <form className="space-y-6">
                             {/* Date Input */}
-                            <div className="flex items-center gap-4">
-                                <label className="w-48 font-semibold text-gray-700">TANGGAL</label>
-                                <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 justify-center sm:justify-start">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-center sm:text-left">TANGGAL</label>
+                                <div className="flex items-center gap-2 justify-center sm:justify-start">
                                     <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
                                         <input
                                             type="number"
@@ -225,14 +225,12 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                     <button
                                         type="button"
                                         disabled
-                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${
-                                            approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
-                                        }`}
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                            }`}
                                     >
                                         <span
-                                            className={`inline-block h-6 w-6 sm:h-8 sm:w-8 transform rounded-full bg-white transition-transform ${
-                                                approvalOrangTua ? 'translate-x-9 sm:translate-x-11' : 'translate-x-1'
-                                            }`}
+                                            className={`inline-block h-6 w-6 sm:h-8 sm:w-8 transform rounded-full bg-white transition-transform ${approvalOrangTua ? 'translate-x-9 sm:translate-x-11' : 'translate-x-1'
+                                                }`}
                                         />
                                     </button>
 
@@ -262,7 +260,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                             </div>
 
                             {/* Timestamp */}
-                            <div className="text-right text-xs sm:text-sm text-gray-500">
+                            <div className="text-center sm:text-right text-xs sm:text-sm text-gray-500">
                                 {new Date().toLocaleString('id-ID', {
                                     year: 'numeric',
                                     month: 'short',

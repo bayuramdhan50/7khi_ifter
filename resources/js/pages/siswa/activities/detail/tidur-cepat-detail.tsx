@@ -72,37 +72,22 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-4 sm:py-8">
                 <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
                     {/* Header with Navigation */}
-                    <div className="flex items-center justify-between mb-4 sm:mb-8 gap-2">
-                        <Link
-                            href={previousActivity ? showActivity.url(previousActivity.id) : dashboard.url()}
-                            className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
-                        >
-                            ← Kembali
-                        </Link>
+                    <div className="flex flex-row items-center justify-center gap-3 mb-8 flex-wrap relative">
+                        <div className="absolute left-0">
+                            <Link
+                                href={previousActivity ? showActivity.url(previousActivity.id) : dashboard.url()}
+                                className="bg-gray-800 text-white hover:bg-gray-700 rounded-md px-5 sm:px-8 py-2 inline-block text-sm sm:text-base shadow-sm min-w-[90px] sm:min-w-[110px] text-center"
+                            >
+                                ← Kembali
+                            </Link>
+                        </div>
 
                         <Link
                             href={history.url()}
-                            className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
+                            className="bg-gray-800 text-white hover:bg-gray-700 rounded-md px-5 sm:px-8 py-2 inline-block text-sm sm:text-base shadow-sm min-w-[90px] sm:min-w-[110px] text-center"
                         >
                             Riwayat
                         </Link>
-
-                        {nextActivity ? (
-                            <Link
-                                href={showActivity.url(nextActivity.id)}
-                                className="bg-gray-800 text-white hover:bg-gray-700 hover:scale-105 transition-all duration-200 rounded-lg px-3 py-2 sm:px-6 inline-block shadow-md hover:shadow-lg text-xs sm:text-base"
-                            >
-                                Lanjut →
-                            </Link>
-                        ) : (
-                            <button
-                                type="button"
-                                disabled
-                                className="bg-gray-400 text-white rounded-lg px-3 py-2 sm:px-6 cursor-not-allowed opacity-50 text-xs sm:text-base"
-                            >
-                                Lanjut →
-                            </button>
-                        )}
                     </div>
 
                     {/* Month Navigation */}
@@ -137,9 +122,9 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                         {/* Activity Icon Card */}
                         <div className="flex justify-center mb-4 sm:mb-8">
                             <div className="relative">
-                                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-8 h-8 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-lg z-10">
+                                {/* <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-8 h-8 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-lg z-10">
                                     <span className="text-white font-bold text-sm sm:text-xl">{activity.id}</span>
-                                </div>
+                                </div> */}
 
                                 <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 sm:border-4 border-blue-900 overflow-hidden w-48 sm:w-64">
                                     <div className={`${activity.color} p-8 flex items-center justify-center`}>
@@ -161,14 +146,14 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                             {/* Date Input */}
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">TANGGAL</label>
-                                <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 justify-center sm:justify-start">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-center sm:text-left">TANGGAL</label>
+                                <div className="flex items-center gap-2 justify-center sm:justify-start">
                                     <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
                                         <input
-                                            type="number"
-                                            min="1"
-                                            max="31"
+                                            // type="number"
+                                            // min="1"
+                                            // max="31"
                                             value={selectedDate}
                                             onChange={(e) => setSelectedDate(Number(e.target.value))}
                                             className="w-10 h-10 sm:w-12 sm:h-12 text-center text-xl sm:text-2xl font-bold text-gray-900 bg-transparent border-none focus:outline-none"
@@ -203,14 +188,12 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                                     <button
                                         type="button"
                                         disabled
-                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${
-                                            approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
-                                        }`}
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                            }`}
                                     >
                                         <span
-                                            className={`inline-block h-6 w-6 sm:h-8 sm:w-8 transform rounded-full bg-white transition-transform ${
-                                                approvalOrangTua ? 'translate-x-9 sm:translate-x-11' : 'translate-x-1'
-                                            }`}
+                                            className={`inline-block h-6 w-6 sm:h-8 sm:w-8 transform rounded-full bg-white transition-transform ${approvalOrangTua ? 'translate-x-9 sm:translate-x-11' : 'translate-x-1'
+                                                }`}
                                         />
                                     </button>
 
@@ -240,7 +223,7 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                             </div>
 
                             {/* Timestamp */}
-                            <div className="text-right text-xs sm:text-sm text-gray-500">
+                            <div className="text-center sm:text-right text-xs sm:text-sm text-gray-500">
                                 {new Date().toLocaleString('id-ID', {
                                     year: 'numeric',
                                     month: 'short',
