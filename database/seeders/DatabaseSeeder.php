@@ -16,25 +16,7 @@ class DatabaseSeeder extends Seeder
         // Seed users with religion data
         $this->call(UserSeeder::class);
 
-        // Seed activities (7 kebiasaan baik)
+        // Seed activities
         $this->call(ActivitySeeder::class);
-
-        // Seed classes (kelas-kelas)
-        $this->call(ClassSeeder::class);
-
-        // Seed teachers (guru-guru)
-        $this->call(TeacherSeeder::class);
-
-        // Seed parents (orang tua)
-        $this->call(ParentSeeder::class);
-
-        // Seed students (siswa) + relasi parent-student
-        $this->call(StudentSeeder::class);
-
-        // Seed biodata siswa
-        $this->call(BiodataSiswaSeeder::class);
-
-        // Seed activity submissions (pengumpulan kegiatan) + details
-        $this->call(ActivitySubmissionSeeder::class);
     }
 }
