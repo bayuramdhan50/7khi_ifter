@@ -13,28 +13,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed users with religion data
+        // 1. Seed users first (admin, guru, orangtua, siswa)
         $this->call(UserSeeder::class);
 
-        // Seed activities (7 kebiasaan baik)
+        // 2. Seed activities (7 kebiasaan)
         $this->call(ActivitySeeder::class);
 
-        // Seed classes (kelas-kelas)
+        // 3. Seed classes
         $this->call(ClassSeeder::class);
 
-        // Seed teachers (guru-guru)
+        // 4. Seed teachers
         $this->call(TeacherSeeder::class);
 
-        // Seed parents (orang tua)
-        $this->call(ParentSeeder::class);
-
-        // Seed students (siswa) + relasi parent-student
+        // 5. Seed students
         $this->call(StudentSeeder::class);
 
-        // Seed biodata siswa
+        // 6. Seed parents and attach to students
+        $this->call(ParentSeeder::class);
+
+        // 7. Seed biodata siswa
         $this->call(BiodataSiswaSeeder::class);
 
-        // Seed activity submissions (pengumpulan kegiatan) + details
+        // 8. Seed activity submissions (data dummy untuk 15 hari terakhir)
         $this->call(ActivitySubmissionSeeder::class);
     }
 }

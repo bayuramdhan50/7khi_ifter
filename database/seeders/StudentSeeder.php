@@ -12,67 +12,64 @@ class StudentSeeder extends Seeder
      */
     public function run(): void
     {
+        // Get users with role siswa
+        $siswaUsers = \App\Models\User::where('role', 'siswa')->get();
+        
         $students = [
             [
-                'user' => ['name' => 'Ahmad Rizky', 'email' => 'ahmad.rizky@student.smpn37.sch.id', 'password' => bcrypt('password'), 'role' => 'siswa'],
+                'user_id' => $siswaUsers[0]->id ?? 4, // Siswa Muslim
                 'nis' => '2025001',
-                'nisn' => '0071234567',
-                'class_id' => 1, // 7A
+                'nisn' => '0012345678',
+                'class_id' => 1, // 1A
                 'gender' => 'L',
-                'date_of_birth' => '2011-05-15',
+                'date_of_birth' => '2013-05-15',
                 'religion' => 'Islam',
+                'address' => 'Jl. Merdeka No. 123, Bandung',
             ],
             [
-                'user' => ['name' => 'Budi Santoso', 'email' => 'budi.santoso@student.smpn37.sch.id', 'password' => bcrypt('password'), 'role' => 'siswa'],
+                'user_id' => $siswaUsers[1]->id ?? 5, // Siswa Kristen
                 'nis' => '2025002',
-                'nisn' => '0071234568',
-                'class_id' => 1, // 7A
-                'gender' => 'L',
-                'date_of_birth' => '2011-08-20',
-                'religion' => 'Islam',
+                'nisn' => '0012345679',
+                'class_id' => 1, // 1A
+                'gender' => 'P',
+                'date_of_birth' => '2013-08-20',
+                'religion' => 'Kristen',
+                'address' => 'Jl. Sudirman No. 456, Bandung',
             ],
             [
-                'user' => ['name' => 'Citra Dewi', 'email' => 'citra.dewi@student.smpn37.sch.id', 'password' => bcrypt('password'), 'role' => 'siswa'],
+                'user_id' => $siswaUsers[2]->id ?? 6, // Siswa Katolik
                 'nis' => '2025003',
-                'nisn' => '0071234569',
-                'class_id' => 2, // 7B
+                'nisn' => '0012345680',
+                'class_id' => 2, // 1B
+                'gender' => 'L',
+                'date_of_birth' => '2013-03-10',
+                'religion' => 'Katolik',
+                'address' => 'Jl. Asia Afrika No. 789, Bandung',
+            ],
+            [
+                'user_id' => $siswaUsers[3]->id ?? 7, // Siswa Hindu
+                'nis' => '2025004',
+                'nisn' => '0012345681',
+                'class_id' => 3, // 2A
                 'gender' => 'P',
-                'date_of_birth' => '2011-03-10',
-                'religion' => 'Kristen',
+                'date_of_birth' => '2012-11-25',
+                'religion' => 'Hindu',
+                'address' => 'Jl. Dago No. 321, Bandung',
+            ],
+            [
+                'user_id' => $siswaUsers[4]->id ?? 8, // Siswa Buddha
+                'nis' => '2025005',
+                'nisn' => '0012345682',
+                'class_id' => 3, // 2A
+                'gender' => 'L',
+                'date_of_birth' => '2012-07-18',
+                'religion' => 'Buddha',
+                'address' => 'Jl. Setiabudhi No. 654, Bandung',
             ],
         ];
 
-        foreach ($students as $index => $studentData) {
-            $user = \App\Models\User::create($studentData['user']);
-            $student = \App\Models\Student::create([
-                'user_id' => $user->id,
-                'nis' => $studentData['nis'],
-                'nisn' => $studentData['nisn'],
-                'class_id' => $studentData['class_id'],
-                'gender' => $studentData['gender'],
-                'date_of_birth' => $studentData['date_of_birth'],
-                'religion' => $studentData['religion'],
-                'address' => 'Bandung, Jawa Barat',
-                'is_active' => true,
-            ]);
-
-            // Hubungkan dengan orang tua (2 orang tua per anak)
-            $parentStartIndex = $index * 2;
-            $parents = \App\Models\ParentModel::skip($parentStartIndex)->take(2)->get();
-            
-            if ($parents->count() >= 2) {
-                // Ayah (primary)
-                $student->parents()->attach($parents[0]->id, [
-                    'relationship' => 'ayah',
-                    'is_primary' => true,
-                ]);
-                
-                // Ibu
-                $student->parents()->attach($parents[1]->id, [
-                    'relationship' => 'ibu',
-                    'is_primary' => false,
-                ]);
-            }
+        foreach ($students as $student) {
+            \App\Models\Student::create($student);
         }
     }
 }

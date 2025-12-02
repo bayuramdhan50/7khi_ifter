@@ -12,38 +12,25 @@ class BiodataSiswaSeeder extends Seeder
      */
     public function run(): void
     {
-        $biodatas = [
-            [
-                'student_id' => 1, // Ahmad Rizky
-                'hobi' => 'Bermain sepak bola, membaca komik',
-                'cita_cita' => 'Pemain Sepak Bola Profesional',
-                'makanan_kesukaan' => 'Nasi Goreng',
-                'minuman_kesukaan' => 'Jus Mangga',
-                'hewan_kesukaan' => 'Kucing',
-                'sesuatu_tidak_suka' => 'Bangun pagi terlalu cepat',
-            ],
-            [
-                'student_id' => 2, // Budi Santoso
-                'hobi' => 'Bermain game, coding',
-                'cita_cita' => 'Programmer',
-                'makanan_kesukaan' => 'Mie Ayam',
-                'minuman_kesukaan' => 'Es Teh Manis',
-                'hewan_kesukaan' => 'Anjing',
-                'sesuatu_tidak_suka' => 'Pelajaran yang terlalu sulit',
-            ],
-            [
-                'student_id' => 3, // Citra Dewi
-                'hobi' => 'Menyanyi, menggambar',
-                'cita_cita' => 'Penyanyi',
-                'makanan_kesukaan' => 'Soto Ayam',
-                'minuman_kesukaan' => 'Susu Coklat',
-                'hewan_kesukaan' => 'Kelinci',
-                'sesuatu_tidak_suka' => 'Suara bising',
-            ],
-        ];
+        $students = \App\Models\Student::all();
+        
+        $hobbies = ['Membaca', 'Bermain Bola', 'Menggambar', 'Bernyanyi', 'Bermain Game'];
+        $citaCita = ['Dokter', 'Guru', 'Polisi', 'Pilot', 'Insinyur', 'Programmer'];
+        $makanan = ['Nasi Goreng', 'Mie Ayam', 'Bakso', 'Sate', 'Rendang'];
+        $minuman = ['Teh Manis', 'Jus Jeruk', 'Susu', 'Air Mineral', 'Jus Mangga'];
+        $hewan = ['Kucing', 'Anjing', 'Burung', 'Kelinci', 'Ikan'];
+        $tidakSuka = ['Sayur pahit', 'Serangga', 'Ketinggian', 'Gelap', 'Berisik'];
 
-        foreach ($biodatas as $biodata) {
-            \App\Models\BiodataSiswa::create($biodata);
+        foreach ($students as $student) {
+            \App\Models\BiodataSiswa::create([
+                'student_id' => $student->id,
+                'hobi' => $hobbies[array_rand($hobbies)],
+                'cita_cita' => $citaCita[array_rand($citaCita)],
+                'makanan_kesukaan' => $makanan[array_rand($makanan)],
+                'minuman_kesukaan' => $minuman[array_rand($minuman)],
+                'hewan_kesukaan' => $hewan[array_rand($hewan)],
+                'sesuatu_tidak_suka' => $tidakSuka[array_rand($tidakSuka)],
+            ]);
         }
     }
 }

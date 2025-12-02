@@ -12,56 +12,69 @@ class ParentSeeder extends Seeder
      */
     public function run(): void
     {
-        $parents = [
-            // Orang tua untuk Ahmad Rizky
-            [
-                'user' => ['name' => 'Bapak Agus Rizky', 'email' => 'agus.ortu@gmail.com', 'password' => bcrypt('password'), 'role' => 'orangtua'],
-                'phone' => '081234567810',
+        // Get user orangtua
+        $orangtuaUser = \App\Models\User::where('role', 'orangtua')->first();
+        
+        if ($orangtuaUser) {
+            // Create parent
+            $parent = \App\Models\ParentModel::create([
+                'user_id' => $orangtuaUser->id,
+                'phone' => '081234567890',
+                'address' => 'Jl. Keluarga No. 111, Bandung',
                 'occupation' => 'Wiraswasta',
-                'relationship' => 'ayah',
-            ],
-            [
-                'user' => ['name' => 'Ibu Ratna Rizky', 'email' => 'ratna.ortu@gmail.com', 'password' => bcrypt('password'), 'role' => 'orangtua'],
-                'phone' => '081234567811',
-                'occupation' => 'Ibu Rumah Tangga',
-                'relationship' => 'ibu',
-            ],
+            ]);
+
+            // Attach students to parent (3 anak)
+            $students = \App\Models\Student::limit(3)->get();
             
-            // Orang tua untuk Budi Santoso
+            foreach ($students as $index => $student) {
+                \DB::table('parent_student')->insert([
+                    'parent_id' => $parent->id,
+                    'student_id' => $student->id,
+                    'relationship' => $index === 0 ? 'ayah' : ($index === 1 ? 'ibu' : 'wali'),
+                    'is_primary' => $index === 0, // Ayah sebagai primary
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // Create more parents
+        $moreParents = [
             [
-                'user' => ['name' => 'Bapak Bambang Santoso', 'email' => 'bambang.ortu@gmail.com', 'password' => bcrypt('password'), 'role' => 'orangtua'],
-                'phone' => '081234567812',
+                'name' => 'Budi Santoso',
+                'email' => 'budi.parent@ifter.com',
+                'password' => \Hash::make('password'),
+                'role' => 'orangtua',
+                'phone' => '081234567891',
+                'address' => 'Jl. Sejahtera No. 222, Bandung',
                 'occupation' => 'PNS',
-                'relationship' => 'ayah',
             ],
             [
-                'user' => ['name' => 'Ibu Dewi Santoso', 'email' => 'dewi.ortu@gmail.com', 'password' => bcrypt('password'), 'role' => 'orangtua'],
-                'phone' => '081234567813',
+                'name' => 'Siti Rahayu',
+                'email' => 'siti.parent@ifter.com',
+                'password' => \Hash::make('password'),
+                'role' => 'orangtua',
+                'phone' => '081234567892',
+                'address' => 'Jl. Makmur No. 333, Bandung',
                 'occupation' => 'Guru',
-                'relationship' => 'ibu',
-            ],
-            
-            // Orang tua untuk Citra Dewi
-            [
-                'user' => ['name' => 'Bapak Dedi Setiawan', 'email' => 'dedi.ortu@gmail.com', 'password' => bcrypt('password'), 'role' => 'orangtua'],
-                'phone' => '081234567814',
-                'occupation' => 'Dokter',
-                'relationship' => 'ayah',
-            ],
-            [
-                'user' => ['name' => 'Ibu Eka Dewi', 'email' => 'eka.ortu@gmail.com', 'password' => bcrypt('password'), 'role' => 'orangtua'],
-                'phone' => '081234567815',
-                'occupation' => 'Perawat',
-                'relationship' => 'ibu',
             ],
         ];
 
-        foreach ($parents as $parentData) {
-            $user = \App\Models\User::create($parentData['user']);
-            \App\Models\ParentModel::create([
+        foreach ($moreParents as $parentData) {
+            // Create user
+            $user = \App\Models\User::create([
+                'name' => $parentData['name'],
+                'email' => $parentData['email'],
+                'password' => $parentData['password'],
+                'role' => $parentData['role'],
+            ]);
+
+            // Create parent
+            $parent = \App\Models\ParentModel::create([
                 'user_id' => $user->id,
                 'phone' => $parentData['phone'],
-                'address' => 'Bandung, Jawa Barat',
+                'address' => $parentData['address'],
                 'occupation' => $parentData['occupation'],
             ]);
         }
