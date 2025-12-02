@@ -25,28 +25,28 @@ export default function Login({
         <>
             <Head title="Log in" />
 
-            <div className="min-h-screen flex items-center justify-center lg:flex-row relative overflow-hidden" style={{ background: 'linear-gradient(to bottom, #a8d8ea 0%, #d4f1f4 100%)' }}>
+            <div className="min-h-screen flex flex-col lg:flex-row relative" style={{ background: 'linear-gradient(to bottom, #a8d8ea 0%, #d4f1f4 100%)' }}>
                 {/* Background Image for Mobile */}
-                <div className="lg:hidden absolute inset-0 overflow-hidden flex items-start justify-center pt-8">
-                    <img 
-                        src="/images/bg_login_page.png" 
-                        alt="SMPN 37 Bandung" 
-                        className="w-full max-w-sm h-auto object-contain opacity-50"
+                <div className="lg:hidden absolute inset-0">
+                    <img
+                        src="/images/bg_login_page.png"
+                        alt="SMPN 37 Bandung"
+                        className="w-full h-full object-cover opacity-30"
                     />
                 </div>
 
-                {/* Left Side - Illustration for Desktop */}
-                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-8 relative">
-                    <img 
-                        src="/images/bg_login_page.png" 
-                        alt="SMPN 37 Bandung" 
-                        className="w-3/4 h-auto object-contain"
+                {/* Left Side - Illustration */}
+                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
+                    <img
+                        src="/images/bg_login_page.png"
+                        alt="SMPN 37 Bandung"
+                        className="absolute inset-0 w-full h-full object-cover"
                     />
                 </div>
 
                 {/* Right Side - Login Form */}
-                <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-12 relative z-10">
-                    <div className="w-full max-w-md mx-auto">{/* Login Card */}
+                <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-12 relative z-10 min-h-screen">
+                    <div className="w-full max-w-md">{/* Login Card */}
                         <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10">{/* Header */}
                             <div className="mb-6 lg:mb-8">
                                 <h1 className="text-xl sm:text-2xl font-bold text-blue-700 mb-2">
