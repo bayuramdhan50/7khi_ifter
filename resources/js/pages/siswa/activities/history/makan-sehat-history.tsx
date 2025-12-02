@@ -126,36 +126,172 @@ export default function MakanSehatHistory({ auth, activity }: MakanSehatHistoryP
                                 <span className="text-xs sm:text-sm font-medium text-gray-700">entries</span>
                             </div>
 
-                            {/* Table */}
-                            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
-                                <div className="lg:overflow-x-auto">
-                                    <table className="w-full lg:min-w-max">
+                            {/* Mobile Card Layout */}
+                            <div className="md:hidden space-y-3">
+                                {days.map((day) => (
+                                    <div key={day} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md">
+                                                    <span className="text-2xl font-bold text-blue-600">{day}</span>
+                                                </div>
+                                                <div className="text-white">
+                                                    <div className="text-xs opacity-90">Tanggal</div>
+                                                    <div className="text-sm font-bold">{monthNames[currentMonth.getMonth()]} 2025</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="p-4 space-y-3">
+                                            {/* Karbohidrat */}
+                                            <div className="p-3 bg-blue-50 rounded-lg">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 font-semibold">Karbohidrat</div>
+                                                </div>
+                                                <select className="w-full px-2 py-2 border-2 border-gray-300 rounded-lg text-gray-800 text-sm bg-white">
+                                                    <option value="">Pilih</option>
+                                                    <option value="nasi">Nasi</option>
+                                                    <option value="roti">Roti</option>
+                                                    <option value="kentang">Kentang</option>
+                                                    <option value="mie">Mie</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Protein */}
+                                            <div className="p-3 bg-orange-50 rounded-lg">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                                        <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 font-semibold">Protein</div>
+                                                </div>
+                                                <select className="w-full px-2 py-2 border-2 border-gray-300 rounded-lg text-gray-800 text-sm bg-white">
+                                                    <option value="">Pilih</option>
+                                                    <option value="ayam">Ayam</option>
+                                                    <option value="ikan">Ikan</option>
+                                                    <option value="telur">Telur</option>
+                                                    <option value="tempe">Tempe</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Sayur */}
+                                            <div className="p-3 bg-green-50 rounded-lg">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 font-semibold">Sayur</div>
+                                                </div>
+                                                <select className="w-full px-2 py-2 border-2 border-gray-300 rounded-lg text-gray-800 text-sm bg-white">
+                                                    <option value="">Pilih</option>
+                                                    <option value="bayam">Bayam</option>
+                                                    <option value="kangkung">Kangkung</option>
+                                                    <option value="wortel">Wortel</option>
+                                                    <option value="brokoli">Brokoli</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Buah */}
+                                            <div className="p-3 bg-pink-50 rounded-lg">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                                                        <svg className="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 font-semibold">Buah</div>
+                                                </div>
+                                                <select className="w-full px-2 py-2 border-2 border-gray-300 rounded-lg text-gray-800 text-sm bg-white">
+                                                    <option value="">Pilih</option>
+                                                    <option value="pisang">Pisang</option>
+                                                    <option value="apel">Apel</option>
+                                                    <option value="jeruk">Jeruk</option>
+                                                    <option value="pepaya">Pepaya</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Approval Orang Tua */}
+                                            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Approval Orang Tua</div>
+                                                        <div className="text-sm font-semibold text-green-700">Disetujui</div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-green-500 w-12 h-7 rounded-full flex items-center px-1 shadow-inner">
+                                                    <div className="bg-white w-5 h-5 rounded-full shadow-md ml-auto"></div>
+                                                </div>
+                                            </div>
+
+                                            {/* Bukti Foto */}
+                                            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Bukti Foto</div>
+                                                        <div className="text-sm font-semibold text-gray-700">Upload Foto</div>
+                                                    </div>
+                                                </div>
+                                                <label className="cursor-pointer">
+                                                    <input type="file" accept="image/*" className="hidden" />
+                                                    <div className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-purple-600 transition-colors">
+                                                        Pilih
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Desktop Table Layout */}
+                            <div className="hidden md:block bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
                                         <thead>
                                             <tr className="border-b-2 border-gray-200 bg-gray-50">
-                                                <th className="py-2 sm:py-4 px-2 sm:px-3 text-center font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">TANGGAL</th>
-                                                <th className="py-2 sm:py-4 px-2 sm:px-3 text-center font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">KARBOHIDRAT</th>
-                                                <th className="py-2 sm:py-4 px-2 sm:px-3 text-center font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">PROTEIN</th>
-                                                <th className="py-2 sm:py-4 px-2 sm:px-3 text-center font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">SAYUR</th>
-                                                <th className="py-2 sm:py-4 px-2 sm:px-3 text-center font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">BUAH</th>
-                                                <th className="py-2 sm:py-4 px-2 sm:px-3 text-center font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">APPROVAL<br/>ORTU</th>
-                                                <th className="py-2 sm:py-4 px-2 sm:px-3 text-center font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">BUKTI<br/>FOTO</th>
+                                                <th className="py-4 px-3 text-center font-bold text-gray-700 text-sm whitespace-nowrap">TANGGAL</th>
+                                                <th className="py-4 px-3 text-center font-bold text-gray-700 text-sm whitespace-nowrap">KARBOHIDRAT</th>
+                                                <th className="py-4 px-3 text-center font-bold text-gray-700 text-sm whitespace-nowrap">PROTEIN</th>
+                                                <th className="py-4 px-3 text-center font-bold text-gray-700 text-sm whitespace-nowrap">SAYUR</th>
+                                                <th className="py-4 px-3 text-center font-bold text-gray-700 text-sm whitespace-nowrap">BUAH</th>
+                                                <th className="py-4 px-3 text-center font-bold text-gray-700 text-sm whitespace-nowrap">APPROVAL ORTU</th>
+                                                <th className="py-4 px-3 text-center font-bold text-gray-700 text-sm whitespace-nowrap">BUKTI FOTO</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {days.map((day) => (
-                                                <tr key={day} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                                <tr key={day} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
                                                     {/* Tanggal */}
-                                                    <td className="py-2 sm:py-3 px-2 sm:px-3">
+                                                    <td className="py-4 px-3">
                                                         <div className="flex justify-center">
-                                                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300">
-                                                                <span className="text-base sm:text-lg font-bold text-gray-700">{day}</span>
+                                                            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                                                                <span className="text-2xl font-bold text-white">{day}</span>
                                                             </div>
                                                         </div>
                                                     </td>
 
                                                     {/* Karbohidrat */}
-                                                    <td className="py-2 sm:py-3 px-2">
-                                                        <select className="w-28 sm:w-32 px-2 py-1 sm:py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs sm:text-sm">
+                                                    <td className="py-4 px-2">
+                                                        <select className="w-32 px-2 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm">
                                                             <option value="">Pilih</option>
                                                             <option value="nasi">Nasi</option>
                                                             <option value="roti">Roti</option>
@@ -167,8 +303,8 @@ export default function MakanSehatHistory({ auth, activity }: MakanSehatHistoryP
                                                     </td>
 
                                                     {/* Protein */}
-                                                    <td className="py-2 sm:py-3 px-2">
-                                                        <select className="w-28 sm:w-32 px-2 py-1 sm:py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs sm:text-sm">
+                                                    <td className="py-4 px-2">
+                                                        <select className="w-32 px-2 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm">
                                                             <option value="">Pilih</option>
                                                             <option value="ayam">Ayam</option>
                                                             <option value="ikan">Ikan</option>
@@ -180,8 +316,8 @@ export default function MakanSehatHistory({ auth, activity }: MakanSehatHistoryP
                                                     </td>
 
                                                     {/* Sayur */}
-                                                    <td className="py-2 sm:py-3 px-2">
-                                                        <select className="w-28 sm:w-32 px-2 py-1 sm:py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs sm:text-sm">
+                                                    <td className="py-4 px-2">
+                                                        <select className="w-32 px-2 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm">
                                                             <option value="">Pilih</option>
                                                             <option value="bayam">Bayam</option>
                                                             <option value="kangkung">Kangkung</option>
@@ -193,8 +329,8 @@ export default function MakanSehatHistory({ auth, activity }: MakanSehatHistoryP
                                                     </td>
 
                                                     {/* Buah */}
-                                                    <td className="py-2 sm:py-3 px-2">
-                                                        <select className="w-28 sm:w-32 px-2 py-1 sm:py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-xs sm:text-sm">
+                                                    <td className="py-4 px-2">
+                                                        <select className="w-32 px-2 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm">
                                                             <option value="">Pilih</option>
                                                             <option value="pisang">Pisang</option>
                                                             <option value="apel">Apel</option>
@@ -206,25 +342,21 @@ export default function MakanSehatHistory({ auth, activity }: MakanSehatHistoryP
                                                     </td>
 
                                                     {/* Approval Orang Tua */}
-                                                    <td className="py-2 sm:py-3 px-2 sm:px-3">
+                                                    <td className="py-4 px-3">
                                                         <div className="flex justify-center">
-                                                            <button
-                                                                type="button"
-                                                                disabled
-                                                                className="relative inline-flex h-7 w-14 sm:h-9 sm:w-16 items-center rounded-full transition-colors cursor-not-allowed opacity-60 bg-green-500"
-                                                            >
-                                                                <span className="inline-block h-5 w-5 sm:h-7 sm:w-7 transform rounded-full bg-white transition-transform translate-x-8 sm:translate-x-8" />
-                                                            </button>
+                                                            <div className="bg-green-500 w-14 h-8 rounded-full flex items-center px-1 shadow-md">
+                                                                <div className="bg-white w-6 h-6 rounded-full shadow-md ml-auto"></div>
+                                                            </div>
                                                         </div>
                                                     </td>
 
                                                     {/* Bukti Foto */}
-                                                    <td className="py-2 sm:py-3 px-2 sm:px-3">
+                                                    <td className="py-4 px-3">
                                                         <div className="flex justify-center">
                                                             <label className="cursor-pointer">
                                                                 <input type="file" accept="image/*" className="hidden" />
-                                                                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-7 sm:w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <div className="w-14 h-14 bg-purple-100 border-2 border-purple-300 rounded-xl flex items-center justify-center hover:bg-purple-200 transition-all shadow-md hover:shadow-lg group">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-purple-600 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                     </svg>
                                                                 </div>
@@ -236,19 +368,78 @@ export default function MakanSehatHistory({ auth, activity }: MakanSehatHistoryP
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
 
-                                {/* Pagination */}
-                                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-2 p-3 sm:p-4 border-t border-gray-200">
-                                    <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50">«</button>
-                                    <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50">‹</button>
-                                    <div className="flex gap-1 flex-wrap justify-center">
-                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                            <button key={page} onClick={() => setCurrentPage(page)} className={`px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>{page}</button>
-                                        ))}
+                            {/* Pagination */}
+                            <div className="mt-4">
+                                <div className="bg-white rounded-xl shadow-lg p-4 md:p-5">
+                                    <div className="flex flex-col items-center gap-3">
+                                        {/* Page Numbers */}
+                                        <div className="flex gap-2 flex-wrap justify-center">
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                                <button 
+                                                    key={page} 
+                                                    onClick={() => setCurrentPage(page)} 
+                                                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full font-bold text-sm md:text-base transition-all shadow-md ${
+                                                        currentPage === page 
+                                                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white scale-110 shadow-lg' 
+                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
+                                                    }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        
+                                        {/* Navigation Arrows */}
+                                        <div className="flex items-center gap-3">
+                                            <button 
+                                                onClick={() => setCurrentPage(1)} 
+                                                disabled={currentPage === 1} 
+                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Halaman Pertama"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            <button 
+                                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
+                                                disabled={currentPage === 1} 
+                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Sebelumnya"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            
+                                            <span className="text-sm md:text-base font-semibold text-gray-700 px-3">
+                                                Halaman {currentPage} dari {totalPages}
+                                            </span>
+                                            
+                                            <button 
+                                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
+                                                disabled={currentPage === totalPages} 
+                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Selanjutnya"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                            <button 
+                                                onClick={() => setCurrentPage(totalPages)} 
+                                                disabled={currentPage === totalPages} 
+                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                                title="Halaman Terakhir"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50">›</button>
-                                    <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50">»</button>
-                                    <span className="text-xs sm:text-sm text-gray-600 ml-0 sm:ml-2 mt-2 sm:mt-0">Halaman {currentPage} dari {totalPages}</span>
                                 </div>
                             </div>
                         </div>
