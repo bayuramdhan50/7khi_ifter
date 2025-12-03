@@ -127,7 +127,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                     <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6">
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
                             {/* Tambah Akun Button */}
-                            <button 
+                            <button
                                 onClick={() => setShowAddModal(true)}
                                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-5 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm sm:text-base">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -188,14 +188,14 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                                             </td>
                                             <td className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6">
                                                 <div className="flex justify-center gap-1 sm:gap-2">
-                                                    <button 
+                                                    <button
                                                         onClick={() => openEditModal(parent)}
                                                         className="bg-gray-800 hover:bg-gray-900 text-white p-1.5 sm:p-2 rounded-lg transition-colors"
                                                         title="Edit"
                                                     >
                                                         <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         className="bg-gray-800 hover:bg-gray-900 text-white p-1.5 sm:p-2 rounded-lg transition-colors"
                                                         title="Hapus"
                                                     >
@@ -221,7 +221,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                     {showAddModal && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-                                <button 
+                                <button
                                     onClick={() => setShowAddModal(false)}
                                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
                                     aria-label="Close modal"
@@ -245,7 +245,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                                             value={formData.parentName}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nama orang tua"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -260,7 +260,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                                             value={formData.studentName}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nama murid"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -273,7 +273,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                                             name="studentClass"
                                             value={formData.studentClass}
                                             onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         >
                                             <option value="">Pilih Kelas</option>
@@ -316,7 +316,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                     {showEditModal && selectedParent && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-                                <button 
+                                <button
                                     onClick={() => setShowEditModal(false)}
                                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
                                     aria-label="Close modal"
@@ -340,7 +340,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                                             value={formData.parentName}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nama orang tua"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -355,7 +355,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                                             value={formData.studentName}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nama murid"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -368,7 +368,7 @@ export default function ClassParents({ auth, className, classId, parents }: Clas
                                             name="studentClass"
                                             value={formData.studentClass}
                                             onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         >
                                             <option value="">Pilih Kelas</option>
