@@ -37,6 +37,21 @@ interface FormData {
 }
 
 export default function ClassStudents({ auth, className, classId, students }: ClassStudentsProps) {
+    // Mock data jika backend belum siap
+    const initialMockStudents: Student[] = [
+        { id: 1, name: 'Ahmad Fauzi', religion: 'Islam', gender: 'L' },
+        { id: 2, name: 'Siti Nurhaliza', religion: 'Islam', gender: 'P' },
+        { id: 3, name: 'Budi Santoso', religion: 'Islam', gender: 'L' },
+        { id: 4, name: 'Dewi Lestari', religion: 'Islam', gender: 'P' },
+        { id: 5, name: 'Eko Prasetyo', religion: 'Islam', gender: 'L' },
+        { id: 6, name: 'Fitri Handayani', religion: 'Islam', gender: 'P' },
+        { id: 7, name: 'Galih Pratama', religion: 'Islam', gender: 'L' },
+        { id: 8, name: 'Hani Safitri', religion: 'Islam', gender: 'P' },
+        { id: 9, name: 'Irfan Hakim', religion: 'Islam', gender: 'L' },
+        { id: 10, name: 'Jasmine Putri', religion: 'Islam', gender: 'P' },
+        { id: 11, name: 'Kirana Azzahra', religion: 'Islam', gender: 'P' },
+    ];
+
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
@@ -46,6 +61,9 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
     const [importFile, setImportFile] = useState<File | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+    const [localStudents, setLocalStudents] = useState<Student[]>(
+        students && students.length > 0 ? students : initialMockStudents
+    );
     const [formData, setFormData] = useState<FormData>({
         name: '',
         religion: '',
@@ -60,38 +78,67 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
         }));
     };
 
-    const parseCSVFile = (file: File) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const csv = event.target?.result as string;
-                const lines = csv.split('\n').filter(line => line.trim());
-                
-                // Skip header row
-                const dataLines = lines.slice(1);
-                const parsed: ImportedStudent[] = dataLines.map(line => {
-                    const [, nama, agama, jenisKelamin] = line.split('|').map(item => item.trim());
-                    return {
-                        name: nama || '',
-                        religion: agama || '',
-                        gender: jenisKelamin || '',
-                    };
-                }).filter(item => item.name); // Filter out empty rows
-                
-                setImportedData(parsed);
-                setImportFile(file);
-            } catch (error) {
-                console.error('Error parsing CSV:', error);
-                alert('Gagal membaca file. Pastikan format CSV benar.');
-            }
-        };
-        reader.readAsText(file);
+    const parseFile = (file: File) => {
+        const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
+
+        if (isExcel) {
+            // Parse Excel file
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = new Uint8Array(event.target?.result as ArrayBuffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet) as any[];
+
+                    const parsed: ImportedStudent[] = jsonData.map(row => ({
+                        name: row.NAMA || row.nama || '',
+                        religion: row.AGAMA || row.agama || '',
+                        gender: row.JENIS_KELAMIN || row.jenis_kelamin || row.gender || '',
+                    })).filter(item => item.name);
+
+                    setImportedData(parsed);
+                    setImportFile(file);
+                } catch (error) {
+                    console.error('Error parsing Excel:', error);
+                    alert('Gagal membaca file Excel. Pastikan format file benar.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            // Parse CSV file
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const csv = event.target?.result as string;
+                    const lines = csv.split('\n').filter(line => line.trim());
+
+                    // Skip header row
+                    const dataLines = lines.slice(1);
+                    const parsed: ImportedStudent[] = dataLines.map(line => {
+                        const [, nama, agama, jenisKelamin] = line.split(',').map(item => item.trim());
+                        return {
+                            name: nama || '',
+                            religion: agama || '',
+                            gender: jenisKelamin || '',
+                        };
+                    }).filter(item => item.name);
+
+                    setImportedData(parsed);
+                    setImportFile(file);
+                } catch (error) {
+                    console.error('Error parsing CSV:', error);
+                    alert('Gagal membaca file CSV. Pastikan format file benar.');
+                }
+            };
+            reader.readAsText(file);
+        }
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            parseCSVFile(file);
+            parseFile(file);
         }
     };
 
@@ -108,33 +155,62 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
         e.preventDefault();
         setIsDragging(false);
         const file = e.dataTransfer.files?.[0];
-        if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
-            parseCSVFile(file);
+        const isValidFile = file && (
+            file.type === 'text/csv' ||
+            file.name.endsWith('.csv') ||
+            file.name.endsWith('.xlsx') ||
+            file.name.endsWith('.xls') ||
+            file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+            file.type === 'application/vnd.ms-excel'
+        );
+
+        if (isValidFile) {
+            parseFile(file);
         } else {
-            alert('Silakan upload file CSV');
+            alert('Silakan upload file CSV atau Excel (.xlsx, .xls)');
         }
     };
 
     const handleImportSubmit = () => {
         console.log('Importing data:', importedData);
-        // TODO: Kirim data ke backend
-        alert(`${importedData.length} siswa akan diimport`);
+
+        // Convert imported data to Student format with new IDs
+        const newStudents: Student[] = importedData.map((item, index) => ({
+            id: Date.now() + index, // Generate unique ID
+            name: item.name,
+            religion: item.religion,
+            gender: item.gender,
+        }));
+
+        // Add to local students
+        setLocalStudents(prev => [...prev, ...newStudents]);
+
+        alert(`${importedData.length} siswa berhasil diimport`);
         setImportedData([]);
         setImportFile(null);
         setShowImportModal(false);
     };
 
     const downloadCSVTemplate = () => {
-        const data = [
-            { 'NO': 1, 'NAMA': 'Ahmad Fauzi', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'L' },
-            { 'NO': 2, 'NAMA': 'Siti Nurhaliza', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'P' },
-            { 'NO': 3, 'NAMA': 'Budi Santoso', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'L' },
-        ];
-        
-        const worksheet = XLSX.utils.json_to_sheet(data);
+        // Jika ada data di tabel, export data yang ada
+        // Jika belum ada, export template sample
+        const dataToExport = localStudents.length > 0
+            ? localStudents.map((student, index) => ({
+                'NO': index + 1,
+                'NAMA': student.name,
+                'AGAMA': student.religion,
+                'JENIS_KELAMIN': student.gender
+            }))
+            : [
+                { 'NO': 1, 'NAMA': 'Ahmad Fauzi', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'L' },
+                { 'NO': 2, 'NAMA': 'Siti Nurhaliza', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'P' },
+                { 'NO': 3, 'NAMA': 'Budi Santoso', 'AGAMA': 'Islam', 'JENIS_KELAMIN': 'L' },
+            ];
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Siswa');
-        
+
         // Set column widths
         worksheet['!cols'] = [
             { wch: 5 },  // NO
@@ -142,14 +218,30 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
             { wch: 12 }, // AGAMA
             { wch: 15 }  // JENIS_KELAMIN
         ];
-        
-        XLSX.writeFile(workbook, 'format_siswa.xlsx');
+
+        const fileName = localStudents.length > 0
+            ? `data_siswa_${className.replace(/\s+/g, '_')}.xlsx`
+            : 'format_siswa.xlsx';
+
+        XLSX.writeFile(workbook, fileName);
     };
 
     const handleAddSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Add form submitted:', formData);
-        // TODO: Kirim data ke backend
+
+        // Create new student
+        const newStudent: Student = {
+            id: Date.now(), // Generate unique ID
+            name: formData.name,
+            religion: formData.religion,
+            gender: formData.gender,
+        };
+
+        // Add to local students
+        setLocalStudents(prev => [...prev, newStudent]);
+
+        alert('Siswa berhasil ditambahkan');
         setFormData({ name: '', religion: '', gender: '' });
         setShowAddModal(false);
     };
@@ -157,8 +249,20 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Edit form submitted:', formData);
-        // TODO: Kirim data ke backend
+
+        if (selectedStudent) {
+            // Update student in local students
+            setLocalStudents(prev => prev.map(student =>
+                student.id === selectedStudent.id
+                    ? { ...student, name: formData.name, religion: formData.religion, gender: formData.gender }
+                    : student
+            ));
+
+            alert('Data siswa berhasil diupdate');
+        }
+
         setFormData({ name: '', religion: '', gender: '' });
+        setSelectedStudent(null);
         setShowEditModal(false);
     };
 
@@ -177,25 +281,16 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
         setShowEditModal(true);
     };
 
-    // Mock data jika backend belum siap
-    const mockStudents: Student[] = [
-        { id: 1, name: 'Ahmad Fauzi', religion: 'Islam', gender: 'L' },
-        { id: 2, name: 'Siti Nurhaliza', religion: 'Islam', gender: 'P' },
-        { id: 3, name: 'Budi Santoso', religion: 'Islam', gender: 'L' },
-        { id: 4, name: 'Dewi Lestari', religion: 'Islam', gender: 'P' },
-        { id: 5, name: 'Eko Prasetyo', religion: 'Islam', gender: 'L' },
-        { id: 6, name: 'Fitri Handayani', religion: 'Islam', gender: 'P' },
-        { id: 7, name: 'Galih Pratama', religion: 'Islam', gender: 'L' },
-        { id: 8, name: 'Hani Safitri', religion: 'Islam', gender: 'P' },
-        { id: 9, name: 'Irfan Hakim', religion: 'Islam', gender: 'L' },
-        { id: 10, name: 'Jasmine Putri', religion: 'Islam', gender: 'P' },
-        { id: 11, name: 'Kirana Azzahra', religion: 'Islam', gender: 'P' },
-    ];
-
-    const displayStudents = students && students.length > 0 ? students : mockStudents;
+    const handleDeleteStudent = (student: Student) => {
+        if (confirm(`Apakah Anda yakin ingin menghapus siswa "${student.name}"?`)) {
+            // Remove from local students
+            setLocalStudents(prev => prev.filter(s => s.id !== student.id));
+            alert('Siswa berhasil dihapus');
+        }
+    };
 
     // Filter siswa berdasarkan search
-    const filteredStudents = displayStudents.filter(student =>
+    const filteredStudents = localStudents.filter(student =>
         student.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -226,7 +321,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                     <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg p-2 sm:p-4 mb-4 sm:mb-6">
                         {/* Mobile Layout: Buttons side by side */}
                         <div className="flex gap-2 mb-3 sm:hidden">
-                            <button 
+                            <button
                                 onClick={() => setShowAddModal(true)}
                                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -234,7 +329,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                 </svg>
                                 Tambah User
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setShowImportModal(true)}
                                 className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm">
                                 <Upload className="h-4 w-4" />
@@ -244,7 +339,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
 
                         {/* Desktop Layout: Buttons and search in a row */}
                         <div className="hidden sm:flex flex-col lg:flex-row gap-2 lg:gap-3">
-                            <button 
+                            <button
                                 onClick={() => setShowAddModal(true)}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm lg:text-base">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 lg:h-5 lg:w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -252,7 +347,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                 </svg>
                                 Tambah User
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setShowImportModal(true)}
                                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 lg:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm lg:text-base">
                                 <Upload className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -304,7 +399,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                         {/* Table Header with Export Button */}
                         <div className="border-b border-gray-200 px-4 py-3 sm:px-6 flex items-center justify-between bg-gray-50">
                             <h3 className="text-sm sm:text-base font-bold text-gray-900">Data Siswa</h3>
-                            <button 
+                            <button
                                 onClick={downloadCSVTemplate}
                                 className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 text-xs sm:text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -341,22 +436,23 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                             </td>
                                             <td className="py-2.5 px-2 sm:py-4 sm:px-4 lg:px-6">
                                                 <div className="flex justify-center gap-0.5 sm:gap-2">
-                                                    <button 
+                                                    <button
                                                         onClick={() => openViewModal(student)}
                                                         className="bg-gray-800 hover:bg-gray-900 text-white p-1 sm:p-2 rounded transition-colors flex-shrink-0"
                                                         title="Lihat Detail"
                                                     >
                                                         <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => openEditModal(student)}
                                                         className="bg-gray-800 hover:bg-gray-900 text-white p-1 sm:p-2 rounded transition-colors flex-shrink-0"
                                                         title="Edit"
                                                     >
                                                         <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </button>
-                                                    <button 
-                                                        className="bg-gray-800 hover:bg-gray-900 text-white p-1 sm:p-2 rounded transition-colors flex-shrink-0"
+                                                    <button
+                                                        onClick={() => handleDeleteStudent(student)}
+                                                        className="bg-red-600 hover:bg-red-700 text-white p-1 sm:p-2 rounded transition-colors flex-shrink-0"
                                                         title="Hapus"
                                                     >
                                                         <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -382,7 +478,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                 {showAddModal && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                         <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-                            <button 
+                            <button
                                 onClick={() => setShowAddModal(false)}
                                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
                                 aria-label="Close modal"
@@ -406,7 +502,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         placeholder="Masukkan nama siswa"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900"
                                         required
                                     />
                                 </div>
@@ -419,7 +515,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                         name="religion"
                                         value={formData.religion}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900"
                                         required
                                     >
                                         <option value="">Pilih Agama</option>
@@ -440,7 +536,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                         name="gender"
                                         value={formData.gender}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900"
                                         required
                                     >
                                         <option value="">Pilih Jenis Kelamin</option>
@@ -473,7 +569,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                 {showViewModal && selectedStudent && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                         <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-                            <button 
+                            <button
                                 onClick={() => setShowViewModal(false)}
                                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
                                 aria-label="Close modal"
@@ -535,7 +631,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                 {showEditModal && selectedStudent && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                         <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-                            <button 
+                            <button
                                 onClick={() => setShowEditModal(false)}
                                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
                                 aria-label="Close modal"
@@ -559,7 +655,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         placeholder="Masukkan nama siswa"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900"
                                         required
                                     />
                                 </div>
@@ -572,7 +668,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                         name="religion"
                                         value={formData.religion}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900"
                                         required
                                     >
                                         <option value="">Pilih Agama</option>
@@ -593,7 +689,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                         name="gender"
                                         value={formData.gender}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900"
                                         required
                                     >
                                         <option value="">Pilih Jenis Kelamin</option>
@@ -626,7 +722,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                 {showImportModal && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                         <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
-                            <button 
+                            <button
                                 onClick={() => {
                                     setShowImportModal(false);
                                     setImportedData([]);
@@ -640,7 +736,7 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
 
                             <div className="mb-6 pr-6">
                                 <h2 className="text-2xl font-bold text-gray-900">Import Data Siswa</h2>
-                                <p className="text-sm text-gray-600 mt-1">Unggah file CSV untuk import data siswa secara massal</p>
+                                <p className="text-sm text-gray-600 mt-1">Unggah file Excel (.xlsx) atau CSV untuk import data siswa secara massal</p>
                             </div>
 
                             {!importedData.length ? (
@@ -658,13 +754,13 @@ export default function ClassStudents({ auth, className, classId, students }: Cl
                                     >
                                         <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                                         <p className="text-sm font-semibold text-gray-900 mb-2">
-                                            Drag dan drop file CSV di sini
+                                            Drag dan drop file Excel atau CSV di sini
                                         </p>
                                         <p className="text-xs text-gray-600 mb-4">atau</p>
                                         <label className="inline-block">
                                             <input
                                                 type="file"
-                                                accept=".csv"
+                                                accept=".csv,.xlsx,.xls"
                                                 onChange={handleFileSelect}
                                                 className="hidden"
                                             />

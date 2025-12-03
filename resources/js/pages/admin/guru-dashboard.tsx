@@ -125,7 +125,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                     <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6">
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
                             {/* Tambah Akun Button */}
-                            <button 
+                            <button
                                 onClick={() => setShowAddModal(true)}
                                 className="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 justify-center text-sm sm:text-base">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -203,14 +203,14 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             </td>
                                             <td className="py-3 px-3 sm:py-4 sm:px-4 lg:px-6">
                                                 <div className="flex justify-center gap-1 sm:gap-2">
-                                                    <button 
+                                                    <button
                                                         onClick={() => openEditModal(teacher)}
                                                         className="bg-gray-800 hover:bg-gray-900 text-white p-1.5 sm:p-2 rounded-lg transition-colors"
                                                         title="Edit"
                                                     >
                                                         <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         className="bg-gray-800 hover:bg-gray-900 text-white p-1.5 sm:p-2 rounded-lg transition-colors"
                                                         title="Hapus"
                                                     >
@@ -236,7 +236,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                     {showAddModal && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-                                <button 
+                                <button
                                     onClick={() => setShowAddModal(false)}
                                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
                                     aria-label="Close modal"
@@ -260,7 +260,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             value={formData.name}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nama guru"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -273,7 +273,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             name="class"
                                             value={formData.class}
                                             onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         >
                                             <option value="">Pilih Kelas</option>
@@ -302,7 +302,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             value={formData.password}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan password"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -317,7 +317,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             value={formData.passwordConfirmation}
                                             onChange={handleInputChange}
                                             placeholder="Konfirmasi password"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -346,7 +346,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                     {showEditModal && selectedTeacher && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
-                                <button 
+                                <button
                                     onClick={() => setShowEditModal(false)}
                                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
                                     aria-label="Close modal"
@@ -370,7 +370,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             value={formData.name}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nama guru"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         />
                                     </div>
@@ -383,7 +383,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             name="class"
                                             value={formData.class}
                                             onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                             required
                                         >
                                             <option value="">Pilih Kelas</option>
@@ -412,7 +412,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             value={formData.password}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan password baru"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                         />
                                     </div>
 
@@ -426,7 +426,7 @@ export default function GuruDashboard({ auth, teachers }: GuruDashboardProps) {
                                             value={formData.passwordConfirmation}
                                             onChange={handleInputChange}
                                             placeholder="Konfirmasi password baru"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900"
                                         />
                                     </div>
 
