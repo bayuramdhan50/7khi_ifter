@@ -151,9 +151,9 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                         {/* Activity Icon Card */}
                         <div className="flex justify-center mb-8">
                             <div className="relative">
-                                <div className="absolute -top-4 -right-4 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg z-10">
+                                {/* <div className="absolute -top-4 -right-4 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg z-10">
                                     <span className="text-white font-bold text-xl">{activity.id}</span>
-                                </div>
+                                </div> */}
 
                                 <div className="bg-white rounded-3xl shadow-lg border-4 border-blue-900 overflow-hidden w-64">
                                     <div className={`${activity.color} p-8 flex items-center justify-center`}>
@@ -180,9 +180,9 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                 <div className="flex items-center gap-2 justify-center sm:justify-start">
                                     <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
                                         <input
-                                            type="number"
-                                            min="1"
-                                            max="31"
+                                            // type="number"
+                                            // min="1"
+                                            // max="31"
                                             value={selectedDate}
                                             onChange={(e) => setSelectedDate(Number(e.target.value))}
                                             className="w-12 h-12 text-center text-2xl font-bold text-gray-900 bg-transparent border-none focus:outline-none"
@@ -204,16 +204,16 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                                 className="w-6 h-6 rounded border-2 border-gray-300 text-blue-500 hover:border-blue-400 transition-all duration-200 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                             />
                                             <span className="text-gray-600 text-sm sm:text-base">
-                                                {worshipActivities[worship.key as keyof typeof worshipActivities] ? 'Belum dikerjakan' : 'Belum dikerjakan'}
+                                                {worshipActivities[worship.key as keyof typeof worshipActivities] ? 'Sudah dikerjakan' : 'Belum dikerjakan'}
                                             </span>
                                         </div>
-                                        <Button
+                                        {/* <Button
                                             type="button"
                                             onClick={() => handleWorshipSubmit(worship.key)}
                                             className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base"
                                         >
                                             Submit
-                                        </Button>
+                                        </Button> */}
                                     </div>
                                 </div>
                             ))}
