@@ -88,6 +88,27 @@ export default function Profile({
                                     />
                                 </div>
 
+                                {auth.user.role !== 'siswa' && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="username">Username</Label>
+
+                                        <Input
+                                            id="username"
+                                            type="text"
+                                            className="mt-1 block w-full"
+                                            defaultValue={auth.user.username || ''}
+                                            name="username"
+                                            autoComplete="username"
+                                            placeholder="Username untuk login"
+                                        />
+
+                                        <InputError
+                                            className="mt-2"
+                                            message={errors.username}
+                                        />
+                                    </div>
+                                )}
+
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
                                         <div>

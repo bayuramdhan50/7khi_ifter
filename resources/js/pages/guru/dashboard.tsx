@@ -24,8 +24,8 @@ interface GuruDashboardProps {
 }
 
 export default function GuruDashboard({ auth, students = [] }: GuruDashboardProps) {
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const currentDate = new Date();
+    const currentMonth = new Date();
     const [searchQuery, setSearchQuery] = useState('');
 
     // Mock data jika tidak ada data dari backend
@@ -60,16 +60,6 @@ export default function GuruDashboard({ auth, students = [] }: GuruDashboardProp
     };
 
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
-
-    const changeMonth = (increment: number) => {
-        const newMonth = new Date(currentMonth.setMonth(currentMonth.getMonth() + increment));
-        setCurrentMonth(new Date(newMonth));
-    };
-
-    const changeYear = (increment: number) => {
-        const newYear = new Date(currentMonth.setFullYear(currentMonth.getFullYear() + increment));
-        setCurrentMonth(new Date(newYear));
-    };
 
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -216,49 +206,23 @@ export default function GuruDashboard({ auth, students = [] }: GuruDashboardProp
                             <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:sticky lg:top-4">
                                 {/* Date Display */}
                                 <div className="mb-6">
-                                    <input
-                                        type="text"
-                                        value={formatDate(selectedDate)}
-                                        readOnly
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-center font-medium"
-                                    />
+                                    <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-center font-medium">
+                                        {formatDate(currentDate)}
+                                    </div>
                                 </div>
 
-                                {/* Month/Year Navigation */}
-                                <div className="flex items-center justify-between mb-4">
-                                    <button
-                                        onClick={() => changeMonth(-1)}
-                                        className="text-blue-600 hover:text-blue-700 text-xl font-bold px-3 py-1"
-                                    >
-                                        ‹
-                                    </button>
+                                {/* Month Display (Static) */}
+                                <div className="flex items-center justify-center mb-4">
                                     <span className="font-bold text-gray-800">
                                         {monthNames[currentMonth.getMonth()]}
                                     </span>
-                                    <button
-                                        onClick={() => changeMonth(1)}
-                                        className="text-blue-600 hover:text-blue-700 text-xl font-bold px-3 py-1"
-                                    >
-                                        ›
-                                    </button>
                                 </div>
 
-                                <div className="flex items-center justify-between mb-4">
-                                    <button
-                                        onClick={() => changeYear(-1)}
-                                        className="text-blue-600 hover:text-blue-700 text-xl font-bold px-3 py-1"
-                                    >
-                                        ‹
-                                    </button>
+                                {/* Year Display (Static) */}
+                                <div className="flex items-center justify-center mb-4">
                                     <span className="font-bold text-gray-800">
                                         {currentMonth.getFullYear()}
                                     </span>
-                                    <button
-                                        onClick={() => changeYear(1)}
-                                        className="text-blue-600 hover:text-blue-700 text-xl font-bold px-3 py-1"
-                                    >
-                                        ›
-                                    </button>
                                 </div>
 
                                 {/* Day Names */}
@@ -280,47 +244,27 @@ export default function GuruDashboard({ auth, students = [] }: GuruDashboardProp
                                         <div key={`empty-${index}`} className="aspect-square" />
                                     ))}
 
-                                    {/* Days of the month */}
+                                    {/* Days of the month (Static) */}
                                     {Array.from({ length: daysInMonth }).map((_, index) => {
                                         const day = index + 1;
                                         const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
                                         const isToday = date.toDateString() === new Date().toDateString();
-                                        const isSelected = date.toDateString() === selectedDate.toDateString();
 
                                         return (
-                                            <button
+                                            <div
                                                 key={day}
-                                                onClick={() => setSelectedDate(date)}
                                                 className={`
                                                     aspect-square rounded-lg flex items-center justify-center text-sm font-medium
-                                                    transition-colors
-                                                    ${isSelected
+                                                    ${isToday
                                                         ? 'bg-blue-600 text-white'
-                                                        : isToday
-                                                            ? 'bg-blue-100 text-blue-600'
-                                                            : 'hover:bg-gray-100 text-gray-700'
+                                                        : 'text-gray-700'
                                                     }
                                                 `}
                                             >
                                                 {day}
-                                            </button>
+                                            </div>
                                         );
                                     })}
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="mt-6 flex gap-3">
-                                    <Button
-                                        variant="outline"
-                                        className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                                    >
-                                        Ok
-                                    </Button>
                                 </div>
                             </div>
                         </div>
