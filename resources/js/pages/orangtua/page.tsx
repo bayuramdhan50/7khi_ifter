@@ -29,7 +29,7 @@ interface OrangtuaDashboardProps {
 export default function OrangtuaDashboard({ auth, students = [], submissions = [], activities = [] }: OrangtuaDashboardProps) {
     const [selectedStudent, setSelectedStudent] = useState<number | null>(students[0]?.id || null);
     const [selectedActivity, setSelectedActivity] = useState<number>(activities[0]?.id || 1);
-    const [filterStatus, setFilterStatus] = useState<FilterStatus>('pending');
+    const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
@@ -71,7 +71,7 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
     const handleSelectActivity = (activityId: number) => {
         setSelectedActivity(activityId);
         setCurrentPage(1);
-        setFilterStatus('pending');
+        setFilterStatus('all');
     };
 
     const handleFilterChange = (status: FilterStatus) => {
@@ -124,6 +124,22 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
                                 onFilterChange={handleFilterChange}
                             />
 
+                            {/* Items per page selector placed above the table */}
+                            <div className="flex items-center gap-3 px-4 py-3 mb-4">
+                                <span className="text-sm font-medium text-gray-700">Show</span>
+                                <select
+                                    value={itemsPerPage}
+                                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={31}>31</option>
+                                </select>
+                                <span className="text-sm font-medium text-gray-700">entries</span>
+                            </div>
+
                             <SubmissionsTable
                                 submissions={paginatedSubmissions}
                                 selectedActivity={selectedActivityData}
@@ -139,6 +155,7 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
                                     itemsPerPage={itemsPerPage}
                                     onPageChange={setCurrentPage}
                                     onItemsPerPageChange={handleItemsPerPageChange}
+                                    showSelector={false}
                                 />
                             )}
                         </div>

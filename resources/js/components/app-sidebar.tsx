@@ -120,11 +120,11 @@ export function AppSidebar() {
     }
 
     return (
-        <Sidebar collapsible="icon" variant="inset" className="bg-gradient-to-b from-blue-600 to-blue-500 border-r-0">
-            <SidebarHeader className="border-b border-blue-400/30">
+        <Sidebar collapsible="icon" variant="inset" className="bg-[#344460] border-r-0">
+            <SidebarHeader className="border-b border-white/20 pt-3 pb-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="hover:bg-blue-500/30">
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-white/10 group-data-[collapsible=icon]:mt-1">
                             <Link href={logoHref} prefetch>
                                 <AppLogo />
                             </Link>
