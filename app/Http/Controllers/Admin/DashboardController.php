@@ -148,20 +148,41 @@ class DashboardController extends Controller
      */
     public function guruDashboard(): Response
     {
-        $teachers = User::where('role', User::ROLE_GURU)
-            ->orderBy('name')
+        $teachers = \App\Models\Teacher::with(['user', 'classes'])
             ->get()
-            ->map(function ($user) {
+            ->map(function ($teacher) {
+                $assignedClass = $teacher->classes->first();
                 return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'createdAt' => $user->created_at->format('Y-m-d'),
+                    'id' => $teacher->id,
+                    'user_id' => $teacher->user_id,
+                    'name' => $teacher->user->name ?? 'N/A',
+                    'email' => $teacher->user->email ?? 'N/A',
+                    'nip' => $teacher->nip ?? '-',
+                    'phone' => $teacher->phone ?? '-',
+                    'address' => $teacher->address ?? '-',
+                    'is_active' => $teacher->is_active,
+                    'class_id' => $assignedClass ? $assignedClass->id : null,
+                    'class_name' => $assignedClass ? $assignedClass->name : '-',
+                    'createdAt' => $teacher->created_at->format('d/m/Y'),
+                ];
+            });
+        
+        // Get all classes for the dropdown
+        $allClasses = \App\Models\ClassModel::orderBy('grade')
+            ->orderBy('section')
+            ->get()
+            ->map(function ($class) {
+                return [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'grade' => $class->grade,
+                    'section' => $class->section,
                 ];
             });
         
         return Inertia::render('admin/guru-dashboard', [
             'teachers' => $teachers,
+            'allClasses' => $allClasses,
         ]);
     }
 

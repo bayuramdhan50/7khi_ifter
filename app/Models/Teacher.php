@@ -10,17 +10,14 @@ class Teacher extends Model
 {
     protected $fillable = [
         'user_id',
-        'employee_number',
-        'full_name',
+        'nip',
         'phone',
-        'email',
-        'subject',
-        'hire_date',
-        'status',
+        'address',
+        'is_active',
     ];
 
     protected $casts = [
-        'hire_date' => 'date',
+        'is_active' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -30,6 +27,6 @@ class Teacher extends Model
 
     public function classes(): HasMany
     {
-        return $this->hasMany(ClassModel::class, 'teacher_id');
+        return $this->hasMany(ClassModel::class, 'teacher_id', 'user_id');
     }
 }

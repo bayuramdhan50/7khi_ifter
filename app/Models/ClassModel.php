@@ -12,19 +12,21 @@ class ClassModel extends Model
 
     protected $fillable = [
         'name',
-        'grade_level',
-        'academic_year',
+        'grade',
+        'section',
         'teacher_id',
-        'capacity',
+        'academic_year',
+        'is_active',
     ];
 
     protected $casts = [
-        'capacity' => 'integer',
+        'grade' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(Teacher::class);
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 
     public function students(): HasMany

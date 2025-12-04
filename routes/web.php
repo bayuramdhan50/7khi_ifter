@@ -87,6 +87,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Guru Routes
         Route::get('guru-dashboard', [AdminDashboardController::class, 'guruDashboard'])->name('guru.dashboard');
         Route::get('guru-management', [AdminDashboardController::class, 'guruManagement'])->name('guru.management');
+        
+        // Teacher CRUD API
+        Route::post('teachers', [\App\Http\Controllers\Admin\TeacherController::class, 'store'])->name('teachers.store');
+        Route::put('teachers/{teacher}', [\App\Http\Controllers\Admin\TeacherController::class, 'update'])->name('teachers.update');
+        Route::delete('teachers/{teacher}', [\App\Http\Controllers\Admin\TeacherController::class, 'destroy'])->name('teachers.destroy');
 
         // Orang Tua Routes
         Route::get('orangtua-dashboard', [AdminDashboardController::class, 'orangtuaDashboard'])->name('orangtua.dashboard');
