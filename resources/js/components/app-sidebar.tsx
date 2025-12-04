@@ -19,7 +19,7 @@ import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Beranda',
         href: dashboard(),
         icon: LayoutGrid,
     },
@@ -27,7 +27,7 @@ const mainNavItems: NavItem[] = [
 
 const siswaNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Beranda',
         href: siswaDashboard(),
         icon: LayoutGrid,
     },
@@ -50,7 +50,7 @@ const siswaNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Beranda',
         href: '/admin/dashboard',
         icon: LayoutGrid,
         items: [
@@ -100,11 +100,11 @@ export function AppSidebar() {
         navItems = adminNavItems;
     }
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar collapsible="icon" variant="inset" className="bg-gradient-to-b from-blue-600 to-blue-500 border-r-0">
+            <SidebarHeader className="border-b border-blue-400/30">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-blue-500/30">
                             <Link href={dashboard()} prefetch>
                                 <AppLogo />
                             </Link>
@@ -117,8 +117,7 @@ export function AppSidebar() {
                 <NavMain items={navItems} />
             </SidebarContent>
 
-            <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+            <SidebarFooter className="border-t border-blue-400/30">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

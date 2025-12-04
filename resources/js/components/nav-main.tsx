@@ -33,7 +33,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
 
     return (
         <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-blue-100 font-semibold text-xs uppercase tracking-wider">Menu</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => {
                     // Check if item has subitems
@@ -52,6 +52,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     <CollapsibleTrigger asChild>
                                         <SidebarMenuButton
                                             tooltip={{ children: item.title }}
+                                            className="text-white hover:bg-blue-400/30 hover:text-white data-[active=true]:bg-blue-700 data-[active=true]:text-white"
                                         >
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
@@ -67,6 +68,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                                         isActive={page.url.startsWith(
                                                             resolveUrl(subItem.href),
                                                         )}
+                                                        className="text-blue-50 hover:bg-blue-400/20 hover:text-white data-[active=true]:bg-blue-700 data-[active=true]:text-white"
                                                     >
                                                         <Link href={subItem.href} prefetch>
                                                             <span>{subItem.title}</span>
@@ -90,6 +92,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     resolveUrl(item.href),
                                 )}
                                 tooltip={{ children: item.title }}
+                                className="text-white hover:bg-blue-400/30 hover:text-white data-[active=true]:bg-blue-700 data-[active=true]:text-white"
                             >
                                 <Link href={item.href} prefetch>
                                     {item.icon && <item.icon />}

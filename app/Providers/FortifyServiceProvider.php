@@ -67,6 +67,27 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+        
+        // Custom authentication: NIS for siswa, email for others
+        Fortify::authenticateUsing(function (Request $request) {
+            // Check if NIS field is present (for siswa)
+            if ($request->filled('nis')) {
+                $user = User::where('nis', $request->nis)
+                            ->where('role', User::ROLE_SISWA)
+                            ->first();
+            } else {
+                // For non-siswa: use email
+                $user = User::where('email', $request->email)
+                            ->whereIn('role', [User::ROLE_ADMIN, User::ROLE_GURU, User::ROLE_ORANGTUA])
+                            ->first();
+            }
+
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                return $user;
+            }
+            
+            return null;
+        });
     }
 
     /**

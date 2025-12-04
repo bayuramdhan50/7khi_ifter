@@ -70,29 +70,29 @@ export default function Login({
                             >
                                 {({ processing, errors }) => (
                                     <>
-                                        {/* Email Field */}
+                                        {/* NIS Field */}
                                         <div className="space-y-2">
-                                            <Label htmlFor="email" className="text-gray-700 text-xs sm:text-sm">
-                                                Email address*
+                                            <Label htmlFor="nis" className="text-gray-700 text-xs sm:text-sm">
+                                                NIS (Nomor Induk Siswa)*
                                             </Label>
                                             <Input
-                                                id="email"
-                                                type="email"
-                                                name="email"
+                                                id="nis"
+                                                type="text"
+                                                name="nis"
                                                 required
                                                 autoFocus
                                                 tabIndex={1}
-                                                autoComplete="email"
-                                                placeholder="Enter email address"
+                                                autoComplete="username"
+                                                placeholder="Masukkan NIS Anda"
                                                 className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
                                             />
-                                            <InputError message={errors.email} />
+                                            <InputError message={errors.nis} />
                                         </div>
 
                                         {/* Password Field */}
                                         <div className="space-y-2">
                                             <Label htmlFor="password" className="text-gray-700 text-xs sm:text-sm">
-                                                Enter password*
+                                                Kata Sandi*
                                             </Label>
                                             <div className="relative">
                                                 <Input
@@ -102,7 +102,7 @@ export default function Login({
                                                     required
                                                     tabIndex={2}
                                                     autoComplete="current-password"
-                                                    placeholder="Password"
+                                                    placeholder="Masukkan kata sandi"
                                                     className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14 sm:pr-16 text-black text-sm sm:text-base"
                                                 />
                                                 <button
@@ -111,7 +111,7 @@ export default function Login({
                                                     className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium px-2"
                                                     tabIndex={-1}
                                                 >
-                                                    {showPassword ? 'Hide' : 'Show'}
+                                                    {showPassword ? 'Sembunyikan' : 'Tampilkan'}
                                                 </button>
                                             </div>
                                             <InputError message={errors.password} />
@@ -129,7 +129,7 @@ export default function Login({
                                                 htmlFor="remember"
                                                 className="text-xs sm:text-sm text-gray-700 cursor-pointer"
                                             >
-                                                Remember my password
+                                                Ingat kata sandi saya
                                             </Label>
                                         </div>
 
@@ -142,7 +142,7 @@ export default function Login({
                                             data-test="login-button"
                                         >
                                             {processing && <Spinner />}
-                                            Login
+                                            Masuk
                                         </Button>
                                     </>
                                 )}
