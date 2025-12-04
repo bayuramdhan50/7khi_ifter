@@ -17,6 +17,7 @@ class UserSeeder extends Seeder
         // Admin
         User::create([
             'name' => 'Admin',
+            'username' => 'admin',
             'email' => 'admin@ifter.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_ADMIN,
@@ -26,6 +27,7 @@ class UserSeeder extends Seeder
         // Guru
         User::create([
             'name' => 'Guru Test',
+            'username' => 'gurutest',
             'email' => 'guru@ifter.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_GURU,
@@ -35,6 +37,7 @@ class UserSeeder extends Seeder
         // Orangtua
         User::create([
             'name' => 'Orangtua Test',
+            'username' => 'orangtuatest',
             'email' => 'orangtua@ifter.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_ORANGTUA,

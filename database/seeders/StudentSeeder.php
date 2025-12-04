@@ -14,11 +14,13 @@ class StudentSeeder extends Seeder
     {
         // Get users with role siswa
         $siswaUsers = \App\Models\User::where('role', 'siswa')->get();
-        
+
+        $startNumber = 2025000001;
+
         $students = [
             [
                 'user_id' => $siswaUsers[0]->id ?? 4, // Siswa Muslim
-                'nis' => '2025001',
+                'nis' => (string)$startNumber,
                 'nisn' => '0012345678',
                 'class_id' => 1, // 1A
                 'gender' => 'L',
@@ -28,7 +30,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'user_id' => $siswaUsers[1]->id ?? 5, // Siswa Kristen
-                'nis' => '2025002',
+                'nis' => (string)($startNumber + 1),
                 'nisn' => '0012345679',
                 'class_id' => 1, // 1A
                 'gender' => 'P',
@@ -38,7 +40,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'user_id' => $siswaUsers[2]->id ?? 6, // Siswa Katolik
-                'nis' => '2025003',
+                'nis' => (string)($startNumber + 2),
                 'nisn' => '0012345680',
                 'class_id' => 2, // 1B
                 'gender' => 'L',
@@ -48,7 +50,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'user_id' => $siswaUsers[3]->id ?? 7, // Siswa Hindu
-                'nis' => '2025004',
+                'nis' => (string)($startNumber + 3),
                 'nisn' => '0012345681',
                 'class_id' => 3, // 2A
                 'gender' => 'P',
@@ -58,7 +60,7 @@ class StudentSeeder extends Seeder
             ],
             [
                 'user_id' => $siswaUsers[4]->id ?? 8, // Siswa Buddha
-                'nis' => '2025005',
+                'nis' => (string)($startNumber + 4),
                 'nisn' => '0012345682',
                 'class_id' => 3, // 2A
                 'gender' => 'L',
