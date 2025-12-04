@@ -52,6 +52,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Orangtua Routes
     Route::prefix('orangtua')->name('orangtua.')->middleware('role:orangtua')->group(function () {
         Route::get('dashboard', [OrangtuaDashboardController::class, 'index'])->name('dashboard');
+        Route::post('submissions/{submission}/approve', [OrangtuaDashboardController::class, 'approve'])->name('submissions.approve');
+        Route::post('submissions/{submission}/reject', [OrangtuaDashboardController::class, 'reject'])->name('submissions.reject');
     });
 
     // Guru Routes
@@ -67,22 +69,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('users', [AdminDashboardController::class, 'users'])->name('users');
-        
+
         // Siswa Routes
         Route::get('siswa-dashboard', [AdminDashboardController::class, 'siswaDashboard'])->name('siswa.dashboard');
         Route::get('siswa/kelas/{classId}', [AdminDashboardController::class, 'classStudents'])->name('siswa.class');
         Route::get('siswa-management', [AdminDashboardController::class, 'siswaManagement'])->name('siswa.management');
-        
+
         // Student CRUD API
         Route::post('students', [\App\Http\Controllers\Admin\StudentController::class, 'store'])->name('students.store');
         Route::put('students/{student}', [\App\Http\Controllers\Admin\StudentController::class, 'update'])->name('students.update');
         Route::delete('students/{student}', [\App\Http\Controllers\Admin\StudentController::class, 'destroy'])->name('students.destroy');
         Route::post('students/import', [\App\Http\Controllers\Admin\StudentController::class, 'import'])->name('students.import');
-        
+
         // Guru Routes
         Route::get('guru-dashboard', [AdminDashboardController::class, 'guruDashboard'])->name('guru.dashboard');
         Route::get('guru-management', [AdminDashboardController::class, 'guruManagement'])->name('guru.management');
-        
+
         // Orang Tua Routes
         Route::get('orangtua-dashboard', [AdminDashboardController::class, 'orangtuaDashboard'])->name('orangtua.dashboard');
         Route::get('orangtua/kelas/{classId}', [AdminDashboardController::class, 'classParents'])->name('orangtua.class');

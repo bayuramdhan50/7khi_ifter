@@ -12,9 +12,11 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as siswaDashboard, biodata as siswaBiodata, lagu as siswaLagu } from '@/routes/siswa';
+import { dashboard as guruDashboard } from '@/routes/guru';
+import { dashboard as orangtuaDashboard } from '@/routes/orangtua';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, User, Music, Calendar, Users, GraduationCap, UserCog } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, User, Music, Calendar, Users, GraduationCap, UserCog, ClipboardCheck } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -75,17 +77,24 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
+const guruNavItems: NavItem[] = [
+    {
+        title: 'Beranda',
+        href: guruDashboard(),
+        icon: LayoutGrid,
+    },
+];
+
+const orangtuaNavItems: NavItem[] = [
+    {
+        title: 'Beranda',
+        href: orangtuaDashboard(),
+        icon: LayoutGrid,
+    },
+];
+
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+
 ];
 
 export function AppSidebar() {
@@ -94,18 +103,29 @@ export function AppSidebar() {
 
     // Determine which nav items to show based on role
     let navItems = mainNavItems;
+    let logoHref: string | ReturnType<typeof dashboard> = dashboard();
+
     if (userRole === 'siswa') {
         navItems = siswaNavItems;
+        logoHref = siswaDashboard();
     } else if (userRole === 'admin') {
         navItems = adminNavItems;
+        logoHref = '/admin/dashboard';
+    } else if (userRole === 'guru') {
+        navItems = guruNavItems;
+        logoHref = guruDashboard();
+    } else if (userRole === 'orangtua') {
+        navItems = orangtuaNavItems;
+        logoHref = orangtuaDashboard();
     }
+
     return (
         <Sidebar collapsible="icon" variant="inset" className="bg-gradient-to-b from-blue-600 to-blue-500 border-r-0">
             <SidebarHeader className="border-b border-blue-400/30">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild className="hover:bg-blue-500/30">
-                            <Link href={dashboard()} prefetch>
+                            <Link href={logoHref} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

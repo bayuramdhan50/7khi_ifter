@@ -8,23 +8,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ActivitySubmission extends Model
 {
     protected $fillable = [
-        'activity_detail_id',
         'student_id',
-        'value',
-        'submitted_at',
-        'verified_at',
-        'verified_by',
+        'activity_id',
+        'date',
+        'time',
+        'photo',
+        'notes',
+        'status',
+        'approved_by',
+        'approved_at',
+        'rejection_reason',
     ];
 
     protected $casts = [
-        'value' => 'integer',
-        'submitted_at' => 'datetime',
-        'verified_at' => 'datetime',
+        'date' => 'date',
+        'approved_at' => 'datetime',
     ];
 
-    public function activityDetail(): BelongsTo
+    public function activity(): BelongsTo
     {
-        return $this->belongsTo(ActivityDetail::class);
+        return $this->belongsTo(Activity::class);
     }
 
     public function student(): BelongsTo
@@ -32,8 +35,8 @@ class ActivitySubmission extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function verifier(): BelongsTo
+    public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'verified_by');
+        return $this->belongsTo(ParentModel::class, 'approved_by');
     }
 }
