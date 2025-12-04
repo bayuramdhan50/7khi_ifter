@@ -68,22 +68,37 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
         
-        // Custom authentication: NIS for siswa, email for others
+        // Custom authentication: NIS for siswa, username for admin/guru/orangtua
         Fortify::authenticateUsing(function (Request $request) {
             // Check if NIS field is present (for siswa)
             if ($request->filled('nis')) {
-                $user = User::where('nis', $request->nis)
-                            ->where('role', User::ROLE_SISWA)
-                            ->first();
-            } else {
-                // For non-siswa: use email
-                $user = User::where('email', $request->email)
+                // Find student by nis from students table
+                $student = \App\Models\Student::where('nis', $request->nis)->first();
+                
+                if ($student && $student->user && $student->user->role === User::ROLE_SISWA) {
+                    $user = $student->user;
+                    if (\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                        return $user;
+                    }
+                }
+            } 
+            // Check if username field is present (for admin/guru/orangtua)
+            else if ($request->filled('username')) {
+                $user = User::where('username', $request->username)
                             ->whereIn('role', [User::ROLE_ADMIN, User::ROLE_GURU, User::ROLE_ORANGTUA])
                             ->first();
+                            
+                if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                    return $user;
+                }
             }
-
-            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-                return $user;
+            // Fallback to email if neither NIS nor username provided
+            else if ($request->filled('email')) {
+                $user = User::where('email', $request->email)->first();
+                            
+                if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                    return $user;
+                }
             }
             
             return null;

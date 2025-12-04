@@ -20,6 +20,7 @@ export default function Login({
     canRegister,
 }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const [loginType, setLoginType] = useState<'siswa' | 'staff'>('siswa');
 
     return (
         <>
@@ -53,8 +54,34 @@ export default function Login({
                                     Login to your Account
                                 </h1>
                                 <p className="text-xs sm:text-sm text-blue-600">
-                                    with your registered Email Address
+                                    {loginType === 'siswa' ? 'Login dengan NIS Anda' : 'Login dengan Username Anda'}
                                 </p>
+                            </div>
+
+                            {/* Login Type Toggle */}
+                            <div className="mb-6 flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setLoginType('siswa')}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                                        loginType === 'siswa'
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    Siswa
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setLoginType('staff')}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                                        loginType === 'staff'
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    Guru / Orang Tua
+                                </button>
                             </div>
 
                             {status && (
@@ -70,24 +97,46 @@ export default function Login({
                             >
                                 {({ processing, errors }) => (
                                     <>
-                                        {/* NIS Field */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="nis" className="text-gray-700 text-xs sm:text-sm">
-                                                NIS (Nomor Induk Siswa)*
-                                            </Label>
-                                            <Input
-                                                id="nis"
-                                                type="text"
-                                                name="nis"
-                                                required
-                                                autoFocus
-                                                tabIndex={1}
-                                                autoComplete="username"
-                                                placeholder="Masukkan NIS Anda"
-                                                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
-                                            />
-                                            <InputError message={errors.nis} />
-                                        </div>
+                                        {/* Conditional Field based on login type */}
+                                        {loginType === 'siswa' ? (
+                                            /* NIS Field for Siswa */
+                                            <div className="space-y-2">
+                                                <Label htmlFor="nis" className="text-gray-700 text-xs sm:text-sm">
+                                                    NIS (Nomor Induk Siswa)*
+                                                </Label>
+                                                <Input
+                                                    id="nis"
+                                                    type="text"
+                                                    name="nis"
+                                                    required
+                                                    autoFocus
+                                                    tabIndex={1}
+                                                    autoComplete="username"
+                                                    placeholder="Masukkan NIS Anda"
+                                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
+                                                />
+                                                <InputError message={errors.nis} />
+                                            </div>
+                                        ) : (
+                                            /* Username Field for Admin/Guru/Orangtua */
+                                            <div className="space-y-2">
+                                                <Label htmlFor="username" className="text-gray-700 text-xs sm:text-sm">
+                                                    Username*
+                                                </Label>
+                                                <Input
+                                                    id="username"
+                                                    type="text"
+                                                    name="username"
+                                                    required
+                                                    autoFocus
+                                                    tabIndex={1}
+                                                    autoComplete="username"
+                                                    placeholder="Masukkan Username Anda"
+                                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
+                                                />
+                                                <InputError message={errors.username} />
+                                            </div>
+                                        )}
 
                                         {/* Password Field */}
                                         <div className="space-y-2">

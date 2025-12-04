@@ -29,7 +29,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'nis',
+        'username',
         'role',
         'religion',
         'password',
@@ -99,5 +99,29 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->hasRole(self::ROLE_ADMIN);
+    }
+
+    /**
+     * Get the student record associated with the user.
+     */
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    /**
+     * Get the teacher record associated with the user.
+     */
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
+    }
+
+    /**
+     * Get the parent record associated with the user.
+     */
+    public function parent()
+    {
+        return $this->hasOne(ParentModel::class);
     }
 }

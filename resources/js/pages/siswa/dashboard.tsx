@@ -25,8 +25,8 @@ interface SiswaDashboardProps {
 }
 
 export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps) {
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const currentDate = new Date();
+    const currentMonth = new Date();
 
     // Determine the activity detail route based on activity title
     const getActivityDetailRoute = (activity: Activity) => {
@@ -73,16 +73,6 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
 
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
 
-    const changeMonth = (increment: number) => {
-        const newMonth = new Date(currentMonth.setMonth(currentMonth.getMonth() + increment));
-        setCurrentMonth(new Date(newMonth));
-    };
-
-    const changeYear = (increment: number) => {
-        const newYear = new Date(currentMonth.setFullYear(currentMonth.getFullYear() + increment));
-        setCurrentMonth(new Date(newYear));
-    };
-
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
     };
@@ -101,13 +91,6 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
                         <div>
                             <h1 className="text-xl sm:text-3xl font-bold text-blue-900">Jurnal Harian</h1>
                             <p className="text-sm sm:text-base text-blue-600">Welcome, {auth.user.name}</p>
-                        </div>
-                        <div className="w-full sm:w-auto flex items-center gap-4">
-                            <input
-                                type="text"
-                                placeholder="Cari Kegiatan"
-                                className="w-full sm:w-auto px-3 py-2 sm:px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 text-sm sm:text-base hover:border-blue-400 hover:bg-blue-50 transition-all duration-200"
-                            />
                         </div>
                     </div>
 
@@ -205,49 +188,23 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
                             <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:sticky lg:top-4">
                                 {/* Date Display */}
                                 <div className="mb-4 sm:mb-6">
-                                    <input
-                                        type="text"
-                                        value={formatDate(selectedDate)}
-                                        readOnly
-                                        className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-center font-medium text-gray-800 text-sm sm:text-base hover:bg-gray-100 transition-all duration-200 cursor-default"
-                                    />
+                                    <div className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-center font-medium text-gray-800 text-sm sm:text-base">
+                                        {formatDate(currentDate)}
+                                    </div>
                                 </div>
 
-                                {/* Month/Year Navigation */}
-                                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                                    <button
-                                        onClick={() => changeMonth(-1)}
-                                        className="text-blue-600 hover:text-blue-800 text-lg sm:text-xl font-bold px-2 sm:px-3 py-1 hover:bg-blue-100 rounded-full transition-all duration-200 hover:scale-110"
-                                    >
-                                        ‹
-                                    </button>
+                                {/* Month Display (Static) */}
+                                <div className="flex items-center justify-center mb-3 sm:mb-4">
                                     <span className="font-bold text-gray-800 text-sm sm:text-base">
                                         {monthNames[currentMonth.getMonth()]}
                                     </span>
-                                    <button
-                                        onClick={() => changeMonth(1)}
-                                        className="text-blue-600 hover:text-blue-800 text-lg sm:text-xl font-bold px-2 sm:px-3 py-1 hover:bg-blue-100 rounded-full transition-all duration-200 hover:scale-110"
-                                    >
-                                        ›
-                                    </button>
                                 </div>
 
-                                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                                    <button
-                                        onClick={() => changeYear(-1)}
-                                        className="text-blue-600 hover:text-blue-800 text-lg sm:text-xl font-bold px-2 sm:px-3 py-1 hover:bg-blue-100 rounded-full transition-all duration-200 hover:scale-110"
-                                    >
-                                        ‹
-                                    </button>
+                                {/* Year Display (Static) */}
+                                <div className="flex items-center justify-center mb-3 sm:mb-4">
                                     <span className="font-bold text-gray-800 text-sm sm:text-base">
                                         {currentMonth.getFullYear()}
                                     </span>
-                                    <button
-                                        onClick={() => changeYear(1)}
-                                        className="text-blue-600 hover:text-blue-800 text-lg sm:text-xl font-bold px-2 sm:px-3 py-1 hover:bg-blue-100 rounded-full transition-all duration-200 hover:scale-110"
-                                    >
-                                        ›
-                                    </button>
                                 </div>
 
                                 {/* Day Names */}
@@ -269,47 +226,27 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
                                         <div key={`empty-${index}`} className="aspect-square" />
                                     ))}
 
-                                    {/* Days of the month */}
+                                    {/* Days of the month (Static) */}
                                     {Array.from({ length: daysInMonth }).map((_, index) => {
                                         const day = index + 1;
                                         const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
                                         const isToday = date.toDateString() === new Date().toDateString();
-                                        const isSelected = date.toDateString() === selectedDate.toDateString();
 
                                         return (
-                                            <button
+                                            <div
                                                 key={day}
-                                                onClick={() => setSelectedDate(date)}
                                                 className={`
                                                     aspect-square rounded-lg flex items-center justify-center text-sm font-medium
-                                                    transition-all duration-200
-                                                    ${isSelected
-                                                        ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700 hover:scale-110'
-                                                        : isToday
-                                                            ? 'bg-blue-100 text-blue-600 hover:bg-blue-200 hover:scale-110'
-                                                            : 'hover:bg-gray-100 text-gray-700 hover:scale-110'
+                                                    ${isToday
+                                                        ? 'bg-blue-600 text-white shadow-md'
+                                                        : 'text-gray-700'
                                                     }
                                                 `}
                                             >
                                                 {day}
-                                            </button>
+                                            </div>
                                         );
                                     })}
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="mt-4 sm:mt-6 flex gap-2 sm:gap-3">
-                                    <Button
-                                        variant="outline"
-                                        className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-100 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md text-sm sm:text-base py-2"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base py-2"
-                                    >
-                                        Ok
-                                    </Button>
                                 </div>
                             </div>
                         </div>
