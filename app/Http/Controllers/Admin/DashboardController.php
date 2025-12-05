@@ -21,7 +21,7 @@ class DashboardController extends Controller
             'totalKelas' => \App\Models\ClassModel::count(),
         ];
 
-        return Inertia::render('admin/dashboard', [
+        return Inertia::render('admin/beranda/dashboard', [
             'stats' => $stats,
         ]);
     }
@@ -36,7 +36,7 @@ class DashboardController extends Controller
             ->orderBy('section')
             ->get();
 
-        return Inertia::render('admin/kelas', [
+        return Inertia::render('admin/kelas/kelas', [
             'classes' => $classes,
         ]);
     }
@@ -65,7 +65,7 @@ class DashboardController extends Controller
             'admin' => $users->where('role', User::ROLE_ADMIN)->count(),
         ];
 
-        return Inertia::render('admin/users', [
+        return Inertia::render('admin/kelolapengguna/users', [
             'users' => $users,
             'userStats' => $userStats,
         ]);
@@ -88,7 +88,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/siswa-dashboard', [
+        return Inertia::render('admin/manajemen/siswa/dashboard/siswa-dashboard', [
             'classes' => $classes,
         ]);
     }
@@ -131,7 +131,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/class-students', [
+        return Inertia::render('admin/kelas/student/class-students', [
             'className' => $className,
             'classId' => $classId,
             'classDbId' => $class->id, // Add database ID for API calls
@@ -156,7 +156,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/siswa-management', [
+        return Inertia::render('admin/manajemen/siswa/management/siswa-management', [
             'siswa' => $siswa,
             'totalSiswa' => $siswa->count(),
         ]);
@@ -199,7 +199,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/guru-dashboard', [
+        return Inertia::render('admin/manajemen/guru/dashboard/guru-dashboard', [
             'teachers' => $teachers,
             'allClasses' => $allClasses,
         ]);
@@ -222,7 +222,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/guru-management', [
+        return Inertia::render('admin/manajemen/guru/management/guru-management', [
             'guru' => $guru,
             'totalGuru' => $guru->count(),
         ]);
@@ -253,7 +253,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/orangtua-dashboard', [
+        return Inertia::render('admin/manajemen/orangtua/dashboard/orangtua-dashboard', [
             'classes' => $classes,
         ]);
     }
@@ -298,7 +298,7 @@ class DashboardController extends Controller
             }
         }
 
-        return Inertia::render('admin/class-parents', [
+        return Inertia::render('admin/kelas/parent/class-parents', [
             'className' => $className,
             'classId' => $classId,
             'parents' => $parentsCollection->values(),
@@ -322,7 +322,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/orangtua-management', [
+        return Inertia::render('admin/manajemen/orangtua/management/orangtua-management', [
             'orangtua' => $orangtua,
             'totalOrangTua' => $orangtua->count(),
         ]);
