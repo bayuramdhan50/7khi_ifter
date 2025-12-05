@@ -12,17 +12,21 @@ class ClassSeeder extends Seeder
      */
     public function run(): void
     {
-        $classes = [
-            ['name' => '7A', 'grade' => 7, 'section' => 'A', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '7B', 'grade' => 7, 'section' => 'B', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '7C', 'grade' => 7, 'section' => 'C', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '8A', 'grade' => 8, 'section' => 'A', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '8B', 'grade' => 8, 'section' => 'B', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '8C', 'grade' => 8, 'section' => 'C', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '9A', 'grade' => 9, 'section' => 'A', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '9B', 'grade' => 9, 'section' => 'B', 'academic_year' => '2025/2026', 'teacher_id' => null],
-            ['name' => '9C', 'grade' => 9, 'section' => 'C', 'academic_year' => '2025/2026', 'teacher_id' => null],
-        ];
+        $classes = [];
+        $grades = [7, 8, 9];
+        $sections = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+        foreach ($grades as $grade) {
+            foreach ($sections as $section) {
+                $classes[] = [
+                    'name' => $grade . $section,
+                    'grade' => $grade,
+                    'section' => $section,
+                    'academic_year' => '2025/2026',
+                    'teacher_id' => null
+                ];
+            }
+        }
 
         foreach ($classes as $class) {
             \App\Models\ClassModel::create($class);
