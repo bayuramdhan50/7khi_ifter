@@ -106,8 +106,38 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
         return months[date.getMonth()];
     };
 
+    const getMonthNameShort = (date: Date) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        return months[date.getMonth()];
+    };
+
+    // Get calendar grid with proper day of week alignment
+    const getCalendarDays = (date: Date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        const calendarDays: (number | null)[] = [];
+        
+        // Add empty slots for days before the first day of month
+        for (let i = 0; i < startingDayOfWeek; i++) {
+            calendarDays.push(null);
+        }
+        
+        // Add actual days
+        for (let day = 1; day <= daysInMonth; day++) {
+            calendarDays.push(day);
+        }
+        
+        return calendarDays;
+    };
+
     const daysInMonth = getDaysInMonth(selectedDate);
     const monthName = getMonthName(selectedDate);
+    const calendarDays = getCalendarDays(selectedDate);
 
     // Generate array of days in the month
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -152,31 +182,39 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
                         <div className="lg:col-span-1">
                             <Card className="shadow-lg border-2 border-gray-800 bg-white">
                                 <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="text-xl">BULAN:</CardTitle>
-                                        <input 
-                                            type="date" 
-                                            value={selectedDate.toISOString().split('T')[0]}
-                                            onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                                            className="px-3 py-1 rounded bg-white text-gray-800 text-sm"
-                                        />
-                                    </div>
+                                    <CardTitle className="text-xl text-center">BULAN:</CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-6 bg-white">
-                                    <div className="mb-4">
-                                        <h3 className="text-2xl font-bold text-center text-blue-700 mb-4">
-                                            Bangun Pagi
+                                    <div className="mb-6">
+                                        <h3 className="text-xl font-bold text-center text-gray-700 mb-2">
+                                            {getMonthNameShort(selectedDate)}
                                         </h3>
-                                        <div className="grid grid-cols-10 gap-2 mb-4">
-                                            {days.map((day) => (
+                                        <h4 className="text-lg font-semibold text-center text-gray-700 mb-4">
+                                            {selectedDate.getFullYear()}
+                                        </h4>
+                                        
+                                        {/* Day headers */}
+                                        <div className="grid grid-cols-7 gap-1 mb-2">
+                                            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((dayName, idx) => (
+                                                <div key={idx} className="text-center text-xs font-semibold text-gray-600 py-1">
+                                                    {dayName}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        {/* Calendar grid */}
+                                        <div className="grid grid-cols-7 gap-1 mb-4">
+                                            {calendarDays.map((day, idx) => (
                                                 <div
-                                                    key={day}
-                                                    className={`aspect-square rounded-full flex items-center justify-center text-sm font-semibold ${
-                                                        day === currentDate.getDate() &&
-                                                        selectedDate.getMonth() === currentDate.getMonth() &&
-                                                        selectedDate.getFullYear() === currentDate.getFullYear()
-                                                            ? 'bg-red-500 text-white'
-                                                            : 'bg-gray-200 text-gray-700'
+                                                    key={idx}
+                                                    className={`aspect-square rounded-full flex items-center justify-center text-sm font-medium ${
+                                                        day === null
+                                                            ? ''
+                                                            : day === currentDate.getDate() &&
+                                                              selectedDate.getMonth() === currentDate.getMonth() &&
+                                                              selectedDate.getFullYear() === currentDate.getFullYear()
+                                                            ? 'bg-blue-500 text-white font-bold'
+                                                            : 'text-blue-600 hover:bg-blue-50'
                                                     }`}
                                                 >
                                                     {day}
@@ -251,13 +289,13 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
                                                             <button
                                                                 key={i}
                                                                 onClick={() => toggleDay(activity.id, day)}
-                                                                className={`aspect-square rounded-md flex items-center justify-center text-xs transition-all hover:scale-110 border-2 ${
+                                                                className={`aspect-square rounded-md flex items-center justify-center text-xs font-medium transition-all hover:scale-110 border-2 ${
                                                                     isChecked
                                                                         ? 'bg-blue-500 text-white shadow-md border-blue-600' 
-                                                                        : 'bg-white hover:bg-gray-50 border-gray-300'
+                                                                        : 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700'
                                                                 }`}
                                                             >
-                                                                {isChecked && <Check className="w-3 h-3" strokeWidth={3} />}
+                                                                {isChecked ? <Check className="w-3 h-3" strokeWidth={3} /> : day}
                                                             </button>
                                                         );
                                                     })}
