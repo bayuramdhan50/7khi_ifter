@@ -245,21 +245,6 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
                                     </div>
                                 </CardContent>
                             </Card>
-
-                            {/* Calendar */}
-                            <Card className="shadow-lg mt-6">
-                                <CardContent className="p-4">
-                                    <img 
-                                        src="/images/calendar-2025.png" 
-                                        alt="Kalender 2025" 
-                                        className="w-full rounded"
-                                        onError={(e) => {
-                                            // Fallback if image doesn't exist
-                                            e.currentTarget.style.display = 'none';
-                                        }}
-                                    />
-                                </CardContent>
-                            </Card>
                         </div>
 
                         {/* Right Column - Activity Cards */}
