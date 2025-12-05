@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\ClassModel;
+use App\Models\Student;
+use App\Models\ActivitySubmission;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,21 +17,55 @@ class DashboardController extends Controller
      */
     public function index(): Response
     {
-        // Get all students
-        $students = User::where('role', User::ROLE_SISWA)
-            ->select('id', 'name', 'email')
-            ->get()
-            ->map(function ($student) {
-                return [
-                    'id' => $student->id,
-                    'name' => strtoupper($student->name),
-                    'religion' => 'ISLAM', // TODO: Add religion field to users table
-                    'gender' => 'L', // TODO: Add gender field to users table
-                ];
-            });
+        $currentUser = auth()->user();
+        
+        // Get classes taught by this teacher
+        $teacherClasses = ClassModel::where('teacher_id', $currentUser->id)
+            ->with(['students.user', 'students.biodata'])
+            ->get();
+
+        // Collect all students from teacher's classes
+        $students = [];
+        $studentJournals = [];
+
+        foreach ($teacherClasses as $class) {
+            foreach ($class->students as $student) {
+                $studentUser = $student->user;
+                if ($studentUser) {
+                    $studentData = [
+                        'id' => $studentUser->id,
+                        'name' => strtoupper($studentUser->name),
+                        'class' => $class->name,
+                        'religion' => $student->religion ?? 'ISLAM',
+                        'gender' => $student->gender ?? 'L',
+                    ];
+                    
+                    $students[] = $studentData;
+
+                    // Get recent activity submissions for this student
+                    $submissions = ActivitySubmission::where('student_id', $student->id)
+                        ->with('activity')
+                        ->orderBy('date', 'desc')
+                        ->limit(5)
+                        ->get()
+                        ->map(function ($submission) {
+                            return [
+                                'id' => $submission->id,
+                                'activity' => $submission->activity->title ?? 'Activity',
+                                'date' => $submission->date->format('d/m/Y'),
+                                'status' => $submission->status,
+                                'notes' => $submission->notes,
+                            ];
+                        });
+
+                    $studentJournals[$studentUser->id] = $submissions;
+                }
+            }
+        }
 
         return Inertia::render('guru/dashboard', [
             'students' => $students,
+            'studentJournals' => $studentJournals,
         ]);
     }
 

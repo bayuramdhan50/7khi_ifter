@@ -15,15 +15,19 @@ class ClassSeeder extends Seeder
         $classes = [];
         $grades = [7, 8, 9];
         $sections = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        $teacherId = 2; // Teacher with ID 2 (Guru Test from database)
 
         foreach ($grades as $grade) {
             foreach ($sections as $section) {
+                // Assign teacher only to 7A class
+                $assignedTeacherId = ($grade === 7 && $section === 'A') ? $teacherId : null;
+                
                 $classes[] = [
                     'name' => $grade . $section,
                     'grade' => $grade,
                     'section' => $section,
                     'academic_year' => '2025/2026',
-                    'teacher_id' => null
+                    'teacher_id' => $assignedTeacherId
                 ];
             }
         }
