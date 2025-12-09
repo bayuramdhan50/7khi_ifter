@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { dashboard } from '@/routes/siswa';
 import { show as showActivity } from '@/routes/siswa/activity';
 
@@ -10,6 +10,25 @@ interface Activity {
     title: string;
     icon: string;
     color: string;
+}
+
+interface ActivityDetail {
+    label: string;
+    is_checked: boolean;
+    value: string | null;
+}
+
+interface Submission {
+    id: number;
+    date: string;
+    time: string;
+    photo: string | null;
+    status: string;
+    approved_by: number | null;
+    approved_at: string | null;
+    details: {
+        [key: string]: ActivityDetail;
+    };
 }
 
 interface BeribadahMuslimHistoryProps {
@@ -21,22 +40,67 @@ interface BeribadahMuslimHistoryProps {
         };
     };
     activity: Activity;
+    submissions: Submission[];
 }
 
-export default function BeribadahMuslimHistory({ auth, activity }: BeribadahMuslimHistoryProps) {
+export default function BeribadahMuslimHistory({ auth, activity, submissions }: BeribadahMuslimHistoryProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
+    const [showPhotoModal, setShowPhotoModal] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
     
-    // Mock data untuk checkbox yang sudah diceklis (nanti diganti dengan data dari backend)
-    const getCheckedActivities = (day: number) => ({
-        mengaji: day % 2 === 0,
-        berdoa: true,
-        bersedekah: day % 3 === 0,
-        lainnya: day % 5 === 0
-    });
+    // Create a map of submissions by date for quick lookup
+    const submissionsByDate = useMemo(() => {
+        const map: { [key: string]: Submission } = {};
+        submissions.forEach(submission => {
+            map[submission.date] = submission;
+        });
+        return map;
+    }, [submissions]);
+
+    // Get submission for a specific day
+    const getSubmissionForDay = (day: number) => {
+        const year = currentMonth.getFullYear();
+        const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
+        const dayStr = String(day).padStart(2, '0');
+        const dateKey = `${year}-${month}-${dayStr}`;
+        return submissionsByDate[dateKey];
+    };
+
+    // Get checked activities for a specific day from real submission data
+    const getCheckedActivities = (day: number) => {
+        const submission = getSubmissionForDay(day);
+        if (!submission) {
+            return {
+                mengaji: false,
+                berdoa: false,
+                bersedekah: false,
+                lainnya: false
+            };
+        }
+
+        return {
+            mengaji: submission.details.mengaji?.is_checked || false,
+            berdoa: submission.details.berdoa?.is_checked || false,
+            bersedekah: submission.details.bersedekah?.is_checked || false,
+            lainnya: submission.details.lainnya?.is_checked || false
+        };
+    };
+
+    // Get prayer status for a specific day
+    const getPrayerStatus = (day: number, prayerName: string) => {
+        const submission = getSubmissionForDay(day);
+        if (!submission) return false;
+        return submission.details[prayerName.toLowerCase()]?.is_checked || false;
+    };
+
+    const handlePhotoClick = (photo: string) => {
+        setSelectedPhoto(photo);
+        setShowPhotoModal(true);
+    };
 
     const monthNames = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
@@ -71,16 +135,14 @@ export default function BeribadahMuslimHistory({ auth, activity }: BeribadahMusl
                         <div className="w-full lg:w-80 flex-shrink-0">
                             {/* Activity Card */}
                             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 sm:border-4 border-blue-900 overflow-hidden mb-4 sm:mb-6 relative">
-                                <div className="absolute top-2 right-2 w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md z-10">
+                                {/* <div className="absolute top-2 right-2 w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md z-10">
                                     <span className="text-white font-bold text-base sm:text-lg">{activity.id}</span>
-                                </div>
+                                </div> */}
                                 <div className={`${activity.color} p-4 sm:p-8 flex items-center justify-center`}>
                                     <div className="bg-blue-200 rounded-xl sm:rounded-2xl p-3 sm:p-6 w-full">
-                                        <img
-                                            src="/api/placeholder/200/150"
-                                            alt={activity.title}
-                                            className="w-full h-auto rounded-lg"
-                                        />
+                                        <div className="w-full h-32 sm:h-40 bg-white rounded-lg flex items-center justify-center text-gray-400">
+                                            <span className="text-3xl sm:text-5xl">🕌</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="p-3 sm:p-4 text-center">
@@ -164,55 +226,74 @@ export default function BeribadahMuslimHistory({ auth, activity }: BeribadahMusl
                                         <div className="p-4 space-y-3">
                                             {/* Sholat Checkboxes */}
                                             <div className="grid grid-cols-5 gap-2">
-                                                {['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'].map((prayer) => (
-                                                    <div key={prayer} className="flex flex-col items-center gap-1 p-2 bg-blue-50 rounded-lg">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="w-5 h-5 rounded border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                                                        />
-                                                        <span className="text-xs font-medium text-gray-700">{prayer}</span>
-                                                    </div>
-                                                ))}
+                                                {['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'].map((prayer) => {
+                                                    const isChecked = getPrayerStatus(day, prayer);
+                                                    return (
+                                                        <div key={prayer} className="flex flex-col items-center gap-1 p-2 bg-blue-50 rounded-lg">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isChecked}
+                                                                readOnly
+                                                                className="w-5 h-5 rounded border-2 border-gray-300 text-blue-600 pointer-events-none"
+                                                            />
+                                                            <span className="text-xs font-medium text-gray-700">{prayer}</span>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
 
                                             {/* Approval Orang Tua */}
-                                            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
+                                            {(() => {
+                                                const submission = getSubmissionForDay(day);
+                                                const isApproved = submission?.status === 'approved';
+                                                return (
+                                                    <div className={`flex items-center justify-between p-3 rounded-lg ${isApproved ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isApproved ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                                                                <svg className={`w-5 h-5 ${isApproved ? 'text-green-600' : 'text-yellow-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-xs text-gray-500">Approval Orang Tua</div>
+                                                                <div className={`text-sm font-semibold ${isApproved ? 'text-green-700' : 'text-yellow-700'}`}>
+                                                                    {isApproved ? 'Disetujui' : 'Pending'}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className={`${isApproved ? 'bg-green-500' : 'bg-gray-300'} w-12 h-7 rounded-full flex items-center px-1 shadow-inner`}>
+                                                            <div className={`bg-white w-5 h-5 rounded-full shadow-md ${isApproved ? 'ml-auto' : ''}`}></div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Approval Orang Tua</div>
-                                                        <div className="text-sm font-semibold text-green-700">Disetujui</div>
-                                                    </div>
-                                                </div>
-                                                <div className="bg-green-500 w-12 h-7 rounded-full flex items-center px-1 shadow-inner">
-                                                    <div className="bg-white w-5 h-5 rounded-full shadow-md ml-auto"></div>
-                                                </div>
-                                            </div>
+                                                );
+                                            })()}
 
                                             {/* Bukti Foto */}
-                                            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
+                                            {(() => {
+                                                const submission = getSubmissionForDay(day);
+                                                const hasPhoto = !!submission?.photo;
+                                                return hasPhoto ? (
+                                                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-xs text-gray-500">Bukti Foto</div>
+                                                                <div className="text-sm font-semibold text-gray-700">Foto Tersedia</div>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handlePhotoClick(submission.photo!)}
+                                                            className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-purple-600 transition-colors"
+                                                        >
+                                                            Lihat
+                                                        </button>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Bukti Foto</div>
-                                                        <div className="text-sm font-semibold text-gray-700">Upload Foto</div>
-                                                    </div>
-                                                </div>
-                                                <label className="cursor-pointer">
-                                                    <input type="file" accept="image/*" className="hidden" />
-                                                    <div className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-purple-600 transition-colors">
-                                                        Pilih
-                                                    </div>
-                                                </label>
-                                            </div>
+                                                ) : null;
+                                            })()}
                                         </div>
                                     </div>
                                 ))}
@@ -248,38 +329,63 @@ export default function BeribadahMuslimHistory({ auth, activity }: BeribadahMusl
                                                     </td>
 
                                                     {/* Sholat columns */}
-                                                    {['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya'].map((prayer) => (
-                                                        <td key={prayer} className="py-4 px-2">
-                                                            <div className="flex justify-center items-center">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    className="w-6 h-6 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-blue-600 cursor-pointer"
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                    ))}
+                                                    {['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya'].map((prayer) => {
+                                                        const isChecked = getPrayerStatus(day, prayer);
+                                                        return (
+                                                            <td key={prayer} className="py-4 px-2">
+                                                                <div className="flex justify-center items-center">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={isChecked}
+                                                                        readOnly
+                                                                        className="w-6 h-6 border-2 border-gray-300 rounded text-blue-600 pointer-events-none"
+                                                                    />
+                                                                </div>
+                                                            </td>
+                                                        );
+                                                    })}
 
                                                     {/* Approval Orang Tua */}
                                                     <td className="py-4 px-4">
-                                                        <div className="flex justify-center">
-                                                            <div className="bg-green-500 w-14 h-8 rounded-full flex items-center px-1 shadow-md">
-                                                                <div className="bg-white w-6 h-6 rounded-full shadow-md ml-auto"></div>
-                                                            </div>
-                                                        </div>
+                                                        {(() => {
+                                                            const submission = getSubmissionForDay(day);
+                                                            const isApproved = submission?.status === 'approved';
+                                                            return (
+                                                                <div className="flex justify-center">
+                                                                    <div className={`${isApproved ? 'bg-green-500' : 'bg-gray-300'} w-14 h-8 rounded-full flex items-center px-1 shadow-md`}>
+                                                                        <div className={`bg-white w-6 h-6 rounded-full shadow-md ${isApproved ? 'ml-auto' : ''}`}></div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })()}
                                                     </td>
 
                                                     {/* Bukti Foto */}
                                                     <td className="py-4 px-4">
-                                                        <div className="flex justify-center">
-                                                            <label className="cursor-pointer">
-                                                                <input type="file" accept="image/*" className="hidden" />
-                                                                <div className="w-14 h-14 bg-purple-100 border-2 border-purple-300 rounded-xl flex items-center justify-center hover:bg-purple-200 transition-all shadow-md hover:shadow-lg group">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-purple-600 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                                    </svg>
+                                                        {(() => {
+                                                            const submission = getSubmissionForDay(day);
+                                                            const hasPhoto = !!submission?.photo;
+                                                            return (
+                                                                <div className="flex justify-center">
+                                                                    {hasPhoto ? (
+                                                                        <button
+                                                                            onClick={() => handlePhotoClick(submission.photo!)}
+                                                                            className="w-14 h-14 bg-purple-100 border-2 border-purple-300 rounded-xl flex items-center justify-center hover:bg-purple-200 transition-all shadow-md hover:shadow-lg group"
+                                                                        >
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-purple-600 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                            </svg>
+                                                                        </button>
+                                                                    ) : (
+                                                                        <div className="w-14 h-14 bg-gray-100 border-2 border-gray-300 rounded-xl flex items-center justify-center">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                                            </svg>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                            </label>
-                                                        </div>
+                                                            );
+                                                        })()}
                                                     </td>
 
                                                     {/* Detail Button */}
@@ -304,75 +410,60 @@ export default function BeribadahMuslimHistory({ auth, activity }: BeribadahMusl
                             </div>
 
                             {/* Pagination */}
-                            <div className="mt-4">
-                                <div className="bg-white rounded-xl shadow-lg p-4 md:p-5">
-                                    <div className="flex flex-col items-center gap-3">
-                                        {/* Page Numbers */}
-                                        <div className="flex gap-2 flex-wrap justify-center">
-                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                                <button 
-                                                    key={page} 
-                                                    onClick={() => setCurrentPage(page)} 
-                                                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full font-bold text-sm md:text-base transition-all shadow-md ${
-                                                        currentPage === page 
-                                                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white scale-110 shadow-lg' 
-                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                                                    }`}
-                                                >
-                                                    {page}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        
-                                        {/* Navigation Arrows */}
-                                        <div className="flex items-center gap-3">
-                                            <button 
-                                                onClick={() => setCurrentPage(1)} 
-                                                disabled={currentPage === 1} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Halaman Pertama"
+                            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-6 gap-3">
+                                <div className="text-xs sm:text-sm text-gray-600">
+                                    Showing {startIndex + 1} to {Math.min(endIndex, allDays.length)} of {allDays.length} entries
+                                </div>
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                    <button
+                                        onClick={() => setCurrentPage(1)}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        «
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        ‹
+                                    </button>
+
+                                    <div className="flex gap-1">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentPage(page)}
+                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                    currentPage === page
+                                                        ? 'bg-blue-500 text-white'
+                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                }`}
                                             >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                                                </svg>
+                                                {page}
                                             </button>
-                                            <button 
-                                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
-                                                disabled={currentPage === 1} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Sebelumnya"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                                </svg>
-                                            </button>
-                                            
-                                            <span className="text-sm md:text-base font-semibold text-gray-700 px-3">
-                                                Halaman {currentPage} dari {totalPages}
-                                            </span>
-                                            
-                                            <button 
-                                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
-                                                disabled={currentPage === totalPages} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Selanjutnya"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </button>
-                                            <button 
-                                                onClick={() => setCurrentPage(totalPages)} 
-                                                disabled={currentPage === totalPages} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Halaman Terakhir"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
+                                        ))}
                                     </div>
+
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        ›
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentPage(totalPages)}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        »
+                                    </button>
+
+                                    <span className="text-sm text-gray-600 ml-2">
+                                        Halaman {currentPage} dari {totalPages}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -389,7 +480,12 @@ export default function BeribadahMuslimHistory({ auth, activity }: BeribadahMusl
                                     ))}
                                 </div>
                                 <div className="mt-4">
-                                    <img src="/api/placeholder/300/300" alt="Calendar 2025" className="w-full rounded-lg" />
+                                    <div className="w-full aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                                        <div className="text-center">
+                                            <div className="text-6xl mb-2">📅</div>
+                                            <div className="text-2xl font-bold text-blue-900">2025</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -464,6 +560,35 @@ export default function BeribadahMuslimHistory({ auth, activity }: BeribadahMusl
                             >
                                 Tutup
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Photo Modal */}
+            {showPhotoModal && selectedPhoto && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowPhotoModal(false)}>
+                    <div className="bg-white rounded-lg max-w-3xl max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-4 border-b flex justify-between items-center">
+                            <h3 className="text-lg font-bold">Bukti Foto</h3>
+                            <button
+                                onClick={() => setShowPhotoModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <img
+                                src={`/storage/${selectedPhoto}`}
+                                alt="Bukti Foto"
+                                className="w-full h-auto rounded-lg"
+                                onError={(e) => {
+                                    e.currentTarget.src = '/api/placeholder/400/300';
+                                }}
+                            />
                         </div>
                     </div>
                 </div>

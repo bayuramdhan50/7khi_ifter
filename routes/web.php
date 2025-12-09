@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Activity submission routes
         Route::post('activities/bangun-pagi/submit', [SiswaDashboardController::class, 'submitBangunPagi'])->name('activities.bangun-pagi.submit');
+        Route::post('activities/submit', [SiswaDashboardController::class, 'submitActivity'])->name('activities.submit');
     });
 
     // Orangtua Routes

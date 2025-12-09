@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import { dashboard } from '@/routes/siswa';
 import { show as showActivity } from '@/routes/siswa/activity';
 
@@ -11,6 +10,23 @@ interface Activity {
     title: string;
     icon: string;
     color: string;
+}
+
+interface SubmissionDetails {
+    [key: string]: {
+        label: string;
+        is_checked: boolean;
+        value: string | null;
+    };
+}
+
+interface TodaySubmission {
+    id: number;
+    date: string;
+    time: string;
+    photo: string | null;
+    status: string;
+    details: SubmissionDetails;
 }
 
 interface BeribadahNonmuslimDetailProps {
@@ -24,11 +40,18 @@ interface BeribadahNonmuslimDetailProps {
     activity: Activity;
     nextActivity?: Activity | null;
     previousActivity?: Activity | null;
+    photoCountThisMonth: number;
+    photoUploadedToday: boolean;
+    todaySubmission: TodaySubmission | null;
+    currentDate: string;
 }
 
-export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity, previousActivity }: BeribadahNonmuslimDetailProps) {
-    const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(1);
+export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: BeribadahNonmuslimDetailProps) {
+    // Parse server date to get current date info
+    const serverDate = new Date(currentDate);
+    const [currentMonth] = useState(serverDate); // No setter, read-only
+    const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
+    
     const [worshipActivities, setWorshipActivities] = useState({
         doaPagi: false,
         bacaFirman: false,
@@ -38,6 +61,20 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
     });
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
+    const [isSubmittingPhoto, setIsSubmittingPhoto] = useState(false);
+
+    // Load existing data when component mounts or todaySubmission changes
+    useEffect(() => {
+        if (todaySubmission?.details) {
+            setWorshipActivities({
+                doaPagi: todaySubmission.details.doa_pagi?.is_checked || false,
+                bacaFirman: todaySubmission.details.baca_firman?.is_checked || false,
+                renungan: todaySubmission.details.renungan?.is_checked || false,
+                doaMalam: todaySubmission.details.doa_malam?.is_checked || false,
+                ibadahBersama: todaySubmission.details.ibadah_bersama?.is_checked || false
+            });
+        }
+    }, [todaySubmission]);
 
     const monthNames = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
@@ -68,14 +105,74 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
         }
     };
 
-    const handleWorshipSubmit = (worshipKey: string) => {
+    const handlePhotoSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!image) {
+            alert('Mohon pilih foto terlebih dahulu');
+            return;
+        }
+
+        setIsSubmittingPhoto(true);
+
+        // Use current date from server
+        const dateString = currentDate;
+
+        const formData = new FormData();
+        formData.append('activity_id', activity.id.toString());
+        formData.append('date', dateString);
+        formData.append('doa_pagi', worshipActivities.doaPagi ? '1' : '0');
+        formData.append('baca_firman', worshipActivities.bacaFirman ? '1' : '0');
+        formData.append('renungan', worshipActivities.renungan ? '1' : '0');
+        formData.append('doa_malam', worshipActivities.doaMalam ? '1' : '0');
+        formData.append('ibadah_bersama', worshipActivities.ibadahBersama ? '1' : '0');
+        formData.append('photo', image);
+
+        router.post('/siswa/activities/submit', formData, {
+            preserveScroll: true,
+            onSuccess: () => {
+                alert('Foto berhasil diupload!');
+                setIsSubmittingPhoto(false);
+            },
+            onError: (errors: any) => {
+                console.error('Gagal mengupload foto:', errors);
+                alert('Gagal mengupload foto. Silakan coba lagi.');
+                setIsSubmittingPhoto(false);
+            }
+        });
+    };
+
+    const handleWorshipSubmit = (worshipKey: string, isChecked: boolean) => {
         setWorshipActivities(prev => ({
             ...prev,
-            [worshipKey]: true
+            [worshipKey]: isChecked
         }));
-        console.log(`Submit ${worshipKey}`, {
-            tanggal: selectedDate,
-            [worshipKey]: true
+
+        // Auto-submit ketika checkbox berubah
+        const year = currentMonth.getFullYear();
+        const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
+
+        const formData = new FormData();
+        formData.append('activity_id', activity.id.toString());
+        formData.append('date', dateString);
+        formData.append('doa_pagi', worshipKey === 'doaPagi' ? (isChecked ? '1' : '0') : (worshipActivities.doaPagi ? '1' : '0'));
+        formData.append('baca_firman', worshipKey === 'bacaFirman' ? (isChecked ? '1' : '0') : (worshipActivities.bacaFirman ? '1' : '0'));
+        formData.append('renungan', worshipKey === 'renungan' ? (isChecked ? '1' : '0') : (worshipActivities.renungan ? '1' : '0'));
+        formData.append('doa_malam', worshipKey === 'doaMalam' ? (isChecked ? '1' : '0') : (worshipActivities.doaMalam ? '1' : '0'));
+        formData.append('ibadah_bersama', worshipKey === 'ibadahBersama' ? (isChecked ? '1' : '0') : (worshipActivities.ibadahBersama ? '1' : '0'));
+
+        if (image) {
+            formData.append('photo', image);
+        }
+
+        router.post('/siswa/activities/submit', formData, {
+            preserveScroll: true,
+            preserveState: true,
+            onError: (errors: any) => {
+                console.error('Gagal menyimpan:', errors);
+            }
         });
     };
 
@@ -83,8 +180,15 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
         <AppLayout>
             <Head title={`Kebiasaan ${activity.id}: ${activity.title.toUpperCase()}`} />
 
-            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-4 sm:py-8">
-                <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
+            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-8">
+                {/* Test Mode Banner */}
+                {isTestMode && (
+                    <div className="bg-yellow-500 text-black px-4 py-2 text-center font-semibold mb-4">
+                        🧪 TEST MODE: Simulasi tanggal {testDate}
+                    </div>
+                )}
+                
+                <div className="container mx-auto px-4 max-w-4xl">
                     {/* Header with Navigation */}
                     <div className="flex flex-row sm:flex-row items-center justify-center sm:justify-between gap-3 mb-8 flex-wrap">
                         <Link
@@ -119,27 +223,11 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                         )}
                     </div>
 
-                    {/* Month Navigation */}
-                    <div className="flex items-center justify-center gap-8 mb-8">
-                        <button
-                            onClick={() => changeMonth('prev')}
-                            className="text-gray-700 hover:text-gray-900"
-                        >
-                            <ChevronLeft className="w-8 h-8" />
-                        </button>
-
-                        <div className="text-center">
-                            <h2 className="text-3xl font-bold text-blue-900">
-                                Bulan : {monthNames[currentMonth.getMonth()]}
-                            </h2>
-                        </div>
-
-                        <button
-                            onClick={() => changeMonth('next')}
-                            className="text-gray-700 hover:text-gray-900"
-                        >
-                            <ChevronRight className="w-8 h-8" />
-                        </button>
+                    {/* Current Month Display (Read-only) */}
+                    <div className="text-center mb-6">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">
+                            Bulan : {monthNames[currentMonth.getMonth()]}
+                        </h2>
                     </div>
 
                     {/* Main Content Card */}
@@ -158,11 +246,9 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                 <div className="bg-white rounded-3xl shadow-lg border-4 border-blue-900 overflow-hidden w-64">
                                     <div className={`${activity.color} p-8 flex items-center justify-center`}>
                                         <div className="bg-blue-200 rounded-2xl p-6 w-full">
-                                            <img
-                                                src="/api/placeholder/200/150"
-                                                alt={activity.title}
-                                                className="w-full h-auto rounded-lg"
-                                            />
+                                            <div className="w-full h-32 bg-white rounded-lg flex items-center justify-center text-gray-400">
+                                                <span className="text-5xl">✝️</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="p-4 text-center">
@@ -178,15 +264,8 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 justify-center sm:justify-start">
                                 <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-center sm:text-left">TANGGAL</label>
                                 <div className="flex items-center gap-2 justify-center sm:justify-start">
-                                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
-                                        <input
-                                            // type="number"
-                                            // min="1"
-                                            // max="31"
-                                            value={selectedDate}
-                                            onChange={(e) => setSelectedDate(Number(e.target.value))}
-                                            className="w-12 h-12 text-center text-2xl font-bold text-gray-900 bg-transparent border-none focus:outline-none"
-                                        />
+                                    <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-gray-400">
+                                        <span className="text-2xl font-bold text-gray-700">{selectedDate}</span>
                                     </div>
                                 </div>
                             </div>
@@ -200,20 +279,13 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                             <input
                                                 type="checkbox"
                                                 checked={worshipActivities[worship.key as keyof typeof worshipActivities]}
-                                                onChange={(e) => setWorshipActivities(prev => ({ ...prev, [worship.key]: e.target.checked }))}
+                                                onChange={(e) => handleWorshipSubmit(worship.key, e.target.checked)}
                                                 className="w-6 h-6 rounded border-2 border-gray-300 text-blue-500 hover:border-blue-400 transition-all duration-200 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                             />
                                             <span className="text-gray-600 text-sm sm:text-base">
                                                 {worshipActivities[worship.key as keyof typeof worshipActivities] ? 'Sudah dikerjakan' : 'Belum dikerjakan'}
                                             </span>
                                         </div>
-                                        {/* <Button
-                                            type="button"
-                                            onClick={() => handleWorshipSubmit(worship.key)}
-                                            className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base"
-                                        >
-                                            Submit
-                                        </Button> */}
                                     </div>
                                 </div>
                             ))}

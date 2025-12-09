@@ -123,16 +123,14 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                         <div className="w-full lg:w-80 flex-shrink-0">
                             {/* Activity Card */}
                             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 sm:border-4 border-blue-900 overflow-hidden mb-4 sm:mb-6 relative">
-                                <div className="absolute top-2 right-2 w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md z-10">
+                                {/* <div className="absolute top-2 right-2 w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md z-10">
                                     <span className="text-white font-bold text-base sm:text-lg">{activity.id}</span>
-                                </div>
+                                </div> */}
                                 <div className={`${activity.color} p-4 sm:p-8 flex items-center justify-center`}>
                                     <div className="bg-blue-200 rounded-xl sm:rounded-2xl p-3 sm:p-6 w-full">
-                                        <img
-                                            src="/api/placeholder/200/150"
-                                            alt={activity.title}
-                                            className="w-full h-auto rounded-lg"
-                                        />
+                                        <div className="w-full h-32 sm:h-40 bg-white rounded-lg flex items-center justify-center text-gray-400">
+                                            <span className="text-3xl sm:text-5xl">☀️</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="p-3 sm:p-4 text-center">
@@ -383,75 +381,60 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                             </div>
 
                             {/* Pagination */}
-                            <div className="mt-4">
-                                <div className="bg-white rounded-xl shadow-lg p-4 md:p-5">
-                                    <div className="flex flex-col items-center gap-3">
-                                        {/* Page Numbers */}
-                                        <div className="flex gap-2 flex-wrap justify-center">
-                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                                <button 
-                                                    key={page} 
-                                                    onClick={() => setCurrentPage(page)} 
-                                                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full font-bold text-sm md:text-base transition-all shadow-md ${
-                                                        currentPage === page 
-                                                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white scale-110 shadow-lg' 
-                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                                                    }`}
-                                                >
-                                                    {page}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        
-                                        {/* Navigation Arrows */}
-                                        <div className="flex items-center gap-3">
-                                            <button 
-                                                onClick={() => setCurrentPage(1)} 
-                                                disabled={currentPage === 1} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Halaman Pertama"
+                            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-6 gap-3">
+                                <div className="text-xs sm:text-sm text-gray-600">
+                                    Showing {startIndex + 1} to {Math.min(endIndex, allDays.length)} of {allDays.length} entries
+                                </div>
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                    <button
+                                        onClick={() => setCurrentPage(1)}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        «
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        ‹
+                                    </button>
+
+                                    <div className="flex gap-1">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentPage(page)}
+                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                    currentPage === page
+                                                        ? 'bg-blue-500 text-white'
+                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                }`}
                                             >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                                                </svg>
+                                                {page}
                                             </button>
-                                            <button 
-                                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
-                                                disabled={currentPage === 1} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Sebelumnya"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                                </svg>
-                                            </button>
-                                            
-                                            <span className="text-sm md:text-base font-semibold text-gray-700 px-3">
-                                                Halaman {currentPage} dari {totalPages}
-                                            </span>
-                                            
-                                            <button 
-                                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
-                                                disabled={currentPage === totalPages} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Selanjutnya"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </button>
-                                            <button 
-                                                onClick={() => setCurrentPage(totalPages)} 
-                                                disabled={currentPage === totalPages} 
-                                                className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                                title="Halaman Terakhir"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                                                </svg>
-                                            </button>
-                                        </div>
+                                        ))}
                                     </div>
+
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        ›
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentPage(totalPages)}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        »
+                                    </button>
+
+                                    <span className="text-sm text-gray-600 ml-2">
+                                        Halaman {currentPage} dari {totalPages}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -468,7 +451,12 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                                     ))}
                                 </div>
                                 <div className="mt-4">
-                                    <img src="/api/placeholder/300/300" alt="Calendar 2025" className="w-full rounded-lg" />
+                                    <div className="w-full aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                                        <div className="text-center">
+                                            <div className="text-6xl mb-2">📅</div>
+                                            <div className="text-2xl font-bold text-blue-900">2025</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -601,7 +589,11 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
                                 onError={(e) => {
                                     const target = e.target as HTMLImageElement;
-                                    target.src = '/api/placeholder/400/300';
+                                    console.error('Failed to load image:', `/storage/${selectedPhoto}`);
+                                    target.onerror = null; // Prevent infinite loop
+                                }}
+                                onLoad={() => {
+                                    console.log('Image loaded successfully:', `/storage/${selectedPhoto}`);
                                 }}
                             />
                         </div>
