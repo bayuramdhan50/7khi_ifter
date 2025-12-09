@@ -271,20 +271,11 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                         </div>
                     )}
 
-                    {/* Locked Info Banner */}
-                    {isLocked && (
-                        <div className="mb-4 bg-red-100 border-2 border-red-400 rounded-lg p-3 text-center">
-                            <p className="text-red-800 font-semibold text-sm">
-                                🔒 Data ini sudah terkunci karena bukan hari ini. Anda hanya bisa mengubah data di hari yang sama.
-                            </p>
-                        </div>
-                    )}
-
                     {/* Today's Data Loaded Banner */}
-                    {todaySubmission && !isLocked && (
+                    {todaySubmission && (
                         <div className="mb-4 bg-blue-100 border-2 border-blue-400 rounded-lg p-3 text-center">
                             <p className="text-blue-800 font-semibold text-sm">
-                                ℹ️ Data hari ini sudah terisi. Anda masih bisa mengubahnya sampai hari berganti.
+                                ℹ️ Data hari ini sudah terisi. Waktu bangun sudah dikunci, tapi checklist masih bisa diubah.
                             </p>
                         </div>
                     )}
@@ -373,7 +364,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                                         type="checkbox"
                                         checked={membereskanTempat}
                                         onChange={(e) => handleCheckboxChange('membereskan_tempat_tidur', e.target.checked)}
-                                        disabled={isLocked || isSavingCheckbox}
+                                        disabled={isSavingCheckbox}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                     />
                                 </div>
@@ -387,7 +378,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                                         type="checkbox"
                                         checked={mandi}
                                         onChange={(e) => handleCheckboxChange('mandi', e.target.checked)}
-                                        disabled={isLocked || isSavingCheckbox}
+                                        disabled={isSavingCheckbox}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                     />
                                 </div>
@@ -401,7 +392,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                                         type="checkbox"
                                         checked={berpakaianRapi}
                                         onChange={(e) => handleCheckboxChange('berpakaian_rapi', e.target.checked)}
-                                        disabled={isLocked || isSavingCheckbox}
+                                        disabled={isSavingCheckbox}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                     />
                                 </div>
@@ -415,7 +406,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                                         type="checkbox"
                                         checked={sarapan}
                                         onChange={(e) => handleCheckboxChange('sarapan', e.target.checked)}
-                                        disabled={isLocked || isSavingCheckbox}
+                                        disabled={isSavingCheckbox}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                     />
                                 </div>

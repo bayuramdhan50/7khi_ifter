@@ -28,8 +28,46 @@ class DashboardController extends Controller
     {
         $activities = Activity::orderBy('order')->get();
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $student = Student::where('user_id', $user->id)->first();
+
+        // Calculate completion percentage for current month
+        $completionPercentage = 0;
+        $completedDays = 0;
+        
+        if ($student) {
+            $now = now();
+            $startOfMonth = $now->copy()->startOfMonth();
+            $endOfMonth = $now->copy()->endOfMonth();
+            $daysInMonth = $now->daysInMonth;
+            
+            // Total possible submissions = days in month × 7 activities
+            $totalPossible = $daysInMonth * 7;
+            
+            // Count actual submissions for this month
+            $submissionsCount = ActivitySubmission::where('student_id', $student->id)
+                ->whereBetween('date', [$startOfMonth, $endOfMonth])
+                ->count();
+            
+            // Calculate percentage
+            if ($totalPossible > 0) {
+                $completionPercentage = round(($submissionsCount / $totalPossible) * 100);
+            }
+            
+            // Count days with all 7 activities completed
+            $completedDays = ActivitySubmission::where('student_id', $student->id)
+                ->whereBetween('date', [$startOfMonth, $endOfMonth])
+                ->selectRaw('DATE(date) as submission_date, COUNT(DISTINCT activity_id) as activity_count')
+                ->groupBy('submission_date')
+                ->having('activity_count', '=', 7)
+                ->count();
+        }
+
         return Inertia::render('siswa/dashboard', [
             'activities' => $activities,
+            'completionPercentage' => $completionPercentage,
+            'completedDays' => $completedDays,
         ]);
     }
 
