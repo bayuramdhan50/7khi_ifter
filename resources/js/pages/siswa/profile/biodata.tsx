@@ -2,6 +2,15 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 
+interface Biodata {
+    hobbies?: string[];
+    aspirations?: string[];
+    favorite_foods?: string[];
+    favorite_drinks?: string[];
+    favorite_animals?: string[];
+    disliked_items?: string[];
+}
+
 interface BiodataProps {
     auth: {
         user: {
@@ -10,9 +19,23 @@ interface BiodataProps {
             role: string;
         };
     };
+    biodata?: Biodata;
 }
 
-export default function Biodata({ auth }: BiodataProps) {
+export default function Biodata({ auth, biodata }: BiodataProps) {
+    // Helper function untuk render data dengan empty state handling
+    const renderDataList = (items?: string[]) => {
+        if (!items || items.length === 0) {
+            return <div className="text-gray-400 italic">Belum diisi</div>;
+        }
+        return (
+            <div className="space-y-2 text-sm text-gray-700">
+                {items.map((item, index) => (
+                    <div key={index}>• {item}</div>
+                ))}
+            </div>
+        );
+    };
     return (
         <AppLayout>
             <Head title="Biodata Siswa" />
@@ -49,7 +72,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Hobiku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.hobbies)}
                                     </div>
                                 </div>
 
@@ -57,7 +80,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Cita-citaku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.aspirations)}
                                     </div>
                                 </div>
 
@@ -65,7 +88,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Makanan kesukaanku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.favorite_foods)}
                                     </div>
                                 </div>
 
@@ -73,7 +96,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Minuman kesukaanku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.favorite_drinks)}
                                     </div>
                                 </div>
 
@@ -81,7 +104,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Hewan kesukaanku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.favorite_animals)}
                                     </div>
                                 </div>
 
@@ -89,7 +112,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Sesuatu yang tidak aku sukai:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.disliked_items)}
                                     </div>
                                 </div>
                             </div>
