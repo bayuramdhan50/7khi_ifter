@@ -45,4 +45,40 @@ class ActivitySubmission extends Model
     {
         return $this->hasMany(ActivityDetail::class, 'submission_id');
     }
+
+    // New relationships for separate detail tables
+    public function bangunPagiDetail()
+    {
+        return $this->hasOne(BangunPagiDetail::class, 'submission_id');
+    }
+
+    public function berolahragaDetail()
+    {
+        return $this->hasOne(BerolahragaDetail::class, 'submission_id');
+    }
+
+    public function beribadahDetail()
+    {
+        return $this->hasOne(BeribadahDetail::class, 'submission_id');
+    }
+
+    public function gemarBelajarDetail()
+    {
+        return $this->hasOne(GemarBelajarDetail::class, 'submission_id');
+    }
+
+    public function makanSehatDetail()
+    {
+        return $this->hasOne(MakanSehatDetail::class, 'submission_id');
+    }
+
+    public function bermasyarakatDetail()
+    {
+        return $this->hasOne(BermasyarakatDetail::class, 'submission_id');
+    }
+
+    public function tidurCepatDetail()
+    {
+        return $this->hasOne(TidurCepatDetail::class, 'submission_id');
+    }
 }
