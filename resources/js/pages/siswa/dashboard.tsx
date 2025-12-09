@@ -22,9 +22,11 @@ interface SiswaDashboardProps {
         };
     };
     activities: Activity[];
+    completionPercentage: number;
+    completedDays: number;
 }
 
-export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps) {
+export default function SiswaDashboard({ auth, activities, completionPercentage, completedDays }: SiswaDashboardProps) {
     const currentDate = new Date();
     const currentMonth = new Date();
 
@@ -103,11 +105,11 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
                                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                                     {/* Profile Image */}
                                     <div className="flex-shrink-0">
-                                        <img
-                                            src="/api/placeholder/120/150"
-                                            alt={auth.user.name}
-                                            className="w-20 h-24 sm:w-28 sm:h-36 object-cover rounded-lg border-2 sm:border-4 border-gray-200"
-                                        />
+                                        <div className="w-20 h-24 sm:w-28 sm:h-36 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg border-2 sm:border-4 border-gray-200 flex items-center justify-center">
+                                            <svg className="w-12 h-12 sm:w-16 sm:h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
                                     </div>
 
                                     {/* Profile Info */}
@@ -117,10 +119,10 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
                                         {/* Progress Bar */}
                                         <div className="mb-2 sm:mb-3">
                                             <div className="flex items-center justify-center sm:justify-between mb-2">
-                                                <span className="text-3xl sm:text-4xl font-bold text-gray-800">78 %</span>
+                                                <span className="text-3xl sm:text-4xl font-bold text-gray-800">{completionPercentage} %</span>
                                             </div>
                                             <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
-                                                <div className="bg-blue-600 h-2 sm:h-3 rounded-full" style={{ width: '78%' }}></div>
+                                                <div className="bg-blue-600 h-2 sm:h-3 rounded-full" style={{ width: `${completionPercentage}%` }}></div>
                                             </div>
                                         </div>
 
@@ -136,7 +138,7 @@ export default function SiswaDashboard({ auth, activities }: SiswaDashboardProps
                                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                 </svg>
                                             ))}
-                                            <span className="ml-2 text-xs sm:text-sm text-gray-600">5/7 Hari Tuntas!</span>
+                                            <span className="ml-2 text-xs sm:text-sm text-gray-600">{completedDays}/7 Hari Tuntas!</span>
                                         </div>
                                     </div>
 
