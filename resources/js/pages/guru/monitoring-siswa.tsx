@@ -235,25 +235,25 @@ export default function MonitoringSiswa({
                                             <div className="text-center">
                                                 <p className="text-sm text-gray-600">Sangat Baik</p>
                                                 <p className="text-2xl font-bold text-green-600">
-                                                    {dummyProgress.filter(p => p.status === 'Sangat Baik').length}
+                                                    {monthlyProgress.filter(p => p.status === 'Sangat Baik').length}
                                                 </p>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-sm text-gray-600">Baik</p>
                                                 <p className="text-2xl font-bold text-blue-600">
-                                                    {dummyProgress.filter(p => p.status === 'Baik').length}
+                                                    {monthlyProgress.filter(p => p.status === 'Baik').length}
                                                 </p>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-sm text-gray-600">Cukup</p>
                                                 <p className="text-2xl font-bold text-yellow-600">
-                                                    {dummyProgress.filter(p => p.status === 'Cukup').length}
+                                                    {monthlyProgress.filter(p => p.status === 'Cukup').length}
                                                 </p>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-sm text-gray-600">Kurang</p>
                                                 <p className="text-2xl font-bold text-red-600">
-                                                    {dummyProgress.filter(p => p.status === 'Kurang').length}
+                                                    {monthlyProgress.filter(p => p.status === 'Kurang').length}
                                                 </p>
                                             </div>
                                         </div>

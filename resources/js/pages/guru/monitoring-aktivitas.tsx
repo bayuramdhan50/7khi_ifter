@@ -12,6 +12,19 @@ interface ClassData {
     student_count: number;
 }
 
+interface ActivityStat {
+    id: number;
+    nama: string;
+    icon: string;
+    totalSiswa: number;
+    siswaAktif: number;
+    persentase: number;
+    bgColor: string;
+    borderColor: string;
+    textColor: string;
+    progressColor: string;
+}
+
 interface MonitoringAktivitasProps {
     auth: {
         user: {
@@ -22,123 +35,50 @@ interface MonitoringAktivitasProps {
     };
     classes?: ClassData[];
     selectedClass?: ClassData | null;
+    activityStats?: ActivityStat[];
+    selectedPeriod?: 'hari' | 'minggu' | 'bulan';
 }
 
-export default function MonitoringAktivitas({ auth, classes = [], selectedClass = null }: MonitoringAktivitasProps) {
-    const [selectedPeriod, setSelectedPeriod] = useState<'hari' | 'minggu' | 'bulan'>('bulan');
+export default function MonitoringAktivitas({ 
+    auth, 
+    classes = [], 
+    selectedClass = null,
+    activityStats = [],
+    selectedPeriod = 'bulan'
+}: MonitoringAktivitasProps) {
 
     const handleClassChange = (classId: string) => {
         if (!classId) return;
-        // Navigate with query param to reload page with selected class
-        window.location.href = `/guru/monitoring-aktivitas?class_id=${classId}`;
+        const params = new URLSearchParams();
+        params.append('class_id', classId);
+        params.append('period', selectedPeriod);
+        window.location.href = `/guru/monitoring-aktivitas?${params.toString()}`;
     };
 
     const handlePeriodChange = (period: 'hari' | 'minggu' | 'bulan') => {
-        setSelectedPeriod(period);
-        // Nanti bisa ditambahkan logic untuk fetch data berdasarkan period
+        const params = new URLSearchParams();
+        if (selectedClass) params.append('class_id', selectedClass.id.toString());
+        params.append('period', period);
+        window.location.href = `/guru/monitoring-aktivitas?${params.toString()}`;
     };
 
-    // Data dummy untuk demo (nanti akan diganti dengan data dari backend)
-    // Data akan berubah berdasarkan selectedPeriod
-    const statistikAktivitas = [
-        {
-            id: 1,
-            nama: 'Bangun Pagi',
-            icon: '🌅',
-            totalSiswa: 30,
-            siswaAktif: 25,
-            persentase: 83,
-            bgColor: 'bg-blue-50',
-            borderColor: 'border-blue-200',
-            textColor: 'text-blue-700',
-            progressColor: 'bg-blue-500',
-        },
-        {
-            id: 2,
-            nama: 'Beribadah',
-            icon: '🤲',
-            totalSiswa: 30,
-            siswaAktif: 28,
-            persentase: 93,
-            bgColor: 'bg-purple-50',
-            borderColor: 'border-purple-200',
-            textColor: 'text-purple-700',
-            progressColor: 'bg-purple-500',
-        },
-        {
-            id: 3,
-            nama: 'Berolahraga',
-            icon: '⚽',
-            totalSiswa: 30,
-            siswaAktif: 22,
-            persentase: 73,
-            bgColor: 'bg-green-50',
-            borderColor: 'border-green-200',
-            textColor: 'text-green-700',
-            progressColor: 'bg-green-500',
-        },
-        {
-            id: 4,
-            nama: 'Makan Sehat',
-            icon: '🥗',
-            totalSiswa: 30,
-            siswaAktif: 27,
-            persentase: 90,
-            bgColor: 'bg-yellow-50',
-            borderColor: 'border-yellow-200',
-            textColor: 'text-yellow-700',
-            progressColor: 'bg-yellow-500',
-        },
-        {
-            id: 5,
-            nama: 'Gemar Belajar',
-            icon: '📚',
-            totalSiswa: 30,
-            siswaAktif: 26,
-            persentase: 87,
-            bgColor: 'bg-indigo-50',
-            borderColor: 'border-indigo-200',
-            textColor: 'text-indigo-700',
-            progressColor: 'bg-indigo-500',
-        },
-        {
-            id: 6,
-            nama: 'Bermasyarakat',
-            icon: '🤝',
-            totalSiswa: 30,
-            siswaAktif: 20,
-            persentase: 67,
-            bgColor: 'bg-pink-50',
-            borderColor: 'border-pink-200',
-            textColor: 'text-pink-700',
-            progressColor: 'bg-pink-500',
-        },
-        {
-            id: 7,
-            nama: 'Tidur Cepat',
-            icon: '😴',
-            totalSiswa: 30,
-            siswaAktif: 24,
-            persentase: 80,
-            bgColor: 'bg-cyan-50',
-            borderColor: 'border-cyan-200',
-            textColor: 'text-cyan-700',
-            progressColor: 'bg-cyan-500',
-        },
-    ];
-
-    // Statistik umum
-    const overallStats = {
-        totalSiswa: 30,
+    // Statistik umum dari data real
+    const overallStats = activityStats.length > 0 ? {
+        totalSiswa: selectedClass?.student_count || 0,
         rataRataKeaktifan: Math.round(
-            statistikAktivitas.reduce((sum, item) => sum + item.persentase, 0) / statistikAktivitas.length
+            activityStats.reduce((sum, item) => sum + item.persentase, 0) / activityStats.length
         ),
-        aktivitasTertinggi: statistikAktivitas.reduce((max, item) => 
+        aktivitasTertinggi: activityStats.reduce((max, item) => 
             item.persentase > max.persentase ? item : max
         ),
-        aktivitasTerendah: statistikAktivitas.reduce((min, item) => 
+        aktivitasTerendah: activityStats.reduce((min, item) => 
             item.persentase < min.persentase ? item : min
         ),
+    } : {
+        totalSiswa: 0,
+        rataRataKeaktifan: 0,
+        aktivitasTertinggi: { nama: '-', persentase: 0 },
+        aktivitasTerendah: { nama: '-', persentase: 0 },
     };
 
     return (
@@ -149,7 +89,7 @@ export default function MonitoringAktivitas({ auth, classes = [], selectedClass 
                 <div className="container mx-auto px-4 py-4 md:py-8">
                     {/* Header */}
                     <div className="mb-6 md:mb-8">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
                                     <Activity className="w-6 h-6 text-white" />
@@ -170,6 +110,73 @@ export default function MonitoringAktivitas({ auth, classes = [], selectedClass 
                                 <User className="w-5 h-5" />
                                 <span>Monitoring Per Siswa</span>
                             </Link>
+                        </div>
+
+                        {/* Info Cards - Moved to Top */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                            {/* Informasi Umum */}
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl p-5 shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span className="text-white text-sm font-bold">ℹ</span>
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-lg mb-3 text-blue-900">Informasi Umum</p>
+                                        <ul className="space-y-2 text-sm text-gray-700">
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-blue-600 mt-0.5">•</span>
+                                                <span>Data menampilkan statistik partisipasi siswa dalam 7 kebiasaan</span>
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-blue-600 mt-0.5">•</span>
+                                                <span>Persentase dihitung dari jumlah siswa yang aktif melakukan aktivitas</span>
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-blue-600 mt-0.5">•</span>
+                                                <span>Gunakan filter periode untuk melihat data harian, mingguan, atau bulanan</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Klasifikasi Status */}
+                            <div className="bg-gradient-to-br from-purple-50 to-pink-100 border-2 border-purple-300 rounded-xl p-5 shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <CheckCircle className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-lg mb-3 text-purple-900">Klasifikasi Status Partisipasi</p>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
+                                                    ✓ Sangat Baik
+                                                </span>
+                                                <span className="text-gray-700">: 100% dalam sebulan</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
+                                                    ↗ Baik
+                                                </span>
+                                                <span className="text-gray-700">: 75% - 99% dalam sebulan</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
+                                                    ⚠ Cukup
+                                                </span>
+                                                <span className="text-gray-700">: 50% - 74% dalam sebulan</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
+                                                    ✕ Kurang
+                                                </span>
+                                                <span className="text-gray-700">: Kurang dari 50% dalam sebulan</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Class Selection */}
@@ -345,7 +352,7 @@ export default function MonitoringAktivitas({ auth, classes = [], selectedClass 
                         </h2>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {statistikAktivitas.map((aktivitas) => (
+                            {activityStats.map((aktivitas) => (
                                 <div
                                     key={aktivitas.id}
                                     className={`${aktivitas.bgColor} ${aktivitas.borderColor} border-2 rounded-lg p-6 transition-all hover:shadow-md`}
@@ -416,68 +423,6 @@ export default function MonitoringAktivitas({ auth, classes = [], selectedClass 
                                     </div>
                                 </div>
                             ))}
-                        </div>
-                    </div>
-
-                    {/* Info Footer */}
-                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* Informasi Umum */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 md:p-6">
-                            <div className="flex items-start gap-3">
-                                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-white text-xs font-bold">i</span>
-                                </div>
-                                <div className="text-sm text-gray-700">
-                                    <p className="font-bold text-base mb-2 text-blue-900">Informasi Umum</p>
-                                    <ul className="list-disc list-inside space-y-1.5 text-gray-700">
-                                        <li>Data menampilkan statistik partisipasi siswa dalam 7 kebiasaan</li>
-                                        <li>Persentase dihitung dari jumlah siswa yang aktif melakukan aktivitas</li>
-                                        <li>Gunakan filter periode untuk melihat data harian, mingguan, atau bulanan</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Klasifikasi Status */}
-                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 md:p-6">
-                            <div className="flex items-start gap-3">
-                                <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <CheckCircle className="w-4 h-4 text-white" />
-                                </div>
-                                <div className="text-sm w-full">
-                                    <p className="font-bold text-base mb-3 text-purple-900">Klasifikasi Status Partisipasi</p>
-                                    <div className="space-y-2.5">
-                                        <div className="flex items-start gap-3">
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full whitespace-nowrap">
-                                                <CheckCircle className="w-3 h-3" />
-                                                Sangat Baik
-                                            </span>
-                                            <span className="text-gray-700 flex-1">: 100% dalam sebulan konsisten melakukan kebiasaan 7KAIH</span>
-                                        </div>
-                                        <div className="flex items-start gap-3">
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full whitespace-nowrap">
-                                                <TrendingUp className="w-3 h-3" />
-                                                Baik
-                                            </span>
-                                            <span className="text-gray-700 flex-1">: 75% - 99% dalam sebulan konsisten melakukan kebiasaan 7KAIH</span>
-                                        </div>
-                                        <div className="flex items-start gap-3">
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full whitespace-nowrap">
-                                                <AlertCircle className="w-3 h-3" />
-                                                Cukup
-                                            </span>
-                                            <span className="text-gray-700 flex-1">: 50% - 74% dalam sebulan konsisten melakukan kebiasaan 7KAIH</span>
-                                        </div>
-                                        <div className="flex items-start gap-3">
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full whitespace-nowrap">
-                                                <AlertCircle className="w-3 h-3" />
-                                                Kurang
-                                            </span>
-                                            <span className="text-gray-700 flex-1">: Kurang dari 50% dalam sebulan konsisten melakukan kebiasaan 7KAIH</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

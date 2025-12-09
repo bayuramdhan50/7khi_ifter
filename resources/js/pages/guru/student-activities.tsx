@@ -35,19 +35,12 @@ export default function StudentActivities({ auth, student, activities = [] }: St
     const currentDate = new Date();
     const currentMonth = new Date();
 
-    // Mock activities jika tidak ada dari backend
-    const activitiesList: Activity[] = activities.length > 0 ? activities : [
-        { id: 1, title: 'Bangun Pagi', icon: '☀️', color: 'bg-orange-100', completed: true },
-        { id: 2, title: 'Beribadah', icon: '🙏', color: 'bg-blue-100', completed: true },
-        { id: 3, title: 'Berolahraga', icon: '⚽', color: 'bg-green-100', completed: true },
-        { id: 4, title: 'Gemar Belajar', icon: '📚', color: 'bg-yellow-100', completed: false },
-        { id: 5, title: 'Makan Makanan Sehat dan Bergizi', icon: '🍎', color: 'bg-pink-100', completed: true },
-        { id: 6, title: 'Bermasyarakat', icon: '👨‍👩‍👧‍👦', color: 'bg-purple-100', completed: false },
-        { id: 7, title: 'Tidur Cepat', icon: '🌙', color: 'bg-indigo-100', completed: true },
-    ];
+    // Use activities from backend (no mock data)
+    const activitiesList: Activity[] = activities;
 
     const completedCount = activitiesList.filter(a => a.completed).length;
-    const progressPercentage = Math.round((completedCount / activitiesList.length) * 100);
+    // Use progress from backend database calculation
+    const progressPercentage = student.progress;
 
     const getDaysInMonth = (date: Date) => {
         const year = date.getFullYear();

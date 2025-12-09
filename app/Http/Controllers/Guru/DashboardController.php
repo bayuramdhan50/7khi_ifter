@@ -62,6 +62,7 @@ class DashboardController extends Controller
                         'nis' => $student->nis ?? '-',
                         'religion' => $student->religion ?? 'ISLAM',
                         'gender' => $student->gender ?? 'L',
+                        'progress' => $this->getStudentProgress($student->id),
                     ];
                     
                     $students[] = $studentData;
@@ -120,6 +121,7 @@ class DashboardController extends Controller
             $todaySubmission = ActivitySubmission::where('student_id', $student->id)
                 ->where('activity_id', $activity->id)
                 ->whereDate('date', today())
+                ->where('status', 'approved')
                 ->exists();
 
             return [
@@ -145,21 +147,22 @@ class DashboardController extends Controller
 
     /**
      * Calculate student progress percentage for current month.
+     * Formula: (Total approved submissions this month / Total days in month × 7 activities) × 100
      */
     private function getStudentProgress(int $studentId): int
     {
-        $today = today();
-        $startOfMonth = $today->copy()->startOfMonth();
-        $endOfMonth = $today->copy()->endOfMonth();
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+        $daysInMonth = $endOfMonth->day;
 
-        // Get total possible submissions (7 activities per day)
-        $daysPassed = $today->diffInDays($startOfMonth) + 1;
-        $totalPossible = $daysPassed * 7;
-
-        // Get actual submissions
+        // Get total APPROVED submissions for this month
         $actualSubmissions = ActivitySubmission::where('student_id', $studentId)
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->where('status', 'approved')
             ->count();
+
+        // Total possible submissions = days in month × 7 activities
+        $totalPossible = $daysInMonth * 7;
 
         if ($totalPossible === 0) {
             return 0;
@@ -173,46 +176,59 @@ class DashboardController extends Controller
      */
     public function showStudentActivityDetail(int $studentId, int $activityId): Response
     {
-        $student = User::where('role', User::ROLE_SISWA)
-            ->findOrFail($studentId);
+        $user = User::where('role', User::ROLE_SISWA)->findOrFail($studentId);
+        $studentModel = Student::where('user_id', $studentId)->firstOrFail();
 
-        // Mock data for now - TODO: Get from database
-        $activities = [
-            1 => ['title' => 'Bangun Pagi', 'icon' => '☀️', 'color' => 'bg-orange-100'],
-            2 => ['title' => 'Berbakti', 'icon' => '🙏', 'color' => 'bg-blue-100'],
-            3 => ['title' => 'Berolahraga', 'icon' => '⚽', 'color' => 'bg-green-100'],
-            4 => ['title' => 'Gemar Belajar', 'icon' => '📚', 'color' => 'bg-yellow-100'],
-            5 => ['title' => 'Makan Makanan Sehat dan Bergizi', 'icon' => '🍎', 'color' => 'bg-pink-100'],
-            6 => ['title' => 'Bermasyarakat', 'icon' => '👨‍👩‍👧‍👦', 'color' => 'bg-purple-100'],
-            7 => ['title' => 'Tidur Cepat', 'icon' => '🌙', 'color' => 'bg-indigo-100'],
-        ];
+        // Get activity from database
+        $activity = Activity::findOrFail($activityId);
 
-        $activityData = $activities[$activityId] ?? $activities[1];
+        // Get current month data
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $daysInMonth = now()->daysInMonth;
+        
+        // Get activity submissions for this month
+        $submissions = ActivitySubmission::where('student_id', $studentModel->id)
+            ->where('activity_id', $activityId)
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->get()
+            ->keyBy(function($item) {
+                return $item->date->day;
+            });
 
-        // Generate mock tasks for the month
+        // Generate tasks for all days in current month
         $tasks = [];
-        for ($i = 1; $i <= 10; $i++) {
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $submission = $submissions->get($day);
+            
             $tasks[] = [
-                'id' => $i,
-                'tanggal' => $i,
-                'waktu' => 'Masukan Jawaban',
-                'jawaban' => '',
-                'approval_orangtua' => false,
-                'bukti_foto' => null,
+                'id' => $submission->id ?? 0,
+                'tanggal' => $day,
+                'date' => sprintf('%04d-%02d-%02d', $currentYear, $currentMonth, $day),
+                'waktu' => $submission ? $submission->time : null,
+                'notes' => $submission ? $submission->notes : null,
+                'status' => $submission ? $submission->status : 'not_submitted',
+                'approval_orangtua' => $submission ? ($submission->status === 'approved') : false,
+                'bukti_foto' => $submission ? $submission->photo : null,
+                'approved_by' => $submission ? $submission->approved_by : null,
+                'approved_at' => $submission ? $submission->approved_at : null,
+                'rejection_reason' => $submission ? $submission->rejection_reason : null,
             ];
         }
 
         return Inertia::render('guru/student-activity-detail', [
             'student' => [
-                'id' => $student->id,
-                'name' => $student->name,
+                'id' => $user->id,
+                'name' => $user->name,
             ],
             'activity' => [
-                'id' => $activityId,
-                'title' => $activityData['title'],
-                'icon' => $activityData['icon'],
-                'color' => $activityData['color'],
-                'month' => 'OKTOBER',
+                'id' => $activity->id,
+                'title' => $activity->title,
+                'icon' => $activity->icon,
+                'color' => $activity->color,
+                'month' => now()->locale('id')->translatedFormat('F'),
+                'year' => $currentYear,
                 'tasks' => $tasks,
             ],
         ]);
@@ -314,9 +330,93 @@ class DashboardController extends Controller
             'student_count' => $selectedClass->students->count(),
         ] : null;
 
+        // Calculate activity statistics for selected class
+        $activityStats = [];
+        if ($selectedClass) {
+            // Get period filter (default: bulan)
+            $period = request()->query('period', 'bulan');
+            
+            // Determine date range based on period
+            $now = now();
+            switch ($period) {
+                case 'hari':
+                    $startDate = $now->copy()->startOfDay();
+                    $endDate = $now->copy()->endOfDay();
+                    break;
+                case 'minggu':
+                    $startDate = $now->copy()->startOfWeek();
+                    $endDate = $now->copy()->endOfWeek();
+                    break;
+                case 'bulan':
+                default:
+                    $startDate = $now->copy()->startOfMonth();
+                    $endDate = $now->copy()->endOfMonth();
+                    break;
+            }
+            
+            // Get all activities
+            $activities = Activity::orderBy('order')->get();
+            
+            // Get student IDs from selected class
+            $studentIds = $selectedClass->students->pluck('id')->toArray();
+            
+            // Calculate stats for each activity (only approved submissions)
+            foreach ($activities as $activity) {
+                $totalSubmissions = ActivitySubmission::whereIn('student_id', $studentIds)
+                    ->where('activity_id', $activity->id)
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->where('status', 'approved')
+                    ->count();
+                
+                $totalStudents = count($studentIds);
+                
+                // Calculate expected submissions based on period
+                $daysInPeriod = $startDate->diffInDays($endDate) + 1;
+                $expectedSubmissions = $totalStudents * $daysInPeriod;
+                
+                // Calculate actual students who submitted (approved only)
+                $siswaAktif = ActivitySubmission::whereIn('student_id', $studentIds)
+                    ->where('activity_id', $activity->id)
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->where('status', 'approved')
+                    ->distinct('student_id')
+                    ->count('student_id');
+                
+                $persentase = $totalStudents > 0 ? round(($siswaAktif / $totalStudents) * 100) : 0;
+                
+                // Map activity colors
+                $colorMap = [
+                    'bg-orange-100' => ['bg' => 'bg-orange-50', 'border' => 'border-orange-200', 'text' => 'text-orange-700', 'progress' => 'bg-orange-500'],
+                    'bg-blue-100' => ['bg' => 'bg-blue-50', 'border' => 'border-blue-200', 'text' => 'text-blue-700', 'progress' => 'bg-blue-500'],
+                    'bg-green-100' => ['bg' => 'bg-green-50', 'border' => 'border-green-200', 'text' => 'text-green-700', 'progress' => 'bg-green-500'],
+                    'bg-yellow-100' => ['bg' => 'bg-yellow-50', 'border' => 'border-yellow-200', 'text' => 'text-yellow-700', 'progress' => 'bg-yellow-500'],
+                    'bg-pink-100' => ['bg' => 'bg-pink-50', 'border' => 'border-pink-200', 'text' => 'text-pink-700', 'progress' => 'bg-pink-500'],
+                    'bg-purple-100' => ['bg' => 'bg-purple-50', 'border' => 'border-purple-200', 'text' => 'text-purple-700', 'progress' => 'bg-purple-500'],
+                    'bg-indigo-100' => ['bg' => 'bg-indigo-50', 'border' => 'border-indigo-200', 'text' => 'text-indigo-700', 'progress' => 'bg-indigo-500'],
+                ];
+                
+                $colors = $colorMap[$activity->color] ?? ['bg' => 'bg-gray-50', 'border' => 'border-gray-200', 'text' => 'text-gray-700', 'progress' => 'bg-gray-500'];
+                
+                $activityStats[] = [
+                    'id' => $activity->id,
+                    'nama' => $activity->title,
+                    'icon' => $activity->icon,
+                    'totalSiswa' => $totalStudents,
+                    'siswaAktif' => $siswaAktif,
+                    'persentase' => $persentase,
+                    'bgColor' => $colors['bg'],
+                    'borderColor' => $colors['border'],
+                    'textColor' => $colors['text'],
+                    'progressColor' => $colors['progress'],
+                ];
+            }
+        }
+
         return Inertia::render('guru/monitoring-aktivitas', [
             'classes' => $classesData,
             'selectedClass' => $selectedClassData,
+            'activityStats' => $activityStats,
+            'selectedPeriod' => request()->query('period', 'bulan'),
         ]);
     }
 
@@ -393,6 +493,7 @@ class DashboardController extends Controller
                     $submissions = ActivitySubmission::where('student_id', $selectedStudent['student_id'])
                         ->where('activity_id', $activity->id)
                         ->whereBetween('date', [$startOfMonth, $endOfMonth])
+                        ->where('status', 'approved')
                         ->count();
                     
                     $percentage = round(($submissions / $daysInMonth) * 100);
