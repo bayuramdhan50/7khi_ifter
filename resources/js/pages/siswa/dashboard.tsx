@@ -105,11 +105,11 @@ export default function SiswaDashboard({ auth, activities, completionPercentage,
                                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                                     {/* Profile Image */}
                                     <div className="flex-shrink-0">
-                                        <img
-                                            src="/api/placeholder/120/150"
-                                            alt={auth.user.name}
-                                            className="w-20 h-24 sm:w-28 sm:h-36 object-cover rounded-lg border-2 sm:border-4 border-gray-200"
-                                        />
+                                        <div className="w-20 h-24 sm:w-28 sm:h-36 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg border-2 sm:border-4 border-gray-200 flex items-center justify-center">
+                                            <svg className="w-12 h-12 sm:w-16 sm:h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
                                     </div>
 
                                     {/* Profile Info */}
