@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Orangtua Routes
     Route::prefix('orangtua')->name('orangtua.')->middleware('role:orangtua')->group(function () {
         Route::get('dashboard', [OrangtuaDashboardController::class, 'index'])->name('dashboard');
+        Route::get('daily-report/detail', [OrangtuaDashboardController::class, 'detail'])->name('daily-report.detail');
         Route::post('submissions/{submission}/approve', [OrangtuaDashboardController::class, 'approve'])->name('submissions.approve');
         Route::post('submissions/{submission}/reject', [OrangtuaDashboardController::class, 'reject'])->name('submissions.reject');
     });

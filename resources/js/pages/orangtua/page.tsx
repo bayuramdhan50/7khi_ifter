@@ -1,15 +1,17 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { approve, reject } from '@/routes/orangtua/submissions';
+
 import { useState, useMemo } from 'react';
 import {
     DashboardHeader,
     StudentList,
-    ActivityTabs,
     StatusFilter,
     SubmissionsTable,
     Pagination,
     PhotoModal,
+    ConfirmationModal,
+    type GroupedSubmission,
 } from './_components';
 import type { Student, Activity, ActivitySubmission, FilterStatus } from './_components';
 
@@ -33,23 +35,79 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+    const [sortField, setSortField] = useState<'date' | 'status' | 'total'>('date');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); // desc = newest first
 
-    // Filter submissions based on selected student, activity, and status
-    const filteredSubmissions = useMemo(() => {
-        return submissions.filter(
+    // Group submissions by date
+    const groupedSubmissions = useMemo(() => {
+        const filtered = submissions.filter(
             submission =>
                 submission.studentId === selectedStudent &&
-                submission.activityId === selectedActivity &&
                 (filterStatus === 'all' || submission.status === filterStatus)
         );
-    }, [submissions, selectedStudent, selectedActivity, filterStatus]);
+
+        // Sort by the selected field and direction
+        if (sortField === 'date') {
+            if (sortDirection === 'desc') {
+                filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // newest first
+            } else {
+                filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // oldest first
+            }
+        }
+
+        // Group by date
+        const groups: { [key: string]: ActivitySubmission[] } = {};
+        filtered.forEach(submission => {
+            const date = submission.date;
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(submission);
+        });
+
+        // Convert to array
+        const result = Object.keys(groups).map(date => {
+            const dateSubmissions = groups[date];
+            const allApproved = dateSubmissions.every(s => s.status === 'approved');
+            const allRejected = dateSubmissions.every(s => s.status === 'rejected');
+            const hasPending = dateSubmissions.some(s => s.status === 'pending');
+
+            let status: 'approved' | 'rejected' | 'pending' | 'mixed' = 'pending';
+            if (allApproved) status = 'approved';
+            else if (allRejected) status = 'rejected';
+            else if (!hasPending) status = 'mixed';
+
+            return {
+                date,
+                submissions: dateSubmissions,
+                totalActivities: dateSubmissions.length,
+                status
+            } as GroupedSubmission;
+        });
+
+        // Apply sorting for status and total after grouping
+        if (sortField === 'status') {
+            const statusOrder: Record<string, number> = { approved: 1, pending: 2, rejected: 3, mixed: 4 };
+            result.sort((a: GroupedSubmission, b: GroupedSubmission) => {
+                const comparison = statusOrder[a.status] - statusOrder[b.status];
+                return sortDirection === 'desc' ? -comparison : comparison;
+            });
+        } else if (sortField === 'total') {
+            result.sort((a: GroupedSubmission, b: GroupedSubmission) => {
+                const comparison = a.totalActivities - b.totalActivities;
+                return sortDirection === 'desc' ? -comparison : comparison;
+            });
+        }
+
+        return result;
+    }, [submissions, selectedStudent, filterStatus, sortField, sortDirection]);
 
     // Pagination
-    const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
+    const totalPages = Math.ceil(groupedSubmissions.length / itemsPerPage);
     const paginatedSubmissions = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
-        return filteredSubmissions.slice(startIndex, startIndex + itemsPerPage);
-    }, [filteredSubmissions, currentPage, itemsPerPage]);
+        return groupedSubmissions.slice(startIndex, startIndex + itemsPerPage);
+    }, [groupedSubmissions, currentPage, itemsPerPage]);
 
     const selectedActivityData = activities.find(a => a.id === selectedActivity);
 
@@ -79,16 +137,25 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
         setCurrentPage(1);
     };
 
-    const handleApprove = (submissionId: number) => {
-        router.post(approve.url(submissionId), {}, {
-            preserveScroll: true,
-        });
+    const handleViewDetail = (date: string) => {
+        const student = students.find(s => s.id === selectedStudent);
+        if (student && selectedStudent) {
+            // Extract only the date part (YYYY-MM-DD) to avoid timezone issues
+            const dateOnly = date.split('T')[0];
+            router.visit(`/orangtua/daily-report/detail?student_id=${selectedStudent}&date=${dateOnly}`);
+        }
     };
 
-    const handleReject = (submissionId: number) => {
-        router.post(reject.url(submissionId), {}, {
-            preserveScroll: true,
-        });
+    const handleSort = (field: 'date' | 'status' | 'total') => {
+        if (sortField === field) {
+            // Toggle direction if same field
+            setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc');
+        } else {
+            // Change field and set to desc by default
+            setSortField(field);
+            setSortDirection('desc');
+        }
+        setCurrentPage(1); // Reset to first page when sorting changes
     };
 
     const handleItemsPerPageChange = (items: number) => {
@@ -113,11 +180,6 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
                         />
 
                         <div className="flex-1">
-                            <ActivityTabs
-                                activities={activities}
-                                selectedActivity={selectedActivity}
-                                onSelectActivity={handleSelectActivity}
-                            />
 
                             <StatusFilter
                                 filterStatus={filterStatus}
@@ -143,9 +205,10 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
                             <SubmissionsTable
                                 submissions={paginatedSubmissions}
                                 selectedActivity={selectedActivityData}
-                                onApprove={handleApprove}
-                                onReject={handleReject}
-                                onPhotoClick={setSelectedPhoto}
+                                onViewDetail={handleViewDetail}
+                                sortField={sortField}
+                                sortDirection={sortDirection}
+                                onSort={handleSort}
                             />
 
                             {paginatedSubmissions.length > 0 && (
@@ -164,6 +227,7 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
             </div>
 
             <PhotoModal photoUrl={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
+
         </AppLayout>
     );
 }

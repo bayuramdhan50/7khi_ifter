@@ -8,6 +8,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as guruDashboard } from '@/routes/guru';

@@ -28,7 +28,14 @@ export interface ActivitySubmission {
 export interface StudentStats {
     approved: number;
     pending: number;
-    rejected: number;
+    photo?: string | null;
+}
+
+export interface GroupedSubmission {
+    date: string;
+    submissions: ActivitySubmission[];
+    status: 'approved' | 'pending' | 'rejected' | 'mixed';
+    totalActivities: number;
 }
 
 export type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
