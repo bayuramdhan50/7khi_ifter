@@ -146,6 +146,105 @@ class DashboardController extends Controller
     }
 
     /**
+     * Display all activities with all submissions for a student
+     */
+    public function showAllActivities(int $studentId): Response
+    {
+        $user = User::findOrFail($studentId);
+        $student = Student::where('user_id', $studentId)->firstOrFail();
+
+        // Get all activities from database ordered by order column
+        $activitiesFromDb = Activity::orderBy('order')->get();
+
+        // Get month and year from request or use current month
+        $requestedMonth = request()->query('month', now()->month);
+        $requestedYear = request()->query('year', now()->year);
+        
+        $currentMonth = (int) $requestedMonth;
+        $currentYear = (int) $requestedYear;
+        
+        // Calculate days in the requested month
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
+
+        // Get all submissions for this student in requested month
+        $allSubmissions = ActivitySubmission::where('student_id', $student->id)
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->with('activity')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Group submissions by activity_id and date
+        $submissionsByActivity = $allSubmissions->groupBy('activity_id');
+
+        // Build activities with their submissions
+        $activitiesWithSubmissions = $activitiesFromDb->map(function ($activity) use ($student, $daysInMonth, $currentMonth, $currentYear, $submissionsByActivity) {
+            $activitySubmissions = $submissionsByActivity->get($activity->id, collect());
+            
+            // Create submission map keyed by day
+            $submissionsByDay = $activitySubmissions->keyBy(function($item) {
+                return $item->date->day;
+            });
+
+            // Generate all days in month with submission data
+            $dailyData = [];
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $submission = $submissionsByDay->get($day);
+                
+                $dailyData[] = [
+                    'day' => $day,
+                    'date' => sprintf('%04d-%02d-%02d', $currentYear, $currentMonth, $day),
+                    'status' => $submission ? $submission->status : 'not_submitted',
+                    'time' => $submission ? $submission->time : null,
+                    'notes' => $submission ? $submission->notes : null,
+                    'photo' => $submission ? $submission->photo : null,
+                    'approved_at' => $submission ? $submission->approved_at : null,
+                ];
+            }
+
+            // Calculate stats for this activity
+            $approvedCount = $activitySubmissions->where('status', 'approved')->count();
+            $pendingCount = $activitySubmissions->where('status', 'pending')->count();
+            $rejectedCount = $activitySubmissions->where('status', 'rejected')->count();
+
+            return [
+                'id' => $activity->id,
+                'title' => $activity->title,
+                'icon' => $activity->icon,
+                'color' => $activity->color,
+                'submissions' => $dailyData,
+                'stats' => [
+                    'approved' => $approvedCount,
+                    'pending' => $pendingCount,
+                    'rejected' => $rejectedCount,
+                    'total' => $activitySubmissions->count(),
+                ],
+            ];
+        })->toArray();
+
+        // Get month name in Indonesian
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        return Inertia::render('guru/student-all-activities', [
+            'student' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'religion' => $student->religion ?? 'ISLAM',
+                'gender' => $student->gender ?? 'L',
+                'progress' => $this->getStudentProgress($student->id),
+            ],
+            'activities' => $activitiesWithSubmissions,
+            'month' => $monthNames[$currentMonth] ?? 'Desember',
+            'year' => $currentYear,
+            'daysInMonth' => $daysInMonth,
+        ]);
+    }
+
+    /**
      * Calculate student progress percentage for current month.
      * Formula: (Total approved submissions this month / Total days in month × 7 activities) × 100
      */

@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, User, BookOpen } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, User, BookOpen, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface ClassData {
@@ -56,10 +56,16 @@ export default function MonitoringSiswa({
     selectedYear = 2025
 }: MonitoringSiswaProps) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLoadingClass, setIsLoadingClass] = useState(false);
+    const [isLoadingStudent, setIsLoadingStudent] = useState(false);
 
     const handleClassChange = (classId: string) => {
         if (!classId) return;
-        window.location.href = `/guru/monitoring-siswa?class_id=${classId}`;
+        setIsLoadingClass(true);
+        router.visit(`/guru/monitoring-siswa?class_id=${classId}`, {
+            preserveState: false,
+            preserveScroll: false,
+        });
     };
 
     const filteredStudents = students.filter(student =>
@@ -68,10 +74,14 @@ export default function MonitoringSiswa({
     );
 
     const handleStudentSelect = (studentId: number) => {
+        setIsLoadingStudent(true);
         const params = new URLSearchParams();
         if (selectedClass) params.append('class_id', selectedClass.id.toString());
         params.append('student_id', studentId.toString());
-        window.location.href = `/guru/monitoring-siswa?${params.toString()}`;
+        router.visit(`/guru/monitoring-siswa?${params.toString()}`, {
+            preserveState: false,
+            preserveScroll: false,
+        });
     };
 
     const getStatusColor = (status: string) => {
@@ -127,7 +137,8 @@ export default function MonitoringSiswa({
                                 <select
                                     value={selectedClass?.id || ''}
                                     onChange={(e) => handleClassChange(e.target.value)}
-                                    className="flex-1 w-full md:max-w-md px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors cursor-pointer"
+                                    disabled={isLoadingClass}
+                                    className="flex-1 w-full md:max-w-md px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <option value="" className="text-gray-500">Pilih Kelas</option>
                                     {classes.map((classItem) => (
@@ -189,7 +200,8 @@ export default function MonitoringSiswa({
                                         <button
                                             key={student.id}
                                             onClick={() => handleStudentSelect(student.id)}
-                                            className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                                            disabled={isLoadingStudent}
+                                            className={`w-full text-left p-3 rounded-lg border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                                 selectedStudent?.id === student.id
                                                     ? 'border-blue-500 bg-blue-50'
                                                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -206,7 +218,16 @@ export default function MonitoringSiswa({
 
                         {/* Main Content - Progress Chart */}
                         <div className="lg:col-span-2">
-                            {selectedStudent ? (
+                            {isLoadingClass || isLoadingStudent ? (
+                                <div className="flex items-center justify-center py-20">
+                                    <div className="text-center">
+                                        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+                                        <p className="text-gray-600 font-medium">
+                                            {isLoadingClass ? 'Memuat data kelas...' : 'Memuat data siswa...'}
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : selectedStudent ? (
                                 <div className="space-y-6">
                                     {/* Student Info Card */}
                                     <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-sm p-6 text-white">

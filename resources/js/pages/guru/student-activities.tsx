@@ -32,35 +32,12 @@ interface StudentActivitiesProps {
 }
 
 export default function StudentActivities({ auth, student, activities = [] }: StudentActivitiesProps) {
-    const currentDate = new Date();
-    const currentMonth = new Date();
-
     // Use activities from backend (no mock data)
     const activitiesList: Activity[] = activities;
 
     const completedCount = activitiesList.filter(a => a.completed).length;
     // Use progress from backend database calculation
     const progressPercentage = student.progress;
-
-    const getDaysInMonth = (date: Date) => {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate();
-        const startingDayOfWeek = firstDay.getDay();
-
-        return { daysInMonth, startingDayOfWeek };
-    };
-
-    const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
-
-    const formatDate = (date: Date) => {
-        return date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    };
-
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
     return (
         <AppLayout>
@@ -88,11 +65,9 @@ export default function StudentActivities({ auth, student, activities = [] }: St
                     </div>
 
                     {/* Main Content */}
-                    <div className="flex flex-col lg:flex-row gap-8">
-                        {/* Left Side - Profile & Activities */}
-                        <div className="flex-1">
-                            {/* Student Profile Card */}
-                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
+                    <div className="w-full">
+                        {/* Student Profile Card */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
                                 <div className="flex flex-col sm:flex-row items-start gap-4 md:gap-6">
                                     {/* Avatar */}
                                     <div className="relative mx-auto sm:mx-0">
@@ -151,7 +126,11 @@ export default function StudentActivities({ auth, student, activities = [] }: St
                             <div className="mb-4 md:mb-6">
                                 <div className="flex items-center justify-between mb-4 md:mb-6">
                                     <h2 className="text-xl md:text-2xl font-bold text-blue-900">Kegiatan</h2>
-                                    <span className="text-sm md:text-base text-blue-600 font-medium">View All</span>
+                                    <Link href={`/guru/siswa/${student.id}/activities/all`}>
+                                        <span className="text-sm md:text-base text-blue-600 font-medium hover:text-blue-800 cursor-pointer transition-colors">
+                                            View All →
+                                        </span>
+                                    </Link>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -189,80 +168,6 @@ export default function StudentActivities({ auth, student, activities = [] }: St
                                 </div>
                             </div>
                         </div>
-
-                        {/* Right Side - Calendar */}
-                        <div className="w-full lg:w-96">
-                            <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:sticky lg:top-4">
-                                {/* Date Display */}
-                                <div className="mb-6">
-                                    <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-center font-medium text-gray-800">
-                                        {formatDate(currentDate)}
-                                    </div>
-                                </div>
-
-                                {/* Month Display (Static) */}
-                                <div className="flex items-center justify-center mb-4">
-                                    <span className="font-bold text-gray-800">
-                                        {monthNames[currentMonth.getMonth()]}
-                                    </span>
-                                </div>
-
-                                {/* Year Display (Static) */}
-                                <div className="flex items-center justify-center mb-4">
-                                    <span className="font-bold text-gray-800">
-                                        {currentMonth.getFullYear()}
-                                    </span>
-                                </div>
-
-                                {/* Day Names */}
-                                <div className="grid grid-cols-7 gap-2 mb-2">
-                                    {dayNames.map((day, index) => (
-                                        <div
-                                            key={index}
-                                            className="text-center font-bold text-gray-600 text-sm"
-                                        >
-                                            {day}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Calendar Grid */}
-                                <div className="grid grid-cols-7 gap-2">
-                                    {/* Empty cells for days before month starts */}
-                                    {Array.from({ length: startingDayOfWeek }).map((_, index) => (
-                                        <div key={`empty-${index}`} className="aspect-square" />
-                                    ))}
-
-                                    {/* Days of the month (Static - No interaction) */}
-                                    {Array.from({ length: daysInMonth }).map((_, index) => {
-                                        const day = index + 1;
-                                        const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-                                        const isToday = date.toDateString() === new Date().toDateString();
-
-                                        return (
-                                            <div
-                                                key={day}
-                                                className={`
-                                                    aspect-square rounded-lg flex items-center justify-center text-sm font-medium
-                                                    ${isToday
-                                                        ? 'bg-blue-600 text-white shadow-md'
-                                                        : 'text-gray-700'
-                                                    }
-                                                `}
-                                            >
-                                                {day}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Timestamp */}
-                                <div className="mt-4 text-center text-xs text-gray-500">
-                                    Apr 1, 2025 · 8:41 AM
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Back Button */}
                     <div className="mt-6">

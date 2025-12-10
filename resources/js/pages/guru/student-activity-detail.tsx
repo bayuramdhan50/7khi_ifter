@@ -66,23 +66,6 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
         }
     };
 
-    // Mock calendar data for display
-    const currentYear = 2025;
-    const months = [
-        { name: 'JANUARI', color: 'bg-yellow-200' },
-        { name: 'FEBRUARI', color: 'bg-pink-200' },
-        { name: 'MARET', color: 'bg-blue-200' },
-        { name: 'APRIL', color: 'bg-yellow-100' },
-        { name: 'MEI', color: 'bg-pink-100' },
-        { name: 'JUNI', color: 'bg-blue-100' },
-        { name: 'JULI', color: 'bg-yellow-50' },
-        { name: 'AGUSTUS', color: 'bg-teal-200' },
-        { name: 'SEPTEMBER', color: 'bg-green-200' },
-        { name: 'OKTOBER', color: 'bg-orange-200' },
-        { name: 'NOVEMBER', color: 'bg-amber-200' },
-        { name: 'DESEMBER', color: 'bg-red-200' },
-    ];
-
     return (
         <AppLayout>
             <Head title={`${student.name} - ${activity.title}`} />
@@ -115,9 +98,8 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                     </div>
 
                     {/* Main Content */}
-                    <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
-                        {/* Left Side - Activity Card & Form */}
-                        <div className="flex-1">
+                    <div className="w-full">
+                        <div className="w-full">
                             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-8">
                                 <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8 mb-6 md:mb-8">
                                     {/* Activity Card */}
@@ -315,51 +297,6 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                             </div>
                                         </div>
                                     ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right Side - Calendar */}
-                        <div className="w-full lg:w-80">
-                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 md:p-4 lg:sticky lg:top-4">
-                                <div className="text-center mb-3 md:mb-4">
-                                    <h3 className="text-lg md:text-xl font-bold text-gray-800">Kalender</h3>
-                                    <p className="text-xl md:text-2xl font-bold text-blue-600">{currentYear}</p>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2 md:gap-3">
-                                    {months.map((month, index) => (
-                                        <div
-                                            key={index}
-                                            className={`${month.color} rounded-lg p-2 md:p-3 border border-gray-300`}
-                                        >
-                                            <div className="text-[10px] md:text-xs font-bold text-gray-700 mb-1 md:mb-2 text-center">
-                                                {month.name}
-                                            </div>
-                                            <div className="grid grid-cols-7 gap-[2px] md:gap-1">
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">S</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">M</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">T</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">W</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">T</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">F</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">S</div>
-                                                {/* Mock calendar days - simplified */}
-                                                {[...Array(31)].map((_, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="text-[6px] md:text-[8px] text-center text-gray-700"
-                                                    >
-                                                        {i + 1}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-3 md:mt-4 text-right text-[10px] md:text-xs text-gray-500">
-                                    Apr 1, 2025 · 9:41 AM
                                 </div>
                             </div>
                         </div>

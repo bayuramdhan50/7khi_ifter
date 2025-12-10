@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { Activity, TrendingUp, Users, CheckCircle, Clock, AlertCircle, BookOpen, Calendar, User } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Activity, TrendingUp, Users, CheckCircle, Clock, AlertCircle, BookOpen, Calendar, User, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface ClassData {
@@ -46,20 +46,30 @@ export default function MonitoringAktivitas({
     activityStats = [],
     selectedPeriod = 'bulan'
 }: MonitoringAktivitasProps) {
+    const [isLoadingClass, setIsLoadingClass] = useState(false);
+    const [isLoadingPeriod, setIsLoadingPeriod] = useState(false);
 
     const handleClassChange = (classId: string) => {
         if (!classId) return;
+        setIsLoadingClass(true);
         const params = new URLSearchParams();
         params.append('class_id', classId);
         params.append('period', selectedPeriod);
-        window.location.href = `/guru/monitoring-aktivitas?${params.toString()}`;
+        router.visit(`/guru/monitoring-aktivitas?${params.toString()}`, {
+            preserveState: false,
+            preserveScroll: false,
+        });
     };
 
     const handlePeriodChange = (period: 'hari' | 'minggu' | 'bulan') => {
+        setIsLoadingPeriod(true);
         const params = new URLSearchParams();
         if (selectedClass) params.append('class_id', selectedClass.id.toString());
         params.append('period', period);
-        window.location.href = `/guru/monitoring-aktivitas?${params.toString()}`;
+        router.visit(`/guru/monitoring-aktivitas?${params.toString()}`, {
+            preserveState: false,
+            preserveScroll: false,
+        });
     };
 
     // Statistik umum dari data real
@@ -191,7 +201,8 @@ export default function MonitoringAktivitas({
                                 <select
                                     value={selectedClass?.id || ''}
                                     onChange={(e) => handleClassChange(e.target.value)}
-                                    className="flex-1 w-full md:max-w-md px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors cursor-pointer"
+                                    disabled={isLoadingClass}
+                                    className="flex-1 w-full md:max-w-md px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <option value="" className="text-gray-500">Pilih Kelas</option>
                                     {classes.map((classItem) => (
@@ -304,7 +315,8 @@ export default function MonitoringAktivitas({
                             <div className="flex gap-2 flex-wrap">
                                 <button
                                     onClick={() => handlePeriodChange('hari')}
-                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all ${
+                                    disabled={isLoadingPeriod}
+                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                         selectedPeriod === 'hari'
                                             ? 'bg-blue-600 text-white shadow-md'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -314,7 +326,8 @@ export default function MonitoringAktivitas({
                                 </button>
                                 <button
                                     onClick={() => handlePeriodChange('minggu')}
-                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all ${
+                                    disabled={isLoadingPeriod}
+                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                         selectedPeriod === 'minggu'
                                             ? 'bg-blue-600 text-white shadow-md'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -324,7 +337,8 @@ export default function MonitoringAktivitas({
                                 </button>
                                 <button
                                     onClick={() => handlePeriodChange('bulan')}
-                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all ${
+                                    disabled={isLoadingPeriod}
+                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                                         selectedPeriod === 'bulan'
                                             ? 'bg-blue-600 text-white shadow-md'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -346,6 +360,18 @@ export default function MonitoringAktivitas({
                     </div>
 
                     {/* Detail Per Aktivitas */}
+                    {isLoadingClass || isLoadingPeriod ? (
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center justify-center py-20">
+                                <div className="text-center">
+                                    <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+                                    <p className="text-gray-600 font-medium">
+                                        {isLoadingClass ? 'Memuat data kelas...' : 'Memuat data periode...'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                         <h2 className="text-xl font-bold text-gray-900 mb-6">
                             Detail Partisipasi Per Aktivitas
@@ -425,6 +451,7 @@ export default function MonitoringAktivitas({
                             ))}
                         </div>
                     </div>
+                    )}
                 </div>
             </div>
         </AppLayout>
