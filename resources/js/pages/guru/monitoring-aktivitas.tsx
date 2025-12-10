@@ -36,7 +36,8 @@ interface MonitoringAktivitasProps {
     classes?: ClassData[];
     selectedClass?: ClassData | null;
     activityStats?: ActivityStat[];
-    selectedPeriod?: 'hari' | 'minggu' | 'bulan';
+    selectedMonth?: number;
+    selectedYear?: number;
 }
 
 export default function MonitoringAktivitas({ 
@@ -44,31 +45,69 @@ export default function MonitoringAktivitas({
     classes = [], 
     selectedClass = null,
     activityStats = [],
-    selectedPeriod = 'bulan'
+    selectedMonth = new Date().getMonth() + 1,
+    selectedYear = new Date().getFullYear()
 }: MonitoringAktivitasProps) {
     const [isLoadingClass, setIsLoadingClass] = useState(false);
-    const [isLoadingPeriod, setIsLoadingPeriod] = useState(false);
+    const [isLoadingFilter, setIsLoadingFilter] = useState(false);
+    
+    // Array bulan dalam bahasa Indonesia
+    const months = [
+        { value: 1, label: 'Januari' },
+        { value: 2, label: 'Februari' },
+        { value: 3, label: 'Maret' },
+        { value: 4, label: 'April' },
+        { value: 5, label: 'Mei' },
+        { value: 6, label: 'Juni' },
+        { value: 7, label: 'Juli' },
+        { value: 8, label: 'Agustus' },
+        { value: 9, label: 'September' },
+        { value: 10, label: 'Oktober' },
+        { value: 11, label: 'November' },
+        { value: 12, label: 'Desember' }
+    ];
+    
+    // Generate array tahun (5 tahun ke belakang dan 2 tahun ke depan)
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 8 }, (_, i) => currentYear - 5 + i);
 
     const handleClassChange = (classId: string) => {
         if (!classId) return;
         setIsLoadingClass(true);
         const params = new URLSearchParams();
         params.append('class_id', classId);
-        params.append('period', selectedPeriod);
+        params.append('month', selectedMonth.toString());
+        params.append('year', selectedYear.toString());
         router.visit(`/guru/monitoring-aktivitas?${params.toString()}`, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => setIsLoadingClass(false),
         });
     };
 
-    const handlePeriodChange = (period: 'hari' | 'minggu' | 'bulan') => {
-        setIsLoadingPeriod(true);
+    const handleMonthChange = (month: string) => {
+        setIsLoadingFilter(true);
         const params = new URLSearchParams();
         if (selectedClass) params.append('class_id', selectedClass.id.toString());
-        params.append('period', period);
+        params.append('month', month);
+        params.append('year', selectedYear.toString());
         router.visit(`/guru/monitoring-aktivitas?${params.toString()}`, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => setIsLoadingFilter(false),
+        });
+    };
+
+    const handleYearChange = (year: string) => {
+        setIsLoadingFilter(true);
+        const params = new URLSearchParams();
+        if (selectedClass) params.append('class_id', selectedClass.id.toString());
+        params.append('month', selectedMonth.toString());
+        params.append('year', year);
+        router.visit(`/guru/monitoring-aktivitas?${params.toString()}`, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => setIsLoadingFilter(false),
         });
     };
 
@@ -303,56 +342,48 @@ export default function MonitoringAktivitas({
                         </div>
                     </div>
 
-                    {/* Period Filter */}
+                    {/* Period Filter - Month & Year */}
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-8">
                         <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                             <div className="flex items-center gap-2 min-w-fit">
                                 <Calendar className="w-5 h-5 text-blue-600" />
                                 <label className="text-sm md:text-base font-medium text-gray-700 whitespace-nowrap">
-                                    Filter Periode
+                                    Filter Periode:
                                 </label>
                             </div>
-                            <div className="flex gap-2 flex-wrap">
-                                <button
-                                    onClick={() => handlePeriodChange('hari')}
-                                    disabled={isLoadingPeriod}
-                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                                        selectedPeriod === 'hari'
-                                            ? 'bg-blue-600 text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
+                            <div className="flex gap-3 flex-wrap items-center">
+                                {/* Month Selector */}
+                                <select
+                                    value={selectedMonth}
+                                    onChange={(e) => handleMonthChange(e.target.value)}
+                                    disabled={isLoadingFilter}
+                                    className="px-4 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Hari Ini
-                                </button>
-                                <button
-                                    onClick={() => handlePeriodChange('minggu')}
-                                    disabled={isLoadingPeriod}
-                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                                        selectedPeriod === 'minggu'
-                                            ? 'bg-blue-600 text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
+                                    {months.map((month) => (
+                                        <option key={month.value} value={month.value}>
+                                            {month.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                
+                                {/* Year Selector */}
+                                <select
+                                    value={selectedYear}
+                                    onChange={(e) => handleYearChange(e.target.value)}
+                                    disabled={isLoadingFilter}
+                                    className="px-4 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Minggu Ini
-                                </button>
-                                <button
-                                    onClick={() => handlePeriodChange('bulan')}
-                                    disabled={isLoadingPeriod}
-                                    className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-medium text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                                        selectedPeriod === 'bulan'
-                                            ? 'bg-blue-600 text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                                >
-                                    Bulan Ini
-                                </button>
+                                    {years.map((year) => (
+                                        <option key={year} value={year}>
+                                            {year}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="md:ml-auto">
                                 <p className="text-xs md:text-sm text-gray-600">
                                     Menampilkan data: <span className="font-bold text-blue-600">
-                                        {selectedPeriod === 'hari' && 'Hari Ini'}
-                                        {selectedPeriod === 'minggu' && 'Minggu Ini'}
-                                        {selectedPeriod === 'bulan' && 'Bulan Ini'}
+                                        {months.find(m => m.value === selectedMonth)?.label} {selectedYear}
                                     </span>
                                 </p>
                             </div>
@@ -360,13 +391,13 @@ export default function MonitoringAktivitas({
                     </div>
 
                     {/* Detail Per Aktivitas */}
-                    {isLoadingClass || isLoadingPeriod ? (
+                    {isLoadingClass || isLoadingFilter ? (
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                             <div className="flex items-center justify-center py-20">
                                 <div className="text-center">
                                     <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
                                     <p className="text-gray-600 font-medium">
-                                        {isLoadingClass ? 'Memuat data kelas...' : 'Memuat data periode...'}
+                                        {isLoadingClass ? 'Memuat data kelas...' : 'Memuat data...'}
                                     </p>
                                 </div>
                             </div>

@@ -432,26 +432,13 @@ class DashboardController extends Controller
         // Calculate activity statistics for selected class
         $activityStats = [];
         if ($selectedClass) {
-            // Get period filter (default: bulan)
-            $period = request()->query('period', 'bulan');
+            // Get month and year filter (default: current month)
+            $selectedMonth = request()->query('month', now()->month);
+            $selectedYear = request()->query('year', now()->year);
             
-            // Determine date range based on period
-            $now = now();
-            switch ($period) {
-                case 'hari':
-                    $startDate = $now->copy()->startOfDay();
-                    $endDate = $now->copy()->endOfDay();
-                    break;
-                case 'minggu':
-                    $startDate = $now->copy()->startOfWeek();
-                    $endDate = $now->copy()->endOfWeek();
-                    break;
-                case 'bulan':
-                default:
-                    $startDate = $now->copy()->startOfMonth();
-                    $endDate = $now->copy()->endOfMonth();
-                    break;
-            }
+            // Determine date range based on month and year
+            $startDate = \Carbon\Carbon::create($selectedYear, $selectedMonth, 1)->startOfMonth();
+            $endDate = \Carbon\Carbon::create($selectedYear, $selectedMonth, 1)->endOfMonth();
             
             // Get all activities
             $activities = Activity::orderBy('order')->get();
@@ -515,7 +502,8 @@ class DashboardController extends Controller
             'classes' => $classesData,
             'selectedClass' => $selectedClassData,
             'activityStats' => $activityStats,
-            'selectedPeriod' => request()->query('period', 'bulan'),
+            'selectedMonth' => (int) request()->query('month', now()->month),
+            'selectedYear' => (int) request()->query('year', now()->year),
         ]);
     }
 

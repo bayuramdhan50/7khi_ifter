@@ -63,8 +63,9 @@ export default function MonitoringSiswa({
         if (!classId) return;
         setIsLoadingClass(true);
         router.visit(`/guru/monitoring-siswa?class_id=${classId}`, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => setIsLoadingClass(false),
         });
     };
 
@@ -79,8 +80,9 @@ export default function MonitoringSiswa({
         if (selectedClass) params.append('class_id', selectedClass.id.toString());
         params.append('student_id', studentId.toString());
         router.visit(`/guru/monitoring-siswa?${params.toString()}`, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => setIsLoadingStudent(false),
         });
     };
 

@@ -74,8 +74,8 @@ export default function StudentAllActivities({
         const selectedMonth = months.indexOf(e.target.value) + 1;
         
         router.visit(`/guru/siswa/${student.id}/activities/all?month=${selectedMonth}&year=${year}`, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
             onFinish: () => setIsLoadingMonth(false),
         });
     };
@@ -86,8 +86,8 @@ export default function StudentAllActivities({
         const currentMonthNumber = months.indexOf(month) + 1;
         
         router.visit(`/guru/siswa/${student.id}/activities/all?month=${currentMonthNumber}&year=${selectedYear}`, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
             onFinish: () => setIsLoadingMonth(false),
         });
     };
