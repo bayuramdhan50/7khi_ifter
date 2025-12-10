@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { Eye, BookOpen, Users, Calendar } from 'lucide-react';
+import { Eye, BookOpen, Users, Calendar, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface StudentJournal {
@@ -56,6 +56,7 @@ export default function GuruDashboard({
     const currentMonth = new Date();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+    const [isLoadingClass, setIsLoadingClass] = useState(false);
 
     // Use actual data from backend
     const studentsList: Student[] = students.length > 0 ? students : [];
@@ -93,8 +94,12 @@ export default function GuruDashboard({
 
     const handleClassChange = (classId: string) => {
         if (!classId) return;
-        // Navigate with query param to reload page with selected class
-        window.location.href = `/guru/dashboard?class_id=${classId}`;
+        setIsLoadingClass(true);
+        // Use Inertia router for smooth navigation without full page reload
+        router.visit(`/guru/dashboard?class_id=${classId}`, {
+            preserveState: false,
+            preserveScroll: false,
+        });
     };
 
     const getStatusBadgeColor = (status: string) => {
@@ -146,7 +151,8 @@ export default function GuruDashboard({
                                     <select
                                         value={selectedClass?.id?.toString() || ''}
                                         onChange={(e) => handleClassChange(e.target.value)}
-                                        className="w-full px-4 py-2 border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900 font-medium appearance-none cursor-pointer hover:border-blue-600 transition-colors"
+                                        disabled={isLoadingClass}
+                                        className="w-full px-4 py-2 border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900 font-medium appearance-none cursor-pointer hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <option value="" className="text-gray-500">-- Pilih Kelas --</option>
                                         {classes.map((cls) => (
@@ -159,7 +165,7 @@ export default function GuruDashboard({
                             </div>
 
                             {/* Class Info Cards */}
-                            {selectedClass && (
+                            {selectedClass && !isLoadingClass && (
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {/* Card: Kelas */}
                                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border-l-4 border-blue-600">
@@ -211,6 +217,14 @@ export default function GuruDashboard({
 
                     {/* Main Content */}
                     {selectedClass ? (
+                        isLoadingClass ? (
+                            <div className="flex items-center justify-center py-20">
+                                <div className="text-center">
+                                    <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+                                    <p className="text-gray-600 font-medium">Memuat data kelas...</p>
+                                </div>
+                            </div>
+                        ) : (
                         <div className="flex flex-col lg:flex-row gap-8">
                             {/* Left Side - Students Table */}
                             <div className="flex-1">
@@ -448,6 +462,7 @@ export default function GuruDashboard({
                                 </div>
                             </div>
                         </div>
+                        )
                     ) : (
                         <div className="bg-white rounded-lg shadow-md p-12 text-center border border-gray-200">
                             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
