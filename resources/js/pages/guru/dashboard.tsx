@@ -97,8 +97,9 @@ export default function GuruDashboard({
         setIsLoadingClass(true);
         // Use Inertia router for smooth navigation without full page reload
         router.visit(`/guru/dashboard?class_id=${classId}`, {
-            preserveState: false,
-            preserveScroll: false,
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => setIsLoadingClass(false),
         });
     };
 
