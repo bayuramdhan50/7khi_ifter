@@ -317,7 +317,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                     {isTestMode && (
                         <div className="mb-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg p-3 text-center">
                             <p className="text-yellow-800 font-semibold text-sm">
-                                🧪 MODE TEST: Menggunakan tanggal {testDate}
+                                🧪 MODE TEST: Menggunakan tanggal. {testDate}
                             </p>
                         </div>
                     )}
