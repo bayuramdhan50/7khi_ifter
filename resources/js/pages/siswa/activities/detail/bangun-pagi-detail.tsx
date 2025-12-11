@@ -74,7 +74,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
         if (todaySubmission) {
             // Load jam bangun from time field
             setJamBangun(todaySubmission.time || '');
-            
+
             // Load checkbox states from details
             if (todaySubmission.details.membereskan_tempat_tidur) {
                 setMembereskanTempat(todaySubmission.details.membereskan_tempat_tidur.is_checked);
@@ -88,6 +88,9 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
             if (todaySubmission.details.sarapan) {
                 setSarapan(todaySubmission.details.sarapan.is_checked);
             }
+
+            // Set approval status
+            setApprovalOrangTua(todaySubmission.status === 'approved');
         }
     }, [todaySubmission]);
 
@@ -105,14 +108,14 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
     const handleCheckboxChange = (checkboxName: string, newValue: boolean) => {
         console.log('Checkbox clicked:', checkboxName, 'New value:', newValue);
         console.log('isSavingCheckbox:', isSavingCheckbox);
-        
+
         // Update local state first for immediate UI feedback
         let updatedMembereskan = membereskanTempat;
         let updatedMandi = mandi;
         let updatedBerpakaian = berpakaianRapi;
         let updatedSarapan = sarapan;
 
-        switch(checkboxName) {
+        switch (checkboxName) {
             case 'membereskan_tempat_tidur':
                 setMembereskanTempat(newValue);
                 updatedMembereskan = newValue;
@@ -160,7 +163,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
             onError: (errors) => {
                 console.error('Auto-save checkbox error:', errors);
                 // Revert the checkbox state on error
-                switch(checkboxName) {
+                switch (checkboxName) {
                     case 'membereskan_tempat_tidur':
                         setMembereskanTempat(!newValue);
                         break;
@@ -182,7 +185,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -194,17 +197,17 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
         formData.append('photo', image);
-        
+
         // Include checkbox states to preserve them
         formData.append('membereskan_tempat_tidur', membereskanTempat ? '1' : '0');
         formData.append('mandi', mandi ? '1' : '0');
         formData.append('berpakaian_rapi', berpakaianRapi ? '1' : '0');
         formData.append('sarapan', sarapan ? '1' : '0');
-        
+
         // Include time if exists
         if (jamBangun) {
-            const timeWithSeconds = jamBangun.includes(':') && jamBangun.split(':').length === 2 
-                ? `${jamBangun}:00` 
+            const timeWithSeconds = jamBangun.includes(':') && jamBangun.split(':').length === 2
+                ? `${jamBangun}:00`
                 : jamBangun;
             formData.append('time', timeWithSeconds);
         }
@@ -241,7 +244,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!jamBangun) {
             alert('Mohon isi jam bangun terlebih dahulu');
             return;
@@ -250,8 +253,8 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
         setIsSubmitting(true);
 
         // Ensure time is in HH:mm:ss format
-        const timeWithSeconds = jamBangun.includes(':') && jamBangun.split(':').length === 2 
-            ? `${jamBangun}:00` 
+        const timeWithSeconds = jamBangun.includes(':') && jamBangun.split(':').length === 2
+            ? `${jamBangun}:00`
             : jamBangun;
 
         const formData = new FormData();
@@ -458,7 +461,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                                     <button
                                         type="button"
                                         disabled
-                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-100 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
                                             }`}
                                     >
                                         <span
@@ -526,7 +529,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                                                 )}
                                             </div>
                                         </label>
-                                        
+
                                         <div className="flex-1">
                                             {image && (
                                                 <div className="mb-2">
@@ -534,7 +537,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                                                     <p className="text-xs text-gray-500">Ukuran: {(image.size / 1024).toFixed(2)} KB</p>
                                                 </div>
                                             )}
-                                            
+
                                             <Button
                                                 type="button"
                                                 onClick={handlePhotoSubmit}

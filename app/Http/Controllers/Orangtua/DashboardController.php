@@ -153,8 +153,8 @@ class DashboardController extends Controller
                     // Define proper labels for each field
                     $fieldLabels = [
                         // Bangun Pagi
-                        'wake_up_time' => 'Jam Bangun',
-                        'tidy_bed' => 'Merapikan Tempat Tidur',
+                        'jam_bangun' => 'Jam Bangun',
+                        'membereskan_tempat_tidur' => 'Merapikan Tempat Tidur',
                         'open_window' => 'Membuka Jendela',
                         'morning_prayer' => 'Berdoa Pagi',
                         'tidy_room' => 'Merapikan Kamar',
@@ -212,7 +212,7 @@ class DashboardController extends Controller
                         $label = $fieldLabels[$key] ?? ucwords(str_replace('_', ' ', $key));
                         
                         // Boolean fields list
-                        $booleanFields = ['tidy_bed', 'open_window', 'morning_prayer', 'tidy_room', 'shubuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'read_quran', 'tarka', 'kerja_bakti', 'gotong_royong', 'lainnya', 'brush_teeth', 'night_prayer'];
+                        $booleanFields = ['membereskan_tempat_tidur', 'open_window', 'morning_prayer', 'tidy_room', 'shubuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'read_quran', 'tarka', 'kerja_bakti', 'gotong_royong', 'lainnya', 'brush_teeth', 'night_prayer'];
                         
                         // Special handling for Tidur Cepat (Activity 7) - only show time
                         if ($activity->id === 7) {

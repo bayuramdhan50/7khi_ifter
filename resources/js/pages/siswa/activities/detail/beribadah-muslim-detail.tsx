@@ -81,7 +81,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
     useEffect(() => {
         if (todaySubmission?.details) {
             const details = todaySubmission.details;
-            
+
             // Load prayer states
             setPrayers({
                 subuh: details.subuh?.is_checked || false,
@@ -96,6 +96,10 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
             setBerdoa(details.berdoa?.is_checked || false);
             setBersedekah(details.bersedekah?.is_checked || false);
             setLainnya(details.lainnya?.is_checked || false);
+        }
+
+        if (todaySubmission) {
+            setApprovalOrangTua(todaySubmission.status === 'approved');
         }
     }, [todaySubmission]);
 
@@ -128,7 +132,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
         const formData = new FormData();
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
-        
+
         // Send all prayer states
         formData.append('subuh', prayers.subuh || (prayerKey === 'subuh' && checked) ? '1' : '0');
         formData.append('dzuhur', prayers.dzuhur || (prayerKey === 'dzuhur' && checked) ? '1' : '0');
@@ -167,7 +171,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
         const formData = new FormData();
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
-        
+
         // Send all states
         formData.append('subuh', prayers.subuh ? '1' : '0');
         formData.append('dzuhur', prayers.dzuhur ? '1' : '0');
@@ -198,7 +202,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -446,7 +450,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                 <button
                                     type="button"
                                     disabled
-                                    className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                    className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-100 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
                                         }`}
                                 >
                                     <span
@@ -513,7 +517,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                                 )}
                                             </div>
                                         </label>
-                                        
+
                                         <div className="flex-1">
                                             {image && (
                                                 <div className="mb-2">
@@ -521,7 +525,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                                     <p className="text-xs text-gray-500">Ukuran: {(image.size / 1024).toFixed(2)} KB</p>
                                                 </div>
                                             )}
-                                            
+
                                             <Button
                                                 type="button"
                                                 onClick={handlePhotoSubmit}

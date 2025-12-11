@@ -72,6 +72,10 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
             setMengerjakanTugas(details.mengerjakan_tugas?.is_checked || false);
             setLainnya(details.lainnya?.is_checked || false);
         }
+
+        if (todaySubmission) {
+            setApprovalOrangTua(todaySubmission.status === 'approved');
+        }
     }, [todaySubmission]);
 
     const monthNames = [
@@ -99,7 +103,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
         const formData = new FormData();
         formData.append('activity_id', activity.id.toString());
         formData.append('date', dateString);
-        
+
         // Use updated local variables instead of state
         formData.append('gemar_belajar', updatedGemarBelajar ? '1' : '0');
         formData.append('ekstrakurikuler', updatedEkstrakurikuler ? '1' : '0');
@@ -125,7 +129,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -137,7 +141,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
         formData.append('photo', image);
-        
+
         // Include checkbox values to preserve them
         formData.append('gemar_belajar', gemarBelajar ? '1' : '0');
         formData.append('ekstrakurikuler', ekstrakurikuler ? '1' : '0');
@@ -342,7 +346,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
                                     <button
                                         type="button"
                                         disabled
-                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-100 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
                                             }`}
                                     >
                                         <span
@@ -410,7 +414,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
                                                 )}
                                             </div>
                                         </label>
-                                        
+
                                         <div className="flex-1 w-full">
                                             <Button
                                                 type="button"

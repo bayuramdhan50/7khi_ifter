@@ -49,14 +49,18 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
     const [isSubmittingPhoto, setIsSubmittingPhoto] = useState(false);
-    
+
     // Check if time has already been submitted today
-    const hasSubmittedTime = todaySubmission?.details?.waktu_tidur?.value && todaySubmission.details.waktu_tidur.value.length > 0;
+    const hasSubmittedTime = !!(todaySubmission?.details?.waktu_tidur?.value && todaySubmission.details.waktu_tidur.value.length > 0);
 
     // Update jamTidur state when todaySubmission changes (after photo upload)
     useEffect(() => {
         if (todaySubmission?.details?.waktu_tidur?.value) {
             setJamTidur(todaySubmission.details.waktu_tidur.value);
+        }
+
+        if (todaySubmission) {
+            setApprovalOrangTua(todaySubmission.status === 'approved');
         }
     }, [todaySubmission]);
 
@@ -73,7 +77,7 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!jamTidur) {
             alert('Mohon isi jam tidur');
             return;
@@ -99,7 +103,7 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -111,7 +115,7 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
         formData.append('photo', image);
-        
+
         // Include jam_tidur to preserve the time input
         if (jamTidur) {
             formData.append('jam_tidur', jamTidur);
@@ -237,7 +241,7 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                                 <button
                                     type="button"
                                     disabled
-                                    className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                    className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-100 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
                                         }`}
                                 >
                                     <span
@@ -262,7 +266,7 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                         {/* Upload Foto Section - Separate from form */}
                         <div className="mt-6 pt-6 border-t-2 border-gray-200">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Upload Foto Kegiatan</h3>
-                            
+
                             {photoUploadedToday ? (
                                 <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
                                     <div className="flex items-center gap-3">

@@ -51,7 +51,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
     const serverDate = new Date(currentDate);
     const [currentMonth] = useState(serverDate); // No setter, read-only
     const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
-    
+
     const [worshipActivities, setWorshipActivities] = useState({
         doaPagi: false,
         bacaFirman: false,
@@ -74,6 +74,10 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                 doaMalam: todaySubmission.details.doa_malam?.is_checked || false,
                 ibadahBersama: todaySubmission.details.ibadah_bersama?.is_checked || false
             });
+        }
+
+        if (todaySubmission) {
+            setApprovalOrangTua(todaySubmission.status === 'approved');
         }
     }, [todaySubmission]);
 
@@ -109,7 +113,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
         const formData = new FormData();
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
-        
+
         // Send all worship states with updated value
         const updatedActivities = { ...worshipActivities, [worshipKey]: checked };
         formData.append('doa_pagi', updatedActivities.doaPagi ? '1' : '0');
@@ -135,7 +139,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -147,7 +151,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
         formData.append('photo', image);
-        
+
         // Include worship activities to preserve them
         formData.append('doa_pagi', worshipActivities.doaPagi ? '1' : '0');
         formData.append('baca_firman', worshipActivities.bacaFirman ? '1' : '0');
@@ -281,7 +285,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                 <button
                                     type="button"
                                     disabled
-                                    className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                    className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-100 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
                                         }`}
                                 >
                                     <span
@@ -306,7 +310,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                         {/* Upload Foto Section - Separate from form */}
                         <div className="mt-6 pt-6 border-t-2 border-gray-200">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Upload Foto Kegiatan</h3>
-                            
+
                             {photoUploadedToday ? (
                                 <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
                                     <div className="flex items-center gap-3">

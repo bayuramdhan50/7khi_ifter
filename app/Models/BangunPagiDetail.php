@@ -9,16 +9,16 @@ class BangunPagiDetail extends Model
 {
     protected $fillable = [
         'submission_id',
-        'wake_up_time',
-        'tidy_bed',
+        'jam_bangun',
+        'membereskan_tempat_tidur',
         'mandi',
         'berpakaian_rapi',
         'sarapan',
     ];
 
     protected $casts = [
-        'wake_up_time' => 'datetime:H:i',
-        'tidy_bed' => 'boolean',
+        'jam_bangun' => 'datetime:H:i',
+        'membereskan_tempat_tidur' => 'boolean',
         'mandi' => 'boolean',
         'berpakaian_rapi' => 'boolean',
         'sarapan' => 'boolean',

@@ -70,6 +70,10 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                 setBerolahraga(true); // Auto-check checkbox jika ada waktu
             }
         }
+
+        if (todaySubmission) {
+            setApprovalOrangTua(todaySubmission.status === 'approved');
+        }
     }, [todaySubmission]);
 
     const monthNames = [
@@ -81,12 +85,12 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
     const handleCheckboxChange = (field: string, value: boolean, setter: (val: boolean) => void) => {
         const updatedValue = value;
         setter(updatedValue);
-        
+
         // Jika checkbox unchecked, reset waktu berolahraga
         if (!updatedValue) {
             setWaktuBerolahraga('');
         }
-        
+
         const year = currentMonth.getFullYear();
         const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
         const day = String(selectedDate).padStart(2, '0');
@@ -110,12 +114,12 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
     // Handler untuk dropdown waktu berolahraga
     const handleWaktuChange = (value: string) => {
         setWaktuBerolahraga(value);
-        
+
         // Auto-check checkbox ketika dropdown dipilih
         if (value) {
             setBerolahraga(true);
         }
-        
+
         const year = currentMonth.getFullYear();
         const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
         const day = String(selectedDate).padStart(2, '0');
@@ -138,7 +142,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -313,7 +317,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                     <button
                                         type="button"
                                         disabled
-                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-100 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
                                             }`}
                                     >
                                         <span
@@ -381,7 +385,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                                 )}
                                             </div>
                                         </label>
-                                        
+
                                         <div className="flex-1">
                                             {image && (
                                                 <div className="mb-2">
@@ -389,7 +393,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                                     <p className="text-xs text-gray-500">Ukuran: {(image.size / 1024).toFixed(2)} KB</p>
                                                 </div>
                                             )}
-                                            
+
                                             <Button
                                                 type="button"
                                                 onClick={handlePhotoSubmit}
@@ -402,7 +406,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                     </div>
                                 )}
                             </div>
-                            
+
                             {/* Timestamp */}
                             <div className="text-center sm:text-right text-xs sm:text-sm text-gray-500">
                                 {new Date().toLocaleString('id-ID', {
