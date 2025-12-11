@@ -289,13 +289,7 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
                       {/* Action Footer */}
                       {activity.submission.status === 'pending' && (
                         <div className="pt-6 mt-6 border-t border-gray-100 flex gap-3 justify-end">
-                          <button
-                            onClick={() => handleReject(activity.submission!.id)}
-                            className="px-4 py-2 rounded-lg bg-white border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 hover:border-red-300 transition-colors flex items-center gap-2"
-                          >
-                            <XCircle className="w-4 h-4" />
-                            Tolak
-                          </button>
+
                           <button
                             onClick={() => handleApprove(activity.submission!.id)}
                             className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 hover:shadow-md hover:shadow-green-200 transition-all flex items-center gap-2"
