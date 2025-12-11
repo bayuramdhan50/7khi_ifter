@@ -138,92 +138,42 @@ export default function MonitoringAktivitas({
                 <div className="container mx-auto px-4 py-4 md:py-8">
                     {/* Header */}
                     <div className="mb-6 md:mb-8">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                                    <Activity className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                                        Monitoring Aktivitas Siswa
-                                    </h1>
-                                    <p className="text-sm text-gray-600 mt-1">
-                                        Pantau partisipasi siswa dalam 7 Kebiasaan Anak Indonesia
-                                    </p>
-                                </div>
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                                <Activity className="w-6 h-6 text-white" />
                             </div>
-                            <Link
-                                href="/guru/monitoring-siswa"
-                                className="inline-flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg"
-                            >
-                                <User className="w-5 h-5" />
-                                <span>Monitoring Per Siswa</span>
-                            </Link>
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                                    Monitoring Aktivitas Kelas
+                                </h1>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Pantau partisipasi siswa dalam 7 Kebiasaan Anak Indonesia
+                                </p>
+                            </div>
                         </div>
 
-                        {/* Info Cards - Moved to Top */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                            {/* Informasi Umum */}
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl p-5 shadow-sm">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <span className="text-white text-sm font-bold">ℹ</span>
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="font-bold text-lg mb-3 text-blue-900">Informasi Umum</p>
-                                        <ul className="space-y-2 text-sm text-gray-700">
-                                            <li className="flex items-start gap-2">
-                                                <span className="text-blue-600 mt-0.5">•</span>
-                                                <span>Data menampilkan statistik partisipasi siswa dalam 7 kebiasaan</span>
-                                            </li>
-                                            <li className="flex items-start gap-2">
-                                                <span className="text-blue-600 mt-0.5">•</span>
-                                                <span>Persentase dihitung dari jumlah siswa yang aktif melakukan aktivitas</span>
-                                            </li>
-                                            <li className="flex items-start gap-2">
-                                                <span className="text-blue-600 mt-0.5">•</span>
-                                                <span>Gunakan filter periode untuk melihat data harian, mingguan, atau bulanan</span>
-                                            </li>
-                                        </ul>
-                                    </div>
+                        {/* Info Card - Informasi Umum */}
+                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl p-6 shadow-sm mb-6">
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span className="text-white text-xl font-bold">ℹ</span>
                                 </div>
-                            </div>
-
-                            {/* Klasifikasi Status */}
-                            <div className="bg-gradient-to-br from-purple-50 to-pink-100 border-2 border-purple-300 rounded-xl p-5 shadow-sm">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <CheckCircle className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="font-bold text-lg mb-3 text-purple-900">Klasifikasi Status Partisipasi</p>
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
-                                                    ✓ Sangat Baik
-                                                </span>
-                                                <span className="text-gray-700">: 100% dalam sebulan</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
-                                                    ↗ Baik
-                                                </span>
-                                                <span className="text-gray-700">: 75% - 99% dalam sebulan</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
-                                                    ⚠ Cukup
-                                                </span>
-                                                <span className="text-gray-700">: 50% - 74% dalam sebulan</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-full whitespace-nowrap shadow-sm">
-                                                    ✕ Kurang
-                                                </span>
-                                                <span className="text-gray-700">: Kurang dari 50% dalam sebulan</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div className="flex-1">
+                                    <h2 className="font-bold text-xl mb-4 text-blue-900">Informasi Umum</h2>
+                                    <ul className="space-y-3 text-sm text-gray-700">
+                                        <li className="flex items-start gap-3">
+                                            <span className="text-blue-600 font-bold mt-0.5">•</span>
+                                            <span>Data menampilkan <strong>statistik partisipasi siswa per kelas</strong> dalam 7 Kebiasaan Anak Indonesia</span>
+                                        </li>
+                                        <li className="flex items-start gap-3">
+                                            <span className="text-blue-600 font-bold mt-0.5">•</span>
+                                            <span>Persentase dihitung dari <strong>siswa aktif yang telah disetujui (approved)</strong> oleh orang tua</span>
+                                        </li>
+                                        <li className="flex items-start gap-3">
+                                            <span className="text-blue-600 font-bold mt-0.5">•</span>
+                                            <span>Gunakan <strong>filter bulan dan tahun</strong> untuk melihat data periode tertentu</span>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
