@@ -7,20 +7,43 @@ use App\Models\Activity;
 use App\Models\ActivitySubmission;
 use App\Models\ActivityDetail;
 use App\Models\Student;
-use App\Models\BangunPagiDetail;
-use App\Models\BerolahragaDetail;
-use App\Models\BeribadahDetail;
-use App\Models\GemarBelajarDetail;
-use App\Models\MakanSehatDetail;
-use App\Models\BermasyarakatDetail;
-use App\Models\TidurCepatDetail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    /**
+     * Update the biodata for the current student.
+     */
+    public function biodataUpdate(Request $request)
+    {
+        $user = auth()->user();
+        $student = Student::where('user_id', $user->id)->firstOrFail();
+
+        $validated = $request->validate([
+            'hobi' => 'nullable|string',
+            'cita_cita' => 'nullable|string',
+            'makanan_kesukaan' => 'nullable|string',
+            'minuman_kesukaan' => 'nullable|string',
+            'hewan_kesukaan' => 'nullable|string',
+            'tidak_disukai' => 'nullable|string',
+        ]);
+
+        $biodata = \App\Models\BiodataSiswa::firstOrNew([
+            'student_id' => $student->id,
+        ]);
+
+        $biodata->hobi = $validated['hobi'] ?? '';
+        $biodata->cita_cita = $validated['cita_cita'] ?? '';
+        $biodata->makanan_kesukaan = $validated['makanan_kesukaan'] ?? '';
+        $biodata->minuman_kesukaan = $validated['minuman_kesukaan'] ?? '';
+        $biodata->hewan_kesukaan = $validated['hewan_kesukaan'] ?? '';
+        $biodata->sesuatu_tidak_suka = $validated['tidak_disukai'] ?? '';
+        $biodata->save();
+
+        return redirect()->route('siswa.biodata')->with('success', 'Biodata berhasil diperbarui!');
+    }
     /**
      * Display the siswa dashboard.
      */
@@ -134,7 +157,32 @@ class DashboardController extends Controller
      */
     public function biodata(): Response
     {
-        return Inertia::render('siswa/profile/biodata');
+        $user = auth()->user();
+        $student = Student::where('user_id', $user->id)->first();
+        $biodata = null;
+        if ($student) {
+            $raw = \App\Models\BiodataSiswa::where('student_id', $student->id)->first();
+            if ($raw) {
+                $biodata = [
+                    'hobbies' => $raw->hobi ? preg_split('/[,;\n]+/', $raw->hobi) : [],
+                    'aspirations' => $raw->cita_cita ? preg_split('/[,;\n]+/', $raw->cita_cita) : [],
+                    'favorite_foods' => $raw->makanan_kesukaan ? preg_split('/[,;\n]+/', $raw->makanan_kesukaan) : [],
+                    'favorite_drinks' => $raw->minuman_kesukaan ? preg_split('/[,;\n]+/', $raw->minuman_kesukaan) : [],
+                    'favorite_animals' => $raw->hewan_kesukaan ? preg_split('/[,;\n]+/', $raw->hewan_kesukaan) : [],
+                    'disliked_items' => $raw->sesuatu_tidak_suka ? preg_split('/[,;\n]+/', $raw->sesuatu_tidak_suka) : [],
+                ];
+            }
+        }
+        return Inertia::render('siswa/profile/biodata', [
+            'auth' => [
+                'user' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ],
+            ],
+            'biodata' => $biodata,
+        ]);
     }
 
     /**
@@ -142,7 +190,32 @@ class DashboardController extends Controller
      */
     public function biodataEdit(): Response
     {
-        return Inertia::render('siswa/profile/biodata-edit');
+        $user = auth()->user();
+        $student = Student::where('user_id', $user->id)->first();
+        $biodata = null;
+        if ($student) {
+            $raw = \App\Models\BiodataSiswa::where('student_id', $student->id)->first();
+            if ($raw) {
+                $biodata = [
+                    'hobbies' => $raw->hobi ? preg_split('/[,;\n]+/', $raw->hobi) : [],
+                    'aspirations' => $raw->cita_cita ? preg_split('/[,;\n]+/', $raw->cita_cita) : [],
+                    'favorite_foods' => $raw->makanan_kesukaan ? preg_split('/[,;\n]+/', $raw->makanan_kesukaan) : [],
+                    'favorite_drinks' => $raw->minuman_kesukaan ? preg_split('/[,;\n]+/', $raw->minuman_kesukaan) : [],
+                    'favorite_animals' => $raw->hewan_kesukaan ? preg_split('/[,;\n]+/', $raw->hewan_kesukaan) : [],
+                    'disliked_items' => $raw->sesuatu_tidak_suka ? preg_split('/[,;\n]+/', $raw->sesuatu_tidak_suka) : [],
+                ];
+            }
+        }
+        return Inertia::render('siswa/profile/biodata-edit', [
+            'auth' => [
+                'user' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ],
+            ],
+            'biodata' => $biodata,
+        ]);
     }
 
     /**

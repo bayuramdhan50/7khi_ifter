@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
@@ -67,7 +67,7 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+        const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!validateForm()) {
@@ -75,16 +75,17 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
         }
 
         setIsSubmitting(true);
-        try {
-            // Handle form submission
-            console.log(formData);
-            // Tambahkan API call ke backend di sini
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            setErrors({ submit: 'Terjadi kesalahan saat menyimpan data' });
-        } finally {
-            setIsSubmitting(false);
-        }
+            router.post('/siswa/biodata/update', formData, {
+                onSuccess: () => {
+                    setIsSubmitting(false);
+                    window.alert('Biodata berhasil di edit');
+                    router.visit('/siswa/biodata');
+                },
+                onError: (errors) => {
+                    setIsSubmitting(false);
+                    setErrors(errors);
+                }
+            });
     };
 
     return (
@@ -141,7 +142,7 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
                                         name="hobi"
                                         value={formData.hobi}
                                         onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 ${
+                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
                                             errors.hobi ? 'border-red-500' : 'border-gray-300'
                                         } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
                                         placeholder="Tulis hobi kamu di sini..."
@@ -156,7 +157,7 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
                                         name="cita_cita"
                                         value={formData.cita_cita}
                                         onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 ${
+                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
                                             errors.cita_cita ? 'border-red-500' : 'border-gray-300'
                                         } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
                                         placeholder="Tulis cita-cita kamu di sini..."
@@ -171,7 +172,7 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
                                         name="makanan_kesukaan"
                                         value={formData.makanan_kesukaan}
                                         onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 ${
+                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
                                             errors.makanan_kesukaan ? 'border-red-500' : 'border-gray-300'
                                         } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
                                         placeholder="Tulis makanan kesukaan kamu di sini..."
@@ -186,7 +187,7 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
                                         name="minuman_kesukaan"
                                         value={formData.minuman_kesukaan}
                                         onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 ${
+                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
                                             errors.minuman_kesukaan ? 'border-red-500' : 'border-gray-300'
                                         } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
                                         placeholder="Tulis minuman kesukaan kamu di sini..."
@@ -201,7 +202,7 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
                                         name="hewan_kesukaan"
                                         value={formData.hewan_kesukaan}
                                         onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 ${
+                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
                                             errors.hewan_kesukaan ? 'border-red-500' : 'border-gray-300'
                                         } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
                                         placeholder="Tulis hewan kesukaan kamu di sini..."
@@ -216,7 +217,7 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
                                         name="tidak_disukai"
                                         value={formData.tidak_disukai}
                                         onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 ${
+                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
                                             errors.tidak_disukai ? 'border-red-500' : 'border-gray-300'
                                         } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
                                         placeholder="Tulis sesuatu yang tidak kamu sukai di sini..."

@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
         Route::get('biodata', [SiswaDashboardController::class, 'biodata'])->name('biodata');
         Route::get('biodata/edit', [SiswaDashboardController::class, 'biodataEdit'])->name('biodata.edit');
+        Route::post('biodata/update', [SiswaDashboardController::class, 'biodataUpdate'])->name('biodata.update');
         Route::get('lagu', [SiswaDashboardController::class, 'lagu'])->name('lagu');
         Route::get('kegiatan-harian', [SiswaDashboardController::class, 'kegiatanHarian'])->name('kegiatan-harian');
 

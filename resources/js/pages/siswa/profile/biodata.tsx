@@ -31,7 +31,7 @@ export default function Biodata({ auth, biodata }: BiodataProps) {
         return (
             <div className="space-y-2 text-sm text-gray-700">
                 {items.map((item, index) => (
-                    <div key={index}>• {item}</div>
+                    <div key={index}>{item}</div>
                 ))}
             </div>
         );
