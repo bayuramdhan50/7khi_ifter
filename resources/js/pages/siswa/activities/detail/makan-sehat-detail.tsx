@@ -61,6 +61,16 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
     });
 
     // Load data yang sudah dipilih dari todaySubmission
+    const [approvalOrangTua, setApprovalOrangTua] = useState(false);
+
+    // Sync approval state so student sees changes when parent approves
+    useEffect(() => {
+        if (todaySubmission && todaySubmission.status === 'approved') {
+            setApprovalOrangTua(true);
+        } else {
+            setApprovalOrangTua(false);
+        }
+    }, [todaySubmission]);
     useEffect(() => {
         if (todaySubmission?.details) {
             const details = todaySubmission.details;
@@ -306,7 +316,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.karbohidrat}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, karbohidrat: e.target.value }))}
-                                    disabled={!!todaySubmission}
+                                    disabled={!!todaySubmission || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {karbohidratOptions.map((option, index) => (
@@ -323,7 +333,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.protein}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, protein: e.target.value }))}
-                                    disabled={!!todaySubmission}
+                                    disabled={!!todaySubmission || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {proteinOptions.map((option, index) => (
@@ -340,7 +350,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.sayur}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, sayur: e.target.value }))}
-                                    disabled={!!todaySubmission}
+                                    disabled={!!todaySubmission || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {sayurOptions.map((option, index) => (
@@ -357,7 +367,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.buah}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, buah: e.target.value }))}
-                                    disabled={!!todaySubmission}
+                                    disabled={!!todaySubmission || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {buahOptions.map((option, index) => (
@@ -366,6 +376,24 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                         </option>
                                     ))}
                                 </select>
+                            </div>
+
+                            {/* Approval Toggle */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">APPROVAL ORANG TUA</label>
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <button
+                                        type="button"
+                                        disabled
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                            }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-6 w-6 sm:h-8 sm:w-8 transform rounded-full bg-white transition-transform ${approvalOrangTua ? 'translate-x-9 sm:translate-x-11' : 'translate-x-1'
+                                                }`}
+                                        />
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Submit Button */}

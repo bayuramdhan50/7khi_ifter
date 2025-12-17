@@ -411,7 +411,7 @@ export default function TidurCepatHistory({ auth, activity, submissions }: Tidur
                         </div>
                         <div className="p-4">
                             <img
-                                src={`/storage/${selectedPhoto}`}
+                                src={`/storage/activity-photos/${selectedPhoto}`}
                                 alt="Bukti Foto"
                                 className="w-full h-auto rounded-lg"
                             />
