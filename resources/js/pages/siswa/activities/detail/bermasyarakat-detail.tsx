@@ -57,11 +57,23 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
     const [lainnya, setLainnya] = useState(todaySubmission?.details?.lainnya?.is_checked || false);
     const [image, setImage] = useState<File | null>(null);
     const [isSubmittingPhoto, setIsSubmittingPhoto] = useState(false);
+    const [approvalOrangTua, setApprovalOrangTua] = useState(false);
 
     const monthNames = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
         'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
     ];
+
+    // Sync approval state so student sees changes when parent approves
+    useEffect(() => {
+        if (todaySubmission && todaySubmission.status === 'approved') {
+            setApprovalOrangTua(true);
+        } else {
+            setApprovalOrangTua(false);
+        }
+    }, [todaySubmission]);
+
+    // (UI) Approval Toggle will be rendered to match other activity detail pages
 
     // Auto-update function for checkboxes
     const handleCheckboxChange = (field: string, checked: boolean, setter: (value: boolean) => void) => {
@@ -255,10 +267,10 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                         type="checkbox"
                                         checked={tarka}
                                         onChange={(e) => handleCheckboxChange('tarka', e.target.checked, setTarka)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
-                                    {isSubmitting && <span className="text-sm text-gray-500">Menyimpan...</span>}
+                                    {/* Hapus tulisan 'Menyimpan...' */}
                                 </div>
                             </div>
 
@@ -270,7 +282,7 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                         type="checkbox"
                                         checked={kerjaBakti}
                                         onChange={(e) => handleCheckboxChange('kerja_bakti', e.target.checked, setKerjaBakti)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
                                 </div>
@@ -284,7 +296,7 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                         type="checkbox"
                                         checked={gotongRoyong}
                                         onChange={(e) => handleCheckboxChange('gotong_royong', e.target.checked, setGotongRoyong)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
                                 </div>
@@ -298,11 +310,30 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                         type="checkbox"
                                         checked={lainnya}
                                         onChange={(e) => handleCheckboxChange('lainnya', e.target.checked, setLainnya)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
                                 </div>
                             </div>
+
+                            {/* Approval Toggle */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">APPROVAL ORANG TUA</label>
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <button
+                                        type="button"
+                                        disabled
+                                        className={`relative inline-flex h-8 w-16 sm:h-10 sm:w-20 items-center rounded-full transition-colors cursor-not-allowed opacity-60 ${approvalOrangTua ? 'bg-green-500' : 'bg-gray-300'
+                                            }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-6 w-6 sm:h-8 sm:w-8 transform rounded-full bg-white transition-transform ${approvalOrangTua ? 'translate-x-9 sm:translate-x-11' : 'translate-x-1'
+                                                }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+
                         </form>
 
                         {/* Upload Foto Section - Separate from form */}

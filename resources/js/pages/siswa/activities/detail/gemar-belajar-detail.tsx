@@ -57,6 +57,8 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
     const [isSubmittingPhoto, setIsSubmittingPhoto] = useState(false);
+    // Flag to indicate checkbox save in progress
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [ekstrakurikuler, setEkstrakurikuler] = useState(false);
     const [bimbinganBelajar, setBimbinganBelajar] = useState(false);
     const [mengerjakanTugas, setMengerjakanTugas] = useState(false);
@@ -71,6 +73,15 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
             setBimbinganBelajar(details.bimbingan_belajar?.is_checked || false);
             setMengerjakanTugas(details.mengerjakan_tugas?.is_checked || false);
             setLainnya(details.lainnya?.is_checked || false);
+        }
+    }, [todaySubmission]);
+
+    // Sync approval state from backend (so student view updates when parent approves)
+    useEffect(() => {
+        if (todaySubmission && todaySubmission.status === 'approved') {
+            setApprovalOrangTua(true);
+        } else {
+            setApprovalOrangTua(false);
         }
     }, [todaySubmission]);
 
@@ -110,6 +121,8 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
             preserveState: true,
+            onBefore: () => setIsSubmitting(true),
+            onFinish: () => setIsSubmitting(false),
             onError: (errors: any) => {
                 console.error('Gagal menyimpan:', errors);
                 setter(!checked); // Rollback on error
@@ -273,6 +286,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
                                         type="checkbox"
                                         checked={gemarBelajar}
                                         onChange={(e) => handleCheckboxChange('gemar_belajar', e.target.checked, setGemarBelajar)}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
                                     />
                                 </div>
@@ -291,6 +305,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
                                         type="checkbox"
                                         checked={ekstrakurikuler}
                                         onChange={(e) => handleCheckboxChange('ekstrakurikuler', e.target.checked, setEkstrakurikuler)}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
                                     />
                                 </div>
@@ -304,6 +319,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
                                         type="checkbox"
                                         checked={bimbinganBelajar}
                                         onChange={(e) => handleCheckboxChange('bimbingan_belajar', e.target.checked, setBimbinganBelajar)}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
                                     />
                                 </div>
@@ -317,6 +333,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
                                         type="checkbox"
                                         checked={mengerjakanTugas}
                                         onChange={(e) => handleCheckboxChange('mengerjakan_tugas', e.target.checked, setMengerjakanTugas)}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
                                     />
                                 </div>
@@ -330,6 +347,7 @@ export default function GemarBelajarDetail({ auth, activity, nextActivity, previ
                                         type="checkbox"
                                         checked={lainnya}
                                         onChange={(e) => handleCheckboxChange('lainnya', e.target.checked, setLainnya)}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
                                     />
                                 </div>

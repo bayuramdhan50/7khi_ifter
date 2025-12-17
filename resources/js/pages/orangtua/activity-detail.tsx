@@ -18,6 +18,8 @@ interface SubmissionData {
   status: 'approved' | 'pending' | 'rejected';
   details: Record<string, DetailItem>;
   notes?: string;
+  has_details?: boolean;
+  can_approve?: boolean;
 }
 
 interface ActivityItem {
@@ -103,6 +105,8 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
     }, {
       preserveScroll: true,
       onSuccess: () => {
+        // Refresh activities list so approve/reject state reflects immediately
+        router.reload({ only: ['activities'] });
         setConfirmationModal(prev => ({ ...prev, isOpen: false, submissionId: null }));
       },
     });
@@ -287,7 +291,7 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
                       </div>
 
                       {/* Action Footer */}
-                      {activity.submission.status === 'pending' && (
+                      {activity.submission?.can_approve && (
                         <div className="pt-6 mt-6 border-t border-gray-100 flex gap-3 justify-end">
                           <button
                             onClick={() => handleReject(activity.submission!.id)}

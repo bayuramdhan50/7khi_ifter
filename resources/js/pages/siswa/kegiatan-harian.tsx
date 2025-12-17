@@ -36,18 +36,7 @@ interface KegiatanHarianProps {
 export default function KegiatanHarian({ auth, activities, submissions }: KegiatanHarianProps) {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [checkedDays, setCheckedDays] = useState<Record<string, Set<number>>>({});
-    const [selectedEmojis, setSelectedEmojis] = useState<Record<number, string>>({});
     const currentDate = new Date();
-
-    const emojis = ['😍', '😊', '😐', '😕', '😢'];
-
-    // Toggle emoji selection
-    const toggleEmoji = (activityId: number, emoji: string) => {
-        setSelectedEmojis(prev => ({
-            ...prev,
-            [activityId]: prev[activityId] === emoji ? '' : emoji
-        }));
-    };
 
     // Initialize checked days from submissions
     const initializeCheckedDays = () => {
@@ -57,8 +46,11 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
             const days = new Set<number>();
             activitySubmissions.forEach(sub => {
                 if (sub.status === 'approved') {
-                    const subDate = new Date(sub.date);
-                    days.add(subDate.getDate());
+                    const normalized = normalizeDate(sub.date);
+                    if (normalized) {
+                        const dayNumber = Number(normalized.split('-')[2]);
+                        if (!Number.isNaN(dayNumber)) days.add(dayNumber);
+                    }
                 }
             });
             checked[activity.id] = days;
@@ -135,6 +127,24 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
         return calendarDays;
     };
 
+    // Helper: Normalize date strings (take YYYY-MM-DD prefix) and check if all activities for a date are approved
+    const normalizeDate = (dateStr: string | null | undefined) => {
+        if (!dateStr) return null;
+        // If date string contains time (T or space), take only the date portion
+        return dateStr.toString().split('T')[0].split(' ')[0];
+    };
+
+    const isAllActivitiesApproved = (date: Date, day: number) => {
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        let approvedCount = 0;
+        Object.values(submissions).forEach((activitySubmissions) => {
+            if (activitySubmissions.some(s => normalizeDate(s.date) === dateStr && s.status === 'approved')) {
+                approvedCount++;
+            }
+        });
+        return approvedCount === 7;
+    };
+
     const daysInMonth = getDaysInMonth(selectedDate);
     const monthName = getMonthName(selectedDate);
     const calendarDays = getCalendarDays(selectedDate);
@@ -142,12 +152,12 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
     // Generate array of days in the month
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-    // Count completed activities per day
+    // Count completed activities per day (using normalized date)
     const getCompletedCount = (day: number) => {
         const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         let count = 0;
         Object.values(submissions).forEach((activitySubmissions) => {
-            if (activitySubmissions.some(s => s.date === dateStr && s.status === 'approved')) {
+            if (activitySubmissions.some(s => normalizeDate(s.date) === dateStr && s.status === 'approved')) {
                 count++;
             }
         });
@@ -204,45 +214,35 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
                                         
                                         {/* Calendar grid */}
                                         <div className="grid grid-cols-7 gap-1 mb-4">
-                                            {calendarDays.map((day, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className={`aspect-square rounded-full flex items-center justify-center text-sm font-medium ${
-                                                        day === null
-                                                            ? ''
-                                                            : day === currentDate.getDate() &&
-                                                              selectedDate.getMonth() === currentDate.getMonth() &&
-                                                              selectedDate.getFullYear() === currentDate.getFullYear()
-                                                            ? 'bg-blue-500 text-white font-bold'
-                                                            : 'text-blue-600 hover:bg-blue-50'
-                                                    }`}
-                                                >
-                                                    {day}
-                                                </div>
-                                            ))}
+                                            {calendarDays.map((day, idx) => {
+                                                if (day === null) {
+                                                    return <div key={idx} />;
+                                                }
+                                                const autoChecked = isAllActivitiesApproved(selectedDate, day);
+                                                // Main calendar: strictly no manual interaction, only auto-check
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        className={`aspect-square rounded-full flex items-center justify-center text-sm font-medium select-none
+                                                            ${autoChecked
+                                                                ? 'bg-green-500 text-white font-bold border-2 border-green-700 shadow-lg'
+                                                                : day === currentDate.getDate() &&
+                                                                  selectedDate.getMonth() === currentDate.getMonth() &&
+                                                                  selectedDate.getFullYear() === currentDate.getFullYear()
+                                                                ? 'bg-blue-500 text-white font-bold'
+                                                                : 'text-blue-600'}
+                                                        `}
+                                                        title={autoChecked ? 'Semua kegiatan sudah di-approve orang tua' : ''}
+                                                        style={{ cursor: 'not-allowed', pointerEvents: 'none' }}
+                                                    >
+                                                        {autoChecked ? <Check className="w-4 h-4" strokeWidth={3} /> : day}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
-                                    <div className="text-center">
-                                        <p className="text-sm text-gray-600 mb-2">
-                                            Perasaanku dengan hasil yang aku dapatkan
-                                        </p>
-                                        <div className="flex justify-center gap-2">
-                                            {emojis.map((emoji) => (
-                                                <button
-                                                    key={emoji}
-                                                    onClick={() => toggleEmoji(0, emoji)}
-                                                    className={`text-2xl transition-all hover:scale-125 p-1 rounded ${
-                                                        selectedEmojis[0] === emoji 
-                                                            ? 'bg-blue-100 scale-125 ring-2 ring-blue-500' 
-                                                            : 'hover:bg-gray-100'
-                                                    }`}
-                                                >
-                                                    {emoji}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
+
                                 </CardContent>
                             </Card>
                         </div>
@@ -267,45 +267,24 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
                                                     {Array.from({ length: 31 }, (_, i) => {
                                                         const day = i + 1;
                                                         const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                                                        const hasSubmission = activitySubmissions.some(s => s.date === dateStr && s.status === 'approved');
-                                                        const isChecked = isDayChecked(activity.id, day);
-                                                        
+                                                        const isApproved = activitySubmissions.some(s => normalizeDate(s.date) === dateStr && s.status === 'approved');
                                                         return (
-                                                            <button
+                                                            <div
                                                                 key={i}
-                                                                onClick={() => toggleDay(activity.id, day)}
-                                                                className={`aspect-square rounded-md flex items-center justify-center text-xs font-medium transition-all hover:scale-110 border-2 ${
-                                                                    isChecked
-                                                                        ? 'bg-blue-500 text-white shadow-md border-blue-600' 
-                                                                        : 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700'
-                                                                }`}
+                                                                className={`aspect-square rounded-md flex items-center justify-center text-xs font-medium border-2 select-none
+                                                                    ${isApproved
+                                                                        ? 'bg-blue-500 text-white shadow-md border-blue-600'
+                                                                        : 'bg-white border-gray-300 text-gray-700'}
+                                                                `}
+                                                                style={{ cursor: 'not-allowed', pointerEvents: 'none' }}
                                                             >
-                                                                {isChecked ? <Check className="w-3 h-3" strokeWidth={3} /> : day}
-                                                            </button>
+                                                                {isApproved ? <Check className="w-3 h-3" strokeWidth={3} /> : day}
+                                                            </div>
                                                         );
                                                     })}
                                                 </div>
                                                 
-                                                <div className="text-center">
-                                                    <p className="text-sm text-gray-600 mb-2">
-                                                        Perasaanku dengan hasil yang aku dapatkan
-                                                    </p>
-                                                    <div className="flex justify-center gap-2">
-                                                        {emojis.map((emoji) => (
-                                                            <button
-                                                                key={emoji}
-                                                                onClick={() => toggleEmoji(activity.id, emoji)}
-                                                                className={`text-2xl transition-all hover:scale-125 p-1 rounded ${
-                                                                    selectedEmojis[activity.id] === emoji 
-                                                                        ? 'bg-blue-100 scale-125 ring-2 ring-blue-500' 
-                                                                        : 'hover:bg-gray-100'
-                                                                }`}
-                                                            >
-                                                                {emoji}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
+
                                             </CardContent>
                                         </Card>
                                     );

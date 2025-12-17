@@ -60,6 +60,15 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
         }
     }, [todaySubmission]);
 
+    // Sync approval state so student view updates when parent approves
+    useEffect(() => {
+        if (todaySubmission && todaySubmission.status === 'approved') {
+            setApprovalOrangTua(true);
+        } else {
+            setApprovalOrangTua(false);
+        }
+    }, [todaySubmission]);
+
     const monthNames = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
         'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'

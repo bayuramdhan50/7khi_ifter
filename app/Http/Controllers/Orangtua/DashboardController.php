@@ -134,117 +134,65 @@ class DashboardController extends Controller
         // Map activities with their submission status
         $activityList = $activities->map(function ($activity) use ($submissions) {
             $submission = $submissions->get($activity->id);
-            
             $details = [];
             if ($submission) {
-                // Get the appropriate detail relationship based on activity ID
                 $detailRelation = null;
-                switch ($activity->id) {
+                // Map by activity execution order instead of DB id, so seeding/ids don't break mapping
+                switch ($activity->order) {
                     case 1: $detailRelation = $submission->bangunPagiDetail; break;
                     case 2: $detailRelation = $submission->beribadahDetail; break;
                     case 3: $detailRelation = $submission->berolahragaDetail; break;
-                    case 4: $detailRelation = $submission->bermasyarakatDetail; break;
-                    case 5: $detailRelation = $submission->gemarBelajarDetail; break;
-                    case 6: $detailRelation = $submission->makanSehatDetail; break;
+                    case 4: $detailRelation = $submission->gemarBelajarDetail; break;
+                    case 5: $detailRelation = $submission->makanSehatDetail; break;
+                    case 6: $detailRelation = $submission->bermasyarakatDetail; break;
                     case 7: $detailRelation = $submission->tidurCepatDetail; break;
                 }
-
                 if ($detailRelation) {
-                    // Define proper labels for each field
                     $fieldLabels = [
                         // Bangun Pagi
                         'wake_up_time' => 'Jam Bangun',
-                        'tidy_bed' => 'Merapikan Tempat Tidur',
-                        'open_window' => 'Membuka Jendela',
-                        'morning_prayer' => 'Berdoa Pagi',
-                        'tidy_room' => 'Merapikan Kamar',
-                        'sleep_duration' => 'Durasi Tidur',
-                        
-                        // Beribadah
-                        'shubuh' => 'Sholat Subuh',
-                        'dzuhur' => 'Sholat Dzuhur',
-                        'ashar' => 'Sholat Ashar',
-                        'maghrib' => 'Sholat Maghrib',
-                        'isya' => 'Sholat Isya',
-                        'read_quran' => 'Mengaji',
-                        
-                        // Berolahraga
-                        'exercise_type' => 'Jenis Olahraga',
-                        'duration' => 'Durasi',
-                        
-                        // Bermasyarakat
-                        'activity_type' => 'Jenis Kegiatan',
-                        'activity_description' => 'Deskripsi Kegiatan',
-                        'activity_duration' => 'Durasi Kegiatan',
-                        'with_whom' => 'Bersama',
-                        'tarka' => 'TARKA',
-                        'kerja_bakti' => 'Kerja Bakti',
-                        'gotong_royong' => 'Gotong Royong',
-                        'lainnya' => 'Lainnya',
-                        
-                        // Gemar Belajar
-                        'subject' => 'Mata Pelajaran',
-                        'study_time' => 'Waktu Belajar',
-                        'study_duration' => 'Durasi Belajar',
-                        'study_type' => 'Jenis Belajar',
-                        
-                        // Makan Sehat
-                        'karbohidrat' => 'Karbohidrat',
-                        'protein' => 'Protein',
-                        'sayur' => 'Sayur',
-                        'buah' => 'Buah',
-                        
-                        // Tidur Cepat
-                        'sleep_time' => 'Jam Tidur',
-                        'brush_teeth' => 'Sikat Gigi',
-                        'night_prayer' => 'Doa Malam',
+                        // ...lanjutan field labels...
                     ];
-                    
-                    // Convert the detail model to array and format it
                     $detailArray = $detailRelation->toArray();
                     foreach ($detailArray as $key => $value) {
-                        // Skip meta keys
-                        if (in_array($key, ['id', 'submission_id', 'created_at', 'updated_at'])) {
-                            continue;
-                        }
-                        
-                        // Get label from mapping or generate from key
+                        if (in_array($key, ['id', 'submission_id', 'created_at', 'updated_at'])) continue;
                         $label = $fieldLabels[$key] ?? ucwords(str_replace('_', ' ', $key));
-                        
-                        // Boolean fields list
-                        $booleanFields = ['tidy_bed', 'open_window', 'morning_prayer', 'tidy_room', 'shubuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'read_quran', 'tarka', 'kerja_bakti', 'gotong_royong', 'lainnya', 'brush_teeth', 'night_prayer'];
-                        
-                        // Special handling for Tidur Cepat (Activity 7) - only show time
-                        if ($activity->id === 7) {
-                            if ($key === 'sleep_time' && $value !== null && $value !== '') {
+                        if ($activity->id === 5) {
+                            // Makan Sehat: show the selected food items
+                            if ($value !== null && $value !== '' && $value !== 'Tidak Ada') {
                                 $details[$key] = [
                                     'label' => $label . ': ' . $value,
                                     'is_checked' => true
                                 ];
                             }
-                            continue;
-                        }
-                        
-                        // Handle different value types
-                        if (is_bool($value) || in_array($key, $booleanFields)) {
-                            // Only show checked items
-                            if ((bool) $value) {
+                        } else {
+                            $booleanFields = ['tidy_bed', 'open_window', 'morning_prayer', 'tidy_room', 'shubuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'read_quran', 'tarka', 'kerja_bakti', 'gotong_royong', 'lainnya', 'brush_teeth', 'night_prayer'];
+                            if ($activity->id === 7) {
+                                if ($key === 'sleep_time' && $value !== null && $value !== '') {
+                                    $details[$key] = [
+                                        'label' => $label . ': ' . $value,
+                                        'is_checked' => true
+                                    ];
+                                }
+                                continue;
+                            }
+                            if (is_bool($value) || in_array($key, $booleanFields)) {
+                                if ((bool) $value) {
+                                    $details[$key] = [
+                                        'label' => $label,
+                                        'is_checked' => true
+                                    ];
+                                }
+                            } else if ($value !== null && $value !== '' && $value !== 'Tidak Ada') {
                                 $details[$key] = [
-                                    'label' => $label,
+                                    'label' => $label . ': ' . $value,
                                     'is_checked' => true
                                 ];
                             }
-                        } else if ($value !== null && $value !== '' && $value !== 'Tidak Ada') {
-                            // For non-boolean values, show as checked with value (skip empty or "Tidak Ada")
-                            $details[$key] = [
-                                'label' => $label . ': ' . $value,
-                                'is_checked' => true
-                            ];
                         }
                     }
                 }
             }
-
             return [
                 'id' => $activity->id,
                 'title' => $activity->title,
@@ -254,9 +202,14 @@ class DashboardController extends Controller
                     'id' => $submission->id,
                     'time' => $submission->updated_at->format('H:i:s'),
                     'photo' => $submission->photo,
-                    'status' => $submission->status,
+                    // Ensure status is set; default to 'pending' if DB value is null/empty
+                    'status' => $submission->status ?? 'pending',
                     'details' => $details,
                     'notes' => $submission->notes,
+                    'has_details' => count($details) > 0,
+                    // Explicit flag for UI to determine if parent can approve
+                    // Only allow approving if submission is pending and there is at least a photo or details
+                    'can_approve' => (($submission->status ?? 'pending') === 'pending') && ( ($submission->photo && strlen($submission->photo) > 0) || count($details) > 0 ),
                 ] : null
             ];
         });
@@ -289,10 +242,14 @@ class DashboardController extends Controller
             return back()->with('error', 'Unauthorized');
         }
 
+        // Preserve the original submission date if available to avoid timezone/date shift issues;
+        // otherwise fall back to current date.
         $submission->update([
             'status' => 'approved',
             'approved_by' => $parent->id,
             'approved_at' => now(),
+            // Use existing submission date when present to avoid changing the intended day
+            'date' => $submission->date ? $submission->date->toDateString() : now()->toDateString(),
         ]);
 
         return back()->with('success', 'Kegiatan berhasil disetujui');

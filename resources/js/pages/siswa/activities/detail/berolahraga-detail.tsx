@@ -57,6 +57,10 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
     const [isSubmittingPhoto, setIsSubmittingPhoto] = useState(false);
+    // Flag untuk menyatakan checkbox sedang disimpan
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    // Lock dropdown jika sudah ada value di todaySubmission
+    const isLocked = !!todaySubmission?.details?.waktu_berolahraga?.value;
 
     // Dropdown state for exercise duration
     const [waktuBerolahraga, setWaktuBerolahraga] = useState('');
@@ -69,6 +73,15 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                 setWaktuBerolahraga(waktu);
                 setBerolahraga(true); // Auto-check checkbox jika ada waktu
             }
+        }
+    }, [todaySubmission]);
+
+    // Sync approval state so student view updates when parent approves
+    useEffect(() => {
+        if (todaySubmission && todaySubmission.status === 'approved') {
+            setApprovalOrangTua(true);
+        } else {
+            setApprovalOrangTua(false);
         }
     }, [todaySubmission]);
 
@@ -101,8 +114,11 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
             preserveState: true,
+            onBefore: () => setIsSubmitting(true),
+            onFinish: () => setIsSubmitting(false),
             onError: (errors: any) => {
                 console.error('Gagal menyimpan:', errors);
+                setIsSubmitting(false);
             }
         });
     };
@@ -130,8 +146,11 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
             preserveState: true,
+            onBefore: () => setIsSubmitting(true),
+            onFinish: () => setIsSubmitting(false),
             onError: (errors: any) => {
                 console.error('Gagal menyimpan:', errors);
+                setIsSubmitting(false);
             }
         });
     };
@@ -282,6 +301,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                         type="checkbox"
                                         checked={berolahraga}
                                         onChange={(e) => handleCheckboxChange('berolahraga', e.target.checked, setBerolahraga)}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
                                     />
                                 </div>
@@ -294,7 +314,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                     <select
                                         value={waktuBerolahraga}
                                         onChange={(e) => handleWaktuChange(e.target.value)}
-                                        disabled={!berolahraga}
+                                        disabled={isLocked || !berolahraga}
                                         className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm sm:text-base hover:border-blue-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <option value="">Pilih Durasi</option>

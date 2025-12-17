@@ -268,7 +268,7 @@ export default function BeribadahNonmuslimDetail({ auth, activity, nextActivity,
                                             type="checkbox"
                                             checked={worshipActivities[worship.key as keyof typeof worshipActivities]}
                                             onChange={(e) => handleWorshipChange(worship.key, e.target.checked)}
-                                            disabled={isSubmitting}
+                                            disabled={isSubmitting || approvalOrangTua}
                                             className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                         />
                                     </div>

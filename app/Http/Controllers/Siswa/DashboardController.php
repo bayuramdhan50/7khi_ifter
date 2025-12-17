@@ -7,9 +7,17 @@ use App\Models\Activity;
 use App\Models\ActivitySubmission;
 use App\Models\ActivityDetail;
 use App\Models\Student;
+use App\Models\BangunPagiDetail;
+use App\Models\BeribadahDetail;
+use App\Models\BerolahragaDetail;
+use App\Models\GemarBelajarDetail;
+use App\Models\MakanSehatDetail;
+use App\Models\BermasyarakatDetail;
+use App\Models\TidurCepatDetail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -701,20 +709,22 @@ class DashboardController extends Controller
 
         // Format submission data using new beribadah_details table
         $submissionData = null;
-        if ($todaySubmission && $todaySubmission->beribadahDetail) {
-            $detail = $todaySubmission->beribadahDetail;
-            $details = [
-                'subuh' => ['label' => 'Subuh', 'is_checked' => $detail->subuh],
-                'dzuhur' => ['label' => 'Dzuhur', 'is_checked' => $detail->dzuhur],
-                'ashar' => ['label' => 'Ashar', 'is_checked' => $detail->ashar],
-                'maghrib' => ['label' => 'Maghrib', 'is_checked' => $detail->maghrib],
-                'isya' => ['label' => 'Isya', 'is_checked' => $detail->isya],
-                'mengaji' => ['label' => 'Mengaji', 'is_checked' => $detail->mengaji],
-                'berdoa' => ['label' => 'Berdoa', 'is_checked' => $detail->berdoa],
-                'bersedekah' => ['label' => 'Bersedekah', 'is_checked' => $detail->bersedekah],
-                'lainnya' => ['label' => 'Lainnya', 'is_checked' => $detail->lainnya],
-            ];
-
+        if ($todaySubmission) {
+            $details = null;
+            if ($todaySubmission->beribadahDetail) {
+                $detail = $todaySubmission->beribadahDetail;
+                $details = [
+                    'subuh' => ['label' => 'Subuh', 'is_checked' => $detail->subuh],
+                    'dzuhur' => ['label' => 'Dzuhur', 'is_checked' => $detail->dzuhur],
+                    'ashar' => ['label' => 'Ashar', 'is_checked' => $detail->ashar],
+                    'maghrib' => ['label' => 'Maghrib', 'is_checked' => $detail->maghrib],
+                    'isya' => ['label' => 'Isya', 'is_checked' => $detail->isya],
+                    'mengaji' => ['label' => 'Mengaji', 'is_checked' => $detail->mengaji],
+                    'berdoa' => ['label' => 'Berdoa', 'is_checked' => $detail->berdoa],
+                    'bersedekah' => ['label' => 'Bersedekah', 'is_checked' => $detail->bersedekah],
+                    'lainnya' => ['label' => 'Lainnya', 'is_checked' => $detail->lainnya],
+                ];
+            }
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date->format('Y-m-d'),
@@ -776,16 +786,18 @@ class DashboardController extends Controller
 
         // Format submission data using new beribadah_details table
         $submissionData = null;
-        if ($todaySubmission && $todaySubmission->beribadahDetail) {
-            $detail = $todaySubmission->beribadahDetail;
-            $details = [
-                'doa_pagi' => ['label' => 'Doa Pagi', 'is_checked' => $detail->doa_pagi],
-                'baca_firman' => ['label' => 'Baca Firman', 'is_checked' => $detail->baca_firman],
-                'renungan' => ['label' => 'Renungan', 'is_checked' => $detail->renungan],
-                'doa_malam' => ['label' => 'Doa Malam', 'is_checked' => $detail->doa_malam],
-                'ibadah_bersama' => ['label' => 'Ibadah Bersama', 'is_checked' => $detail->ibadah_bersama],
-            ];
-
+        if ($todaySubmission) {
+            $details = null;
+            if ($todaySubmission->beribadahDetail) {
+                $detail = $todaySubmission->beribadahDetail;
+                $details = [
+                    'doa_pagi' => ['label' => 'Doa Pagi', 'is_checked' => $detail->doa_pagi],
+                    'baca_firman' => ['label' => 'Baca Firman', 'is_checked' => $detail->baca_firman],
+                    'renungan' => ['label' => 'Renungan', 'is_checked' => $detail->renungan],
+                    'doa_malam' => ['label' => 'Doa Malam', 'is_checked' => $detail->doa_malam],
+                    'ibadah_bersama' => ['label' => 'Ibadah Bersama', 'is_checked' => $detail->ibadah_bersama],
+                ];
+            }
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date->format('Y-m-d'),
@@ -860,14 +872,13 @@ class DashboardController extends Controller
         // Format submission data
         $submissionData = null;
         if ($todaySubmission) {
-            $details = [];
-            
+            $details = null;
             if ($todaySubmission->bangunPagiDetail) {
                 $detail = $todaySubmission->bangunPagiDetail;
                 $details = [
                     'membereskan_tempat_tidur' => [
                         'label' => 'Membereskan Tempat Tidur',
-                        'is_checked' => $detail->tidy_bed ?? false,
+                        'is_checked' => $detail->membereskan_tempat_tidur ?? false,
                         'value' => null,
                     ],
                     'mandi' => [
@@ -887,7 +898,6 @@ class DashboardController extends Controller
                     ],
                 ];
             }
-
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date,
@@ -937,12 +947,14 @@ class DashboardController extends Controller
 
         // Format submission data
         $submissionData = null;
-        if ($todaySubmission && $todaySubmission->berolahragaDetail) {
-            $detail = $todaySubmission->berolahragaDetail;
-            $details = [
-                'waktu_berolahraga' => ['label' => 'Waktu Berolahraga', 'is_checked' => true, 'value' => $detail->waktu_berolahraga],
-            ];
-
+        if ($todaySubmission) {
+            $details = null;
+            if ($todaySubmission->berolahragaDetail) {
+                $detail = $todaySubmission->berolahragaDetail;
+                $details = [
+                    'waktu_berolahraga' => ['label' => 'Waktu Berolahraga', 'is_checked' => true, 'value' => $detail->waktu_berolahraga],
+                ];
+            }
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date->format('Y-m-d'),
@@ -1003,17 +1015,18 @@ class DashboardController extends Controller
 
         // Format submission data
         $submissionData = null;
-        if ($todaySubmission && $todaySubmission->gemarBelajarDetail) {
-            $detail = $todaySubmission->gemarBelajarDetail;
-            
-            $details = [
-                'gemar_belajar' => ['label' => 'Gemar Belajar', 'is_checked' => (bool)$detail->gemar_belajar],
-                'ekstrakurikuler' => ['label' => 'Ekstrakurikuler', 'is_checked' => (bool)$detail->ekstrakurikuler],
-                'bimbingan_belajar' => ['label' => 'Bimbingan Belajar', 'is_checked' => (bool)$detail->bimbingan_belajar],
-                'mengerjakan_tugas' => ['label' => 'Mengerjakan Tugas', 'is_checked' => (bool)$detail->mengerjakan_tugas],
-                'lainnya' => ['label' => 'Lainnya', 'is_checked' => (bool)$detail->lainnya],
-            ];
-
+        if ($todaySubmission) {
+            $details = null;
+            if ($todaySubmission->gemarBelajarDetail) {
+                $detail = $todaySubmission->gemarBelajarDetail;
+                $details = [
+                    'gemar_belajar' => ['label' => 'Gemar Belajar', 'is_checked' => (bool)$detail->gemar_belajar],
+                    'ekstrakurikuler' => ['label' => 'Ekstrakurikuler', 'is_checked' => (bool)$detail->ekstrakurikuler],
+                    'bimbingan_belajar' => ['label' => 'Bimbingan Belajar', 'is_checked' => (bool)$detail->bimbingan_belajar],
+                    'mengerjakan_tugas' => ['label' => 'Mengerjakan Tugas', 'is_checked' => (bool)$detail->mengerjakan_tugas],
+                    'lainnya' => ['label' => 'Lainnya', 'is_checked' => (bool)$detail->lainnya],
+                ];
+            }
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date->format('Y-m-d'),
@@ -1074,15 +1087,17 @@ class DashboardController extends Controller
 
         // Format submission data
         $submissionData = null;
-        if ($todaySubmission && $todaySubmission->makanSehatDetail) {
-            $detail = $todaySubmission->makanSehatDetail;
-            $details = [
-                'karbohidrat' => ['label' => 'Karbohidrat', 'is_checked' => true, 'value' => $detail->karbohidrat],
-                'protein' => ['label' => 'Protein', 'is_checked' => true, 'value' => $detail->protein],
-                'sayur' => ['label' => 'Sayur', 'is_checked' => true, 'value' => $detail->sayur],
-                'buah' => ['label' => 'Buah', 'is_checked' => true, 'value' => $detail->buah],
-            ];
-
+        if ($todaySubmission) {
+            $details = null;
+            if ($todaySubmission->makanSehatDetail) {
+                $detail = $todaySubmission->makanSehatDetail;
+                $details = [
+                    'karbohidrat' => ['label' => 'Karbohidrat', 'is_checked' => true, 'value' => $detail->karbohidrat],
+                    'protein' => ['label' => 'Protein', 'is_checked' => true, 'value' => $detail->protein],
+                    'sayur' => ['label' => 'Sayur', 'is_checked' => true, 'value' => $detail->sayur],
+                    'buah' => ['label' => 'Buah', 'is_checked' => true, 'value' => $detail->buah],
+                ];
+            }
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date->format('Y-m-d'),
@@ -1143,15 +1158,17 @@ class DashboardController extends Controller
 
         // Format submission data
         $submissionData = null;
-        if ($todaySubmission && $todaySubmission->bermasyarakatDetail) {
-            $detail = $todaySubmission->bermasyarakatDetail;
-            $details = [
-                'tarka' => ['label' => 'Tarka', 'is_checked' => $detail->tarka],
-                'kerja_bakti' => ['label' => 'Kerja Bakti', 'is_checked' => $detail->kerja_bakti],
-                'gotong_royong' => ['label' => 'Gotong Royong', 'is_checked' => $detail->gotong_royong],
-                'lainnya' => ['label' => 'Lainnya', 'is_checked' => $detail->lainnya],
-            ];
-
+        if ($todaySubmission) {
+            $details = null;
+            if ($todaySubmission->bermasyarakatDetail) {
+                $detail = $todaySubmission->bermasyarakatDetail;
+                $details = [
+                    'tarka' => ['label' => 'Tarka', 'is_checked' => $detail->tarka],
+                    'kerja_bakti' => ['label' => 'Kerja Bakti', 'is_checked' => $detail->kerja_bakti],
+                    'gotong_royong' => ['label' => 'Gotong Royong', 'is_checked' => $detail->gotong_royong],
+                    'lainnya' => ['label' => 'Lainnya', 'is_checked' => $detail->lainnya],
+                ];
+            }
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date->format('Y-m-d'),
@@ -1212,13 +1229,15 @@ class DashboardController extends Controller
 
         // Format submission data
         $submissionData = null;
-        if ($todaySubmission && $todaySubmission->tidurCepatDetail) {
-            $detail = $todaySubmission->tidurCepatDetail;
-            $sleepTime = $detail->sleep_time ? \Carbon\Carbon::parse($detail->sleep_time)->format('H:i') : '';
-            $details = [
-                'waktu_tidur' => ['label' => 'Waktu Tidur', 'is_checked' => true, 'value' => $sleepTime],
-            ];
-
+        if ($todaySubmission) {
+            $details = null;
+            if ($todaySubmission->tidurCepatDetail) {
+                $detail = $todaySubmission->tidurCepatDetail;
+                $sleepTime = $detail->sleep_time ? \Carbon\Carbon::parse($detail->sleep_time)->format('H:i') : '';
+                $details = [
+                    'waktu_tidur' => ['label' => 'Waktu Tidur', 'is_checked' => true, 'value' => $sleepTime],
+                ];
+            }
             $submissionData = [
                 'id' => $todaySubmission->id,
                 'date' => $todaySubmission->date->format('Y-m-d'),
@@ -1260,7 +1279,7 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'activity_id' => 'required|exists:activities,id',
-            'date' => 'required|date',
+            // 'date' removed from trusted input: date will be set on server-side to prevent students from setting it
             'time' => 'nullable|date_format:H:i:s,H:i',
             'membereskan_tempat_tidur' => 'nullable',
             'mandi' => 'nullable',
@@ -1275,10 +1294,15 @@ class DashboardController extends Controller
         // Get student record
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
+        // Use server-side date (or optional test_date in non-production) to prevent students from setting custom dates
+        $submissionDateStr = request('test_date') && config('app.env') !== 'production'
+            ? request('test_date')
+            : now()->format('Y-m-d');
+
         // Check if user is trying to upload a photo
         if ($request->hasFile('photo')) {
-            // Get the month and year from the submitted date
-            $submissionDate = \Carbon\Carbon::parse($validated['date']);
+            // Get the month and year from the server-determined date
+            $submissionDate = \Carbon\Carbon::parse($submissionDateStr);
             $month = $submissionDate->month;
             $year = $submissionDate->year;
 
@@ -1293,7 +1317,7 @@ class DashboardController extends Controller
             // Check if this is an update of existing submission with photo
             $existingSubmission = ActivitySubmission::where('student_id', $student->id)
                 ->where('activity_id', $validated['activity_id'])
-                ->where('date', $validated['date'])
+                ->where('date', $submissionDateStr)
                 ->first();
 
             // If already has 1 photo this month and this is not an update of that same photo
@@ -1323,11 +1347,12 @@ class DashboardController extends Controller
                 $dataToUpdate['photo'] = $photoPath;
             }
             
+            // Use server-side date (submissionDateStr) to prevent students from controlling the date
             $submission = ActivitySubmission::updateOrCreate(
                 [
                     'student_id' => $student->id,
                     'activity_id' => $validated['activity_id'],
-                    'date' => $validated['date'],
+                    'date' => $submissionDateStr,
                 ],
                 $dataToUpdate
             );
@@ -1396,10 +1421,9 @@ class DashboardController extends Controller
      */
     public function submitActivity(Request $request)
     {
-        // Basic validation
+        // Basic validation - date is not accepted from students; server will assign the date on submission
         $validated = $request->validate([
             'activity_id' => 'required|exists:activities,id',
-            'date' => 'required|date',
             'photo' => 'nullable|image|max:2048',
         ]);
 
@@ -1409,10 +1433,15 @@ class DashboardController extends Controller
         // Get student record
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
+        // Use server-side date (or optional test_date in non-prod) to prevent students from setting custom dates
+        $submissionDateStr = request('test_date') && config('app.env') !== 'production'
+            ? request('test_date')
+            : now()->format('Y-m-d');
+
         // Check if user is trying to upload a photo
         if ($request->hasFile('photo')) {
-            // Get the month and year from the submitted date
-            $submissionDate = \Carbon\Carbon::parse($validated['date']);
+            // Get the month and year from the server-determined date
+            $submissionDate = \Carbon\Carbon::parse($submissionDateStr);
             $month = $submissionDate->month;
             $year = $submissionDate->year;
 
@@ -1428,7 +1457,7 @@ class DashboardController extends Controller
             // Check if this is an update of existing submission with photo
             $existingSubmission = ActivitySubmission::where('student_id', $student->id)
                 ->where('activity_id', $validated['activity_id'])
-                ->where('date', $validated['date'])
+                ->where('date', $submissionDateStr)
                 ->first();
 
             // If already has 1 photo this month and this is not an update of that same photo
@@ -1446,11 +1475,12 @@ class DashboardController extends Controller
             }
 
             // Create or update submission
+            // Use server-determined date to create/update (prevents client from setting it)
             $submission = ActivitySubmission::updateOrCreate(
                 [
                     'student_id' => $student->id,
                     'activity_id' => $validated['activity_id'],
-                    'date' => $validated['date'],
+                    'date' => $submissionDateStr,
                 ],
                 array_filter([
                     'time' => $request->input('time'),
@@ -1503,18 +1533,16 @@ class DashboardController extends Controller
     {
         // Get existing submission to check for time
         $submission = ActivitySubmission::find($submissionId);
-        
         // Convert string '0'/'1' to boolean, default to false if null
-        $tidyBed = $request->input('membereskan_tempat_tidur');
+        $membereskanTempatTidur = $request->input('membereskan_tempat_tidur');
         $mandi = $request->input('mandi');
         $berpakaianRapi = $request->input('berpakaian_rapi');
         $sarapan = $request->input('sarapan');
-        
         BangunPagiDetail::updateOrCreate(
             ['submission_id' => $submissionId],
             [
-                'wake_up_time' => $request->input('time') ?? $submission->time,
-                'tidy_bed' => $tidyBed === '1' || $tidyBed === 1 || $tidyBed === true,
+                'jam_bangun' => $request->input('time') ?? $submission->time,
+                'membereskan_tempat_tidur' => $membereskanTempatTidur === '1' || $membereskanTempatTidur === 1 || $membereskanTempatTidur === true,
                 'mandi' => $mandi === '1' || $mandi === 1 || $mandi === true,
                 'berpakaian_rapi' => $berpakaianRapi === '1' || $berpakaianRapi === 1 || $berpakaianRapi === true,
                 'sarapan' => $sarapan === '1' || $sarapan === 1 || $sarapan === true,
