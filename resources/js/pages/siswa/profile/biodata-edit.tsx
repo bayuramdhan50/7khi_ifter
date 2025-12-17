@@ -1,6 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useInitials } from '@/hooks/use-initials';
 import { useState } from 'react';
 
 interface Biodata {
@@ -24,6 +26,7 @@ interface BiodataEditProps {
 }
 
 export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
+    const getInitials = useInitials();
     const [formData, setFormData] = useState({
         hobi: biodata?.hobbies?.join(', ') || '',
         cita_cita: biodata?.aspirations?.join(', ') || '',
@@ -97,11 +100,12 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
                     {/* Profile Photo and Name */}
                     <div className="flex flex-col items-center mb-8">
                         <div className="mb-6">
-                            <img
-                                src="/api/placeholder/200/250"
-                                alt={auth.user.name}
-                                className="w-48 h-60 object-cover rounded-lg border-4 border-red-600 shadow-lg"
-                            />
+                            <Avatar className="w-48 h-60 rounded-lg border-4 border-red-600 shadow-lg select-none flex items-center justify-center bg-blue-700">
+                                {/* <AvatarImage src={auth.user.avatar} alt={auth.user.name} /> */}
+                                <AvatarFallback className="w-full h-full flex items-center justify-center text-white text-7xl font-bold rounded-lg bg-blue-700">
+                                    {getInitials(auth.user.name)}
+                                </AvatarFallback>
+                            </Avatar>
                         </div>
                         <h1 className="text-3xl font-bold text-blue-900">{auth.user.name}</h1>
                     </div>

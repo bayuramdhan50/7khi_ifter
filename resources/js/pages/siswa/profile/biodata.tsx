@@ -1,6 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useInitials } from '@/hooks/use-initials';
 
 interface Biodata {
     hobbies?: string[];
@@ -23,6 +25,7 @@ interface BiodataProps {
 }
 
 export default function Biodata({ auth, biodata }: BiodataProps) {
+    const getInitials = useInitials();
     // Helper function untuk render data dengan empty state handling
     const renderDataList = (items?: string[]) => {
         if (!items || items.length === 0) {
@@ -45,11 +48,13 @@ export default function Biodata({ auth, biodata }: BiodataProps) {
                     {/* Profile Photo and Name */}
                     <div className="flex flex-col items-center mb-8">
                         <div className="mb-6">
-                            <img
-                                src="/api/placeholder/200/250"
-                                alt={auth.user.name}
-                                className="w-48 h-60 object-cover rounded-lg border-4 border-red-600 shadow-lg"
-                            />
+                            <Avatar className="w-48 h-60 rounded-lg border-4 border-red-600 shadow-lg select-none flex items-center justify-center bg-blue-700">
+                                {/* AvatarImage src bisa diganti jika ada foto user */}
+                                {/* <AvatarImage src={auth.user.avatar} alt={auth.user.name} /> */}
+                                <AvatarFallback className="w-full h-full flex items-center justify-center text-white text-7xl font-bold rounded-lg bg-blue-700">
+                                    {getInitials(auth.user.name)}
+                                </AvatarFallback>
+                            </Avatar>
                         </div>
                         <h1 className="text-3xl font-bold text-blue-900">{auth.user.name}</h1>
                     </div>

@@ -3,6 +3,8 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { show as showActivity } from '@/routes/siswa/activity';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useInitials } from '@/hooks/use-initials';
 
 interface Activity {
     id: number;
@@ -29,6 +31,7 @@ interface SiswaDashboardProps {
 export default function SiswaDashboard({ auth, activities, completionPercentage, completedDays }: SiswaDashboardProps) {
     const currentDate = new Date();
     const currentMonth = new Date();
+    const getInitials = useInitials();
 
     // Determine the activity detail route based on activity title
     const getActivityDetailRoute = (activity: Activity) => {
@@ -105,11 +108,11 @@ export default function SiswaDashboard({ auth, activities, completionPercentage,
                                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                                     {/* Profile Image */}
                                     <div className="flex-shrink-0">
-                                        <div className="w-20 h-24 sm:w-28 sm:h-36 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg border-2 sm:border-4 border-gray-200 flex items-center justify-center">
-                                            <svg className="w-12 h-12 sm:w-16 sm:h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
+                                        <Avatar className="w-20 h-24 sm:w-28 sm:h-36 rounded-lg border-2 sm:border-4 border-blue-700 bg-blue-700 flex items-center justify-center">
+                                            <AvatarFallback className="w-full h-full flex items-center justify-center text-white text-5xl sm:text-7xl font-bold rounded-lg bg-blue-700">
+                                                {getInitials(auth.user.name)}
+                                            </AvatarFallback>
+                                        </Avatar>
                                     </div>
 
                                     {/* Profile Info */}

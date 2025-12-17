@@ -70,10 +70,10 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
         return submissionsByDate[dateKey];
     };
 
-    // Get checked activities for a specific day
+    // Get checked activities for a specific day (only count if submission is approved)
     const getCheckedActivities = (day: number) => {
         const submission = getSubmissionForDay(day);
-        if (!submission) {
+        if (!submission || submission.status !== 'approved') {
             return {
                 membereskanTempat: false,
                 mandi: false,
@@ -593,7 +593,7 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                         {/* Image */}
                         <div className="p-4">
                             <img
-                                src={`/storage/${selectedPhoto}`}
+                                src={`/storage/activity-photos/${selectedPhoto}`}
                                 alt="Bukti Foto Kegiatan"
                                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
                                 onError={(e) => {

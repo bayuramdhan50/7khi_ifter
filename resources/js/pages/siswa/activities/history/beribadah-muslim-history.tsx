@@ -70,10 +70,10 @@ export default function BeribadahMuslimHistory({ auth, activity, submissions }: 
         return submissionsByDate[dateKey];
     };
 
-    // Get checked activities for a specific day from real submission data
+    // Get checked activities for a specific day from real submission data (only when approved)
     const getCheckedActivities = (day: number) => {
         const submission = getSubmissionForDay(day);
-        if (!submission) {
+        if (!submission || submission.status !== 'approved') {
             return {
                 mengaji: false,
                 berdoa: false,
@@ -582,7 +582,7 @@ export default function BeribadahMuslimHistory({ auth, activity, submissions }: 
                         </div>
                         <div className="p-4">
                             <img
-                                src={`/storage/${selectedPhoto}`}
+                                src={`/storage/activity-photos/${selectedPhoto}`}
                                 alt="Bukti Foto"
                                 className="w-full h-auto rounded-lg"
                                 onError={(e) => {

@@ -134,12 +134,11 @@ class DashboardController extends Controller
         // Map activities with their submission status
         $activityList = $activities->map(function ($activity) use ($submissions) {
             $submission = $submissions->get($activity->id);
-            
             $details = [];
             if ($submission) {
-                // Get the appropriate detail relationship based on activity ID
                 $detailRelation = null;
-                switch ($activity->id) {
+                // Map by activity execution order instead of DB id, so seeding/ids don't break mapping
+                switch ($activity->order) {
                     case 1: $detailRelation = $submission->bangunPagiDetail; break;
                     case 2: $detailRelation = $submission->beribadahDetail; break;
                     case 3: $detailRelation = $submission->berolahragaDetail; break;
@@ -148,9 +147,7 @@ class DashboardController extends Controller
                     case 6: $detailRelation = $submission->bermasyarakatDetail; break;
                     case 7: $detailRelation = $submission->tidurCepatDetail; break;
                 }
-
                 if ($detailRelation) {
-                    // Define proper labels for each field
                     $fieldLabels = [
                         // Bangun Pagi
                         'jam_bangun' => 'Jam Bangun',
@@ -199,16 +196,9 @@ class DashboardController extends Controller
                         'brush_teeth' => 'Sikat Gigi',
                         'night_prayer' => 'Doa Malam',
                     ];
-                    
-                    // Convert the detail model to array and format it
                     $detailArray = $detailRelation->toArray();
                     foreach ($detailArray as $key => $value) {
-                        // Skip meta keys
-                        if (in_array($key, ['id', 'submission_id', 'created_at', 'updated_at'])) {
-                            continue;
-                        }
-                        
-                        // Get label from mapping or generate from key
+                        if (in_array($key, ['id', 'submission_id', 'created_at', 'updated_at'])) continue;
                         $label = $fieldLabels[$key] ?? ucwords(str_replace('_', ' ', $key));
                         
                         // Boolean fields list
@@ -222,29 +212,34 @@ class DashboardController extends Controller
                                     'is_checked' => true
                                 ];
                             }
-                            continue;
-                        }
-                        
-                        // Handle different value types
-                        if (is_bool($value) || in_array($key, $booleanFields)) {
-                            // Only show checked items
-                            if ((bool) $value) {
+                        } else {
+                            $booleanFields = ['tidy_bed', 'open_window', 'morning_prayer', 'tidy_room', 'shubuh', 'dzuhur', 'ashar', 'maghrib', 'isya', 'read_quran', 'tarka', 'kerja_bakti', 'gotong_royong', 'lainnya', 'brush_teeth', 'night_prayer'];
+                            if ($activity->id === 7) {
+                                if ($key === 'sleep_time' && $value !== null && $value !== '') {
+                                    $details[$key] = [
+                                        'label' => $label . ': ' . $value,
+                                        'is_checked' => true
+                                    ];
+                                }
+                                continue;
+                            }
+                            if (is_bool($value) || in_array($key, $booleanFields)) {
+                                if ((bool) $value) {
+                                    $details[$key] = [
+                                        'label' => $label,
+                                        'is_checked' => true
+                                    ];
+                                }
+                            } else if ($value !== null && $value !== '' && $value !== 'Tidak Ada') {
                                 $details[$key] = [
-                                    'label' => $label,
+                                    'label' => $label . ': ' . $value,
                                     'is_checked' => true
                                 ];
                             }
-                        } else if ($value !== null && $value !== '' && $value !== 'Tidak Ada') {
-                            // For non-boolean values, show as checked with value (skip empty or "Tidak Ada")
-                            $details[$key] = [
-                                'label' => $label . ': ' . $value,
-                                'is_checked' => true
-                            ];
                         }
                     }
                 }
             }
-
             return [
                 'id' => $activity->id,
                 'title' => $activity->title,
@@ -254,9 +249,14 @@ class DashboardController extends Controller
                     'id' => $submission->id,
                     'time' => $submission->updated_at->format('H:i:s'),
                     'photo' => $submission->photo,
-                    'status' => $submission->status,
+                    // Ensure status is set; default to 'pending' if DB value is null/empty
+                    'status' => $submission->status ?? 'pending',
                     'details' => $details,
                     'notes' => $submission->notes,
+                    'has_details' => count($details) > 0,
+                    // Explicit flag for UI to determine if parent can approve
+                    // Only allow approving if submission is pending and there is at least a photo or details
+                    'can_approve' => (($submission->status ?? 'pending') === 'pending') && ( ($submission->photo && strlen($submission->photo) > 0) || count($details) > 0 ),
                 ] : null
             ];
         });
@@ -289,10 +289,14 @@ class DashboardController extends Controller
             return back()->with('error', 'Unauthorized');
         }
 
+        // Preserve the original submission date if available to avoid timezone/date shift issues;
+        // otherwise fall back to current date.
         $submission->update([
             'status' => 'approved',
             'approved_by' => $parent->id,
             'approved_at' => now(),
+            // Use existing submission date when present to avoid changing the intended day
+            'date' => $submission->date ? $submission->date->toDateString() : now()->toDateString(),
         ]);
 
         return back()->with('success', 'Kegiatan berhasil disetujui');

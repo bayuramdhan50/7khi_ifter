@@ -59,6 +59,23 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
         isya: false
     });
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
+
+    // Auto-refresh data setiap 10 detik
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload();
+        }, 10000); // 10 detik
+        return () => clearInterval(interval);
+    }, []);
+
+    // Sync approvalOrangTua with backend status
+    useEffect(() => {
+        if (todaySubmission && todaySubmission.status === 'approved') {
+            setApprovalOrangTua(true);
+        } else {
+            setApprovalOrangTua(false);
+        }
+    }, [todaySubmission]);
     const [showInfo, setShowInfo] = useState(false);
     const infoTimer = useRef<number | null>(null);
 
@@ -123,38 +140,40 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
     };
 
     const handlePrayerChange = (prayerKey: string, checked: boolean) => {
-        // Update local state
-        setPrayers(prev => ({ ...prev, [prayerKey]: checked }));
+        // Update local state and use callback to get latest state
+        setPrayers(prev => {
+            const newPrayers = { ...prev, [prayerKey]: checked };
 
-        // Auto-submit to database
-        setIsSubmitting(true);
+            // Auto-submit to database
+            setIsSubmitting(true);
 
-        const formData = new FormData();
-        formData.append('activity_id', activity.id.toString());
-        formData.append('date', currentDate);
+            const formData = new FormData();
+            formData.append('activity_id', activity.id.toString());
+            formData.append('date', currentDate);
+            // Use newPrayers for all values
+            formData.append('subuh', newPrayers.subuh ? '1' : '0');
+            formData.append('dzuhur', newPrayers.dzuhur ? '1' : '0');
+            formData.append('ashar', newPrayers.ashar ? '1' : '0');
+            formData.append('maghrib', newPrayers.maghrib ? '1' : '0');
+            formData.append('isya', newPrayers.isya ? '1' : '0');
+            formData.append('mengaji', mengaji ? '1' : '0');
+            formData.append('berdoa', berdoa ? '1' : '0');
+            formData.append('bersedekah', bersedekah ? '1' : '0');
+            formData.append('lainnya', lainnya ? '1' : '0');
 
-        // Send all prayer states
-        formData.append('subuh', prayers.subuh || (prayerKey === 'subuh' && checked) ? '1' : '0');
-        formData.append('dzuhur', prayers.dzuhur || (prayerKey === 'dzuhur' && checked) ? '1' : '0');
-        formData.append('ashar', prayers.ashar || (prayerKey === 'ashar' && checked) ? '1' : '0');
-        formData.append('maghrib', prayers.maghrib || (prayerKey === 'maghrib' && checked) ? '1' : '0');
-        formData.append('isya', prayers.isya || (prayerKey === 'isya' && checked) ? '1' : '0');
-        formData.append('mengaji', mengaji ? '1' : '0');
-        formData.append('berdoa', berdoa ? '1' : '0');
-        formData.append('bersedekah', bersedekah ? '1' : '0');
-        formData.append('lainnya', lainnya ? '1' : '0');
-
-        router.post('/siswa/activities/submit', formData, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setIsSubmitting(false);
-            },
-            onError: (errors: any) => {
-                console.error('Gagal menyimpan:', errors);
-                setIsSubmitting(false);
-                // Revert checkbox on error
-                setPrayers(prev => ({ ...prev, [prayerKey]: !checked }));
-            }
+            router.post('/siswa/activities/submit', formData, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsSubmitting(false);
+                },
+                onError: (errors: any) => {
+                    console.error('Gagal menyimpan:', errors);
+                    setIsSubmitting(false);
+                    // Revert checkbox on error
+                    setPrayers(prev2 => ({ ...prev2, [prayerKey]: !checked }));
+                }
+            });
+            return newPrayers;
         });
     };
 
@@ -341,12 +360,9 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                                 type="checkbox"
                                                 checked={prayers[prayer.key as keyof typeof prayers]}
                                                 onChange={(e) => handlePrayerChange(prayer.key, e.target.checked)}
-                                                disabled={isSubmitting}
+                                                disabled={isSubmitting || approvalOrangTua}
                                                 className="w-6 h-6 rounded border-2 border-gray-300 text-blue-500 focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                                             />
-                                            {isSubmitting && (
-                                                <span className="text-xs text-gray-500">Menyimpan...</span>
-                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -396,7 +412,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                         type="checkbox"
                                         checked={mengaji}
                                         onChange={(e) => handleActivityChange('mengaji', e.target.checked)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
                                 </div>
@@ -410,7 +426,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                         type="checkbox"
                                         checked={berdoa}
                                         onChange={(e) => handleActivityChange('berdoa', e.target.checked)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
                                 </div>
@@ -424,7 +440,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                         type="checkbox"
                                         checked={bersedekah}
                                         onChange={(e) => handleActivityChange('bersedekah', e.target.checked)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
                                 </div>
@@ -438,7 +454,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                         type="checkbox"
                                         checked={lainnya}
                                         onChange={(e) => handleActivityChange('lainnya', e.target.checked)}
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || approvalOrangTua}
                                         className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
                                 </div>
