@@ -9,6 +9,10 @@ use App\Models\ClassModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentTemplateExport;
+use App\Imports\StudentImport;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -155,55 +159,80 @@ class StudentController extends Controller
     }
 
     /**
-     * Import students from file.
+     * Download Excel template for student import.
+     */
+    public function downloadTemplate(Request $request)
+    {
+        $classId = $request->query('class_id');
+        $className = $request->query('class_name', 'Siswa');
+
+        // Clean class name for filename (remove spaces and special chars)
+        $cleanClassName = str_replace([' ', 'Kelas '], '', $className);
+        $filename = 'template_data_siswa_kelas_' . $cleanClassName . '.xlsx';
+
+        return Excel::download(new StudentTemplateExport($classId, $className), $filename);
+    }
+
+    /**
+     * Import students from Excel file.
      */
     public function import(Request $request)
     {
-        $validated = $request->validate([
-            'class_id' => 'required|exists:classes,id',
-            'students' => 'required|array',
-            'students.*.name' => 'required|string|max:255',
-            'students.*.religion' => 'required|string|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
-            'students.*.gender' => 'required|string|in:L,P',
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls|max:5120', // Max 5MB
         ]);
 
-        $imported = 0;
-        $errors = [];
+        try {
+            $import = new StudentImport();
+            Excel::import($import, $request->file('file'));
 
-        foreach ($validated['students'] as $index => $studentData) {
-            try {
-                // Generate email from name
-                $email = $this->generateEmailFromName($studentData['name']);
+            $imported = $import->getImportedCount();
+            $errors = collect($import->failures())->map(function ($failure) {
+                return [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                    'values' => $failure->values(),
+                ];
+            })->toArray();
 
-                // Create user account
-                $user = User::create([
-                    'name' => $studentData['name'],
-                    'email' => $email,
-                    'username' => $email,
-                    'password' => Hash::make('password'),
-                    'role' => User::ROLE_SISWA,
-                    'religion' => $studentData['religion'],
-                ]);
-
-                // Create student record
-                Student::create([
-                    'user_id' => $user->id,
-                    'class_id' => $validated['class_id'],
-                    'gender' => $studentData['gender'],
-                ]);
-
-                $imported++;
-            } catch (\Exception $e) {
-                $errors[] = "Baris " . ($index + 1) . ": " . $e->getMessage();
+            if (count($errors) > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Import selesai dengan beberapa error. $imported siswa berhasil diimport.",
+                    'imported' => $imported,
+                    'errors' => $errors,
+                ], 422);
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => "$imported siswa berhasil diimport",
-            'imported' => $imported,
-            'errors' => $errors,
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => "$imported siswa berhasil diimport",
+                'imported' => $imported,
+            ]);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                ];
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terdapat error validasi pada file Excel',
+                'errors' => $errors,
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat import: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

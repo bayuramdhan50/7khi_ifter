@@ -6,6 +6,7 @@ import AddTeacherModal from './_components/AddTeacherModal';
 import DeleteConfirmModal from './_components/DeleteConfirmModal';
 import EditTeacherModal from './_components/EditTeacherModal';
 import TeachersTable from './_components/TeachersTable';
+import ExcelImportModal from '@/components/excel-import-modal';
 import { FormData, GuruDashboardProps, Teacher } from './types';
 
 export default function GuruDashboard({
@@ -16,6 +17,7 @@ export default function GuruDashboard({
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(
         null,
     );
@@ -104,6 +106,15 @@ export default function GuruDashboard({
         }
     };
 
+    const handleDownloadTemplate = () => {
+        window.location.href = '/admin/teachers/template';
+    };
+
+    const handleImportSuccess = () => {
+        // Reload page to show new data
+        window.location.reload();
+    };
+
     return (
         <AppLayout>
             <Head title="Dashboard Guru" />
@@ -125,6 +136,8 @@ export default function GuruDashboard({
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
                         onAddClick={() => setShowAddModal(true)}
+                        onDownloadTemplate={handleDownloadTemplate}
+                        onImportClick={() => setShowImportModal(true)}
                     />
 
                     {/* Teachers Table */}
@@ -159,6 +172,15 @@ export default function GuruDashboard({
                         onClose={() => setShowDeleteConfirm(false)}
                         onConfirm={handleDelete}
                         teacher={selectedTeacher}
+                    />
+
+                    {/* Excel Import Modal */}
+                    <ExcelImportModal
+                        isOpen={showImportModal}
+                        onClose={() => setShowImportModal(false)}
+                        uploadUrl="/admin/teachers/import"
+                        entityName="Guru"
+                        onSuccess={handleImportSuccess}
                     />
                 </div>
             </div>

@@ -3,15 +3,18 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import ParentsTable from './_components/ParentsTable';
 import SearchBar from './_components/SearchBar';
+import ExcelImportModal from '@/components/excel-import-modal';
 import { ClassParentsProps, Parent } from './types';
 
 export default function ClassParents({
     auth,
     className,
     classId,
+    classDbId,
     parents,
 }: ClassParentsProps) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [showImportModal, setShowImportModal] = useState(false);
 
     // Filter orang tua berdasarkan search
     const filteredParents = (parents || []).filter(
@@ -44,11 +47,19 @@ export default function ClassParents({
                 onError: (errors) => {
                     alert(
                         'Gagal menghapus akun: ' +
-                            (errors.error || 'Terjadi kesalahan'),
+                        (errors.error || 'Terjadi kesalahan'),
                     );
                 },
             });
         }
+    };
+
+    const handleDownloadTemplate = () => {
+        window.location.href = '/admin/parents/template';
+    };
+
+    const handleImportSuccess = () => {
+        window.location.reload();
     };
 
     return (
@@ -94,6 +105,8 @@ export default function ClassParents({
                         onAddClick={() =>
                             (window.location.href = `/admin/orangtua/kelas/${classId}/create`)
                         }
+                        onDownloadTemplate={handleDownloadTemplate}
+                        onImportClick={() => setShowImportModal(true)}
                     />
 
                     {/* Parents Table */}
@@ -101,6 +114,16 @@ export default function ClassParents({
                         parents={filteredParents}
                         onEdit={openEditPage}
                         onDelete={handleDelete}
+                    />
+
+                    {/* Excel Import Modal */}
+                    <ExcelImportModal
+                        isOpen={showImportModal}
+                        onClose={() => setShowImportModal(false)}
+                        uploadUrl="/admin/parents/import"
+                        entityName="Orang Tua"
+                        onSuccess={handleImportSuccess}
+                        additionalData={{ class_id: classDbId }}
                     />
                 </div>
             </div>

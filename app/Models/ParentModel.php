@@ -12,6 +12,7 @@ class ParentModel extends Model
 
     protected $fillable = [
         'user_id',
+        'class_id',
         'full_name',
         'phone',
         'email',

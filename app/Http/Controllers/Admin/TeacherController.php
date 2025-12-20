@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TeacherTemplateExport;
+use App\Imports\TeacherImport;
 
 class TeacherController extends Controller
 {
@@ -103,7 +106,7 @@ class TeacherController extends Controller
             // First, remove this teacher from all classes
             \App\Models\ClassModel::where('teacher_id', $teacher->user_id)
                 ->update(['teacher_id' => null]);
-            
+
             // Then assign the new class
             if (!empty($validated['class_id'])) {
                 \App\Models\ClassModel::where('id', $validated['class_id'])
@@ -135,6 +138,76 @@ class TeacherController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal menghapus guru: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download Excel template for teacher import.
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new TeacherTemplateExport, 'template_guru.xlsx');
+    }
+
+    /**
+     * Import teachers from Excel file.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls|max:5120', // Max 5MB
+        ]);
+
+        try {
+            $import = new TeacherImport();
+            Excel::import($import, $request->file('file'));
+
+            $imported = $import->getImportedCount();
+            $errors = collect($import->failures())->map(function ($failure) {
+                return [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                    'values' => $failure->values(),
+                ];
+            })->toArray();
+
+            if (count($errors) > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Import selesai dengan beberapa error. $imported guru berhasil diimport.",
+                    'imported' => $imported,
+                    'errors' => $errors,
+                ], 422);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "$imported guru berhasil diimport",
+                'imported' => $imported,
+            ]);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+
+            foreach ($failures as $failure) {
+                $errors[] = [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                ];
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terdapat error validasi pada file Excel',
+                'errors' => $errors,
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat import: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }

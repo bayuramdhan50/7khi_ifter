@@ -33,6 +33,7 @@ export interface ClassParentsProps {
     };
     className: string;
     classId: string;
+    classDbId: number;
     parents: Parent[];
     allClasses?: Class[];
 }

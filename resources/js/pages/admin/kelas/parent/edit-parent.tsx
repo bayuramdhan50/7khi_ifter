@@ -58,6 +58,24 @@ export default function EditParent({
         Record<string, { id: number; name: string }[]>
     >({});
 
+    // Initialize available students for existing children on component mount
+    useEffect(() => {
+        const initialStudents: Record<string, { id: number; name: string }[]> = {};
+
+        formData.children.forEach((child) => {
+            if (child.classId) {
+                const selectedClass = allClasses.find(
+                    (c) => c.id.toString() === child.classId,
+                );
+                if (selectedClass) {
+                    initialStudents[child.id] = selectedClass.students || [];
+                }
+            }
+        });
+
+        setAvailableStudentsPerChild(initialStudents);
+    }, []); // Run only once on mount
+
     const handleInputChange = (
         e: React.ChangeEvent<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -323,17 +341,17 @@ export default function EditParent({
                                                 </h3>
                                                 {formData.children.length >
                                                     1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removeChild(child.id)
-                                                        }
-                                                        className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                        Hapus
-                                                    </button>
-                                                )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removeChild(child.id)
+                                                            }
+                                                            className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                            Hapus
+                                                        </button>
+                                                    )}
                                             </div>
 
                                             <div className="grid gap-4 md:grid-cols-3">
@@ -445,7 +463,7 @@ export default function EditParent({
                                                                 Pilih Anak
                                                             </option>
                                                             {availableStudents.length >
-                                                            0 ? (
+                                                                0 ? (
                                                                 availableStudents.map(
                                                                     (
                                                                         student,

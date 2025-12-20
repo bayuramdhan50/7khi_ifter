@@ -348,30 +348,67 @@ class DashboardController extends Controller
 
         $className = 'Kelas ' . $class->name;
 
-        // Get parents through students in this class
-        $students = \App\Models\Student::where('class_id', $class->id)
-            ->with(['parents.user'])
+        // Get parents in two ways:
+        // 1. Parents directly assigned to this class (via class_id)
+        // 2. Parents linked to students in this class  
+        $parentsViaClassId = \App\Models\ParentModel::where('class_id', $class->id)
+            ->with(['user', 'students.user'])
             ->get();
 
-        $parentsCollection = collect();
+        // Get parents through students in this class
+        $students = \App\Models\Student::where('class_id', $class->id)
+            ->with(['parents.user', 'user'])
+            ->get();
+
+        $parentsMap = [];
+
+        // Add parents directly assigned to class
+        foreach ($parentsViaClassId as $parent) {
+            $childrenNames = $parent->students->pluck('user.name')->filter()->implode(', ');
+
+            $parentsMap[$parent->id] = [
+                'id' => $parent->id,
+                'parentName' => $parent->user->name ?? 'N/A',
+                'email' => $parent->user->email ?? 'N/A',
+                'phone' => $parent->phone ?? 'N/A',
+                'studentName' => $childrenNames ?: null,
+                'studentClass' => $class->name ?? 'N/A',
+            ];
+        }
+
+        // Add or update parents linked to students in this class
         foreach ($students as $student) {
             foreach ($student->parents as $parent) {
-                if (!$parentsCollection->contains('id', $parent->id)) {
-                    $parentsCollection->push([
+                if (isset($parentsMap[$parent->id])) {
+                    // Parent already exists, update student names if needed
+                    $existingNames = $parentsMap[$parent->id]['studentName'];
+                    $studentName = $student->user->name ?? 'N/A';
+
+                    if ($existingNames && !str_contains($existingNames, $studentName)) {
+                        $parentsMap[$parent->id]['studentName'] = $existingNames . ', ' . $studentName;
+                    } elseif (!$existingNames) {
+                        $parentsMap[$parent->id]['studentName'] = $studentName;
+                    }
+                } else {
+                    // New parent, add to map
+                    $parentsMap[$parent->id] = [
                         'id' => $parent->id,
                         'parentName' => $parent->user->name ?? 'N/A',
                         'email' => $parent->user->email ?? 'N/A',
                         'phone' => $parent->phone ?? 'N/A',
                         'studentName' => $student->user->name ?? 'N/A',
                         'studentClass' => $class->name ?? 'N/A',
-                    ]);
+                    ];
                 }
             }
         }
 
+        $parentsCollection = collect(array_values($parentsMap));
+
         return Inertia::render('admin/kelas/parent/class-parents', [
             'className' => $className,
             'classId' => $classId,
+            'classDbId' => $class->id,
             'parents' => $parentsCollection->values(),
             'allClasses' => \App\Models\ClassModel::with(['students.user'])
                 ->get()
@@ -604,6 +641,12 @@ class DashboardController extends Controller
         try {
             DB::beginTransaction();
 
+            // Log request data for debugging
+            \Log::info('Updating parent', [
+                'parent_id' => $parent->id,
+                'validated_data' => $validated,
+            ]);
+
             // 1. Update User account
             $parent->user->update([
                 'name' => $validated['name'],
@@ -624,6 +667,12 @@ class DashboardController extends Controller
                 ->delete();
 
             foreach ($validated['children'] as $child) {
+                \Log::info('Inserting parent-student relationship', [
+                    'parent_id' => $parent->id,
+                    'student_id' => $child['studentId'],
+                    'relationship' => $child['relationship'],
+                ]);
+
                 DB::table('parent_student')->insert([
                     'parent_id' => $parent->id,
                     'student_id' => $child['studentId'],
@@ -649,9 +698,16 @@ class DashboardController extends Controller
                 ->with('success', 'Data orang tua berhasil diperbarui!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()
-                ->withErrors(['error' => 'Gagal memperbarui data: ' . $e->getMessage()])
-                ->withInput();
+            \Log::error('Failed to update parent', [
+                'parent_id' => $parentId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['error' => 'Gagal mengupdate data: ' . $e->getMessage()]);
         }
     }
 

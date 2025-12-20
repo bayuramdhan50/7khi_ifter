@@ -101,6 +101,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('students/{student}', [\App\Http\Controllers\Admin\StudentController::class, 'update'])->name('students.update');
         Route::put('students/{student}/assign-class', [\App\Http\Controllers\Admin\StudentController::class, 'assignClass'])->name('students.assign-class');
         Route::delete('students/{student}', [\App\Http\Controllers\Admin\StudentController::class, 'destroy'])->name('students.destroy');
+
+        // Student Excel routes
+        Route::get('students/template', [\App\Http\Controllers\Admin\StudentController::class, 'downloadTemplate'])->name('students.template');
         Route::post('students/import', [\App\Http\Controllers\Admin\StudentController::class, 'import'])->name('students.import');
 
         // Guru Routes
@@ -112,6 +115,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('teachers/{teacher}', [\App\Http\Controllers\Admin\TeacherController::class, 'update'])->name('teachers.update');
         Route::delete('teachers/{teacher}', [\App\Http\Controllers\Admin\TeacherController::class, 'destroy'])->name('teachers.destroy');
 
+        // Teacher Excel routes
+        Route::get('teachers/template', [\App\Http\Controllers\Admin\TeacherController::class, 'downloadTemplate'])->name('teachers.template');
+        Route::post('teachers/import', [\App\Http\Controllers\Admin\TeacherController::class, 'import'])->name('teachers.import');
+
         // Orang Tua Routes
         Route::get('orangtua-dashboard', [AdminDashboardController::class, 'orangtuaDashboard'])->name('orangtua.dashboard');
         Route::get('orangtua/kelas/{classId}', [AdminDashboardController::class, 'classParents'])->name('orangtua.class');
@@ -121,6 +128,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('orangtua/{parentId}/update', [AdminDashboardController::class, 'updateParent'])->name('orangtua.update');
         Route::delete('orangtua/{parentId}/delete', [AdminDashboardController::class, 'deleteParent'])->name('orangtua.delete');
         Route::get('orangtua-management', [AdminDashboardController::class, 'orangtuaManagement'])->name('orangtua.management');
+
+        // Parent Excel routes
+        Route::get('parents/template', [\App\Http\Controllers\Admin\ParentController::class, 'downloadTemplate'])->name('parents.template');
+        Route::post('parents/import', [\App\Http\Controllers\Admin\ParentController::class, 'import'])->name('parents.import');
     });
 });
 

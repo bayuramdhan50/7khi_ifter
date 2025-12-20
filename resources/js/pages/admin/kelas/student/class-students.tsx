@@ -2,26 +2,17 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import axios from 'axios';
 import { useState } from 'react';
-import * as XLSX from 'xlsx';
 import ActionBar from './_components/ActionBar';
-import ImportModal from './_components/ImportModal';
 import StudentsTable from './_components/StudentsTable';
 import StudentViewModal from './_components/StudentViewModal';
 import StudentFormModal from './_components/StudentFormModal';
+import ExcelImportModal from '@/components/excel-import-modal';
 import {
     ClassStudentsProps,
     FormData,
-    ImportedStudent,
     Student,
 } from './types';
 
-// Configure axios with CSRF token
-const csrfToken = document
-    .querySelector('meta[name="csrf-token"]')
-    ?.getAttribute('content');
-if (csrfToken) {
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
-}
 
 export default function ClassStudents({
     className,
@@ -33,9 +24,6 @@ export default function ClassStudents({
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
-    const [importedData, setImportedData] = useState<ImportedStudent[]>([]);
-    const [importFile, setImportFile] = useState<File | null>(null);
-    const [isDragging, setIsDragging] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(
         null,
     );
@@ -63,199 +51,15 @@ export default function ClassStudents({
         }));
     };
 
-    const parseFile = (file: File) => {
-        const isExcel =
-            file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
-
-        if (isExcel) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = new Uint8Array(
-                        event.target?.result as ArrayBuffer,
-                    );
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(
-                        firstSheet,
-                    ) as Record<
-                        string,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        any
-                    >[];
-
-                    const parsed: ImportedStudent[] = jsonData
-                        .map((row) => ({
-                            name: row.NAMA || row.nama || '',
-                            religion: row.AGAMA || row.agama || '',
-                            gender:
-                                row.JENIS_KELAMIN ||
-                                row.jenis_kelamin ||
-                                row.gender ||
-                                '',
-                        }))
-                        .filter((item) => item.name);
-
-                    setImportedData(parsed);
-                    setImportFile(file);
-                } catch (error) {
-                    console.error('Error parsing Excel:', error);
-                    alert(
-                        'Gagal membaca file Excel. Pastikan format file benar.',
-                    );
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        } else {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const csv = event.target?.result as string;
-                    const lines = csv.split('\n').filter((line) => line.trim());
-
-                    const dataLines = lines.slice(1);
-                    const parsed: ImportedStudent[] = dataLines
-                        .map((line) => {
-                            const [, nama, agama, jenisKelamin] = line
-                                .split(',')
-                                .map((item) => item.trim());
-                            return {
-                                name: nama || '',
-                                religion: agama || '',
-                                gender: jenisKelamin || '',
-                            };
-                        })
-                        .filter((item) => item.name);
-
-                    setImportedData(parsed);
-                    setImportFile(file);
-                } catch (error) {
-                    console.error('Error parsing CSV:', error);
-                    alert(
-                        'Gagal membaca file CSV. Pastikan format file benar.',
-                    );
-                }
-            };
-            reader.readAsText(file);
-        }
-    };
-
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            parseFile(file);
-        }
-    };
-
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files?.[0];
-        const isValidFile =
-            file &&
-            (file.type === 'text/csv' ||
-                file.name.endsWith('.csv') ||
-                file.name.endsWith('.xlsx') ||
-                file.name.endsWith('.xls') ||
-                file.type ===
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-                file.type === 'application/vnd.ms-excel');
-
-        if (isValidFile) {
-            parseFile(file);
-        } else {
-            alert('Silakan upload file CSV atau Excel (.xlsx, .xls)');
-        }
-    };
-
-    const handleImportSubmit = async () => {
-        if (importedData.length === 0) {
-            alert('Tidak ada data untuk diimport');
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        try {
-            const response = await axios.post('/admin/students/import', {
-                class_id: classDbId,
-                students: importedData,
-            });
-
-            if (response.data.success) {
-                router.reload({ only: ['students'] });
-                alert(response.data.message);
-                setImportedData([]);
-                setImportFile(null);
-                setShowImportModal(false);
-            }
-        } catch (error) {
-            const message =
-                (error as { response?: { data?: { message?: string } } })
-                    .response?.data?.message ||
-                'Terjadi kesalahan saat import siswa';
-            alert(message);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
     const downloadCSVTemplate = () => {
-        const dataToExport =
-            students.length > 0
-                ? students.map((student, index) => ({
-                      NO: index + 1,
-                      NAMA: student.name,
-                      AGAMA: student.religion,
-                      JENIS_KELAMIN: student.gender,
-                  }))
-                : [
-                      {
-                          NO: 1,
-                          NAMA: 'Ahmad Fauzi',
-                          AGAMA: 'Islam',
-                          JENIS_KELAMIN: 'L',
-                      },
-                      {
-                          NO: 2,
-                          NAMA: 'Siti Nurhaliza',
-                          AGAMA: 'Islam',
-                          JENIS_KELAMIN: 'P',
-                      },
-                      {
-                          NO: 3,
-                          NAMA: 'Budi Santoso',
-                          AGAMA: 'Islam',
-                          JENIS_KELAMIN: 'L',
-                      },
-                  ];
+        // Use backend endpoint to download template
+        window.location.href = `/admin/students/template?class_id=${classDbId}&class_name=${encodeURIComponent(className)}`;
+    };
 
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Siswa');
-
-        worksheet['!cols'] = [
-            { wch: 5 },
-            { wch: 20 },
-            { wch: 12 },
-            { wch: 15 },
-        ];
-
-        const fileName =
-            students.length > 0
-                ? `data_siswa_${className.replace(/\s+/g, '_')}.xlsx`
-                : 'format_siswa.xlsx';
-
-        XLSX.writeFile(workbook, fileName);
+    const handleImportSuccess = () => {
+        // Reload students data after successful import
+        router.reload({ only: ['students'] });
+        setShowImportModal(false);
     };
 
     const handleEditSubmit = async (e: React.FormEvent) => {
@@ -399,6 +203,7 @@ export default function ClassStudents({
                         onSearchChange={setSearchQuery}
                         onAddClick={() => router.visit(`/admin/siswa/kelas/${classId}/create`)}
                         onImportClick={() => setShowImportModal(true)}
+                        onDownloadTemplate={downloadCSVTemplate}
                     />
 
                     {/* Students Table */}
@@ -435,27 +240,13 @@ export default function ClassStudents({
                     )}
 
                     {/* Modal Import Siswa */}
-                    <ImportModal
+                    <ExcelImportModal
                         isOpen={showImportModal}
-                        onClose={() => {
-                            setShowImportModal(false);
-                            setImportedData([]);
-                            setImportFile(null);
-                        }}
-                        importedData={importedData}
-                        importFile={importFile}
-                        isDragging={isDragging}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        onFileSelect={handleFileSelect}
-                        onDownloadTemplate={downloadCSVTemplate}
-                        onImportSubmit={handleImportSubmit}
-                        onClearImport={() => {
-                            setImportedData([]);
-                            setImportFile(null);
-                        }}
-                        isSubmitting={isSubmitting}
+                        onClose={() => setShowImportModal(false)}
+                        uploadUrl="/admin/students/import"
+                        entityName="Siswa"
+                        onSuccess={handleImportSuccess}
+                        additionalData={{ class_id: classDbId }}
                     />
                 </div>
             </div>
