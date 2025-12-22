@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import { useState } from 'react';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { Class, ChildData } from './types';
@@ -23,6 +24,7 @@ export default function CreateParent({
     className,
     allClasses,
 }: CreateParentProps) {
+    const { showError } = useToast();
     const [formData, setFormData] = useState({
         name: '',
         username: '',
@@ -149,7 +151,7 @@ export default function CreateParent({
             },
             onError: (errors) => {
                 console.error('Error creating parent:', errors);
-                alert('Gagal membuat akun orang tua. Silakan coba lagi.');
+                showError('Gagal membuat akun orang tua. Silakan coba lagi.');
             },
         });
     };
@@ -309,17 +311,17 @@ export default function CreateParent({
                                                 </h3>
                                                 {formData.children.length >
                                                     1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removeChild(child.id)
-                                                        }
-                                                        className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                        Hapus
-                                                    </button>
-                                                )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removeChild(child.id)
+                                                            }
+                                                            className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                            Hapus
+                                                        </button>
+                                                    )}
                                             </div>
 
                                             <div className="grid gap-4 md:grid-cols-3">
@@ -431,7 +433,7 @@ export default function CreateParent({
                                                                 Pilih Anak
                                                             </option>
                                                             {availableStudents.length >
-                                                            0 ? (
+                                                                0 ? (
                                                                 availableStudents.map(
                                                                     (
                                                                         student,

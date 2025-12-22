@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import axios from 'axios';
 import { ArrowLeft, UserPlus, Users } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -43,6 +44,7 @@ export default function CreateStudent({
     classDbId,
     unassignedStudents,
 }: CreateStudentProps) {
+    const { showSuccess, showError } = useToast();
     const [activeTab, setActiveTab] = useState<'create' | 'assign'>('create');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -89,7 +91,7 @@ export default function CreateStudent({
             });
 
             if (response.data.success) {
-                alert('Siswa berhasil ditambahkan');
+                showSuccess('Siswa berhasil ditambahkan');
                 router.visit(`/admin/siswa/kelas/${classId}`);
             }
         } catch (error) {
@@ -97,7 +99,7 @@ export default function CreateStudent({
                 (error as { response?: { data?: { message?: string } } })
                     .response?.data?.message ||
                 'Terjadi kesalahan saat menambahkan siswa';
-            alert(message);
+            showError(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -118,7 +120,7 @@ export default function CreateStudent({
             );
 
             if (response.data.success) {
-                alert('Siswa berhasil ditambahkan ke kelas');
+                showSuccess('Siswa berhasil ditambahkan ke kelas');
                 router.visit(`/admin/siswa/kelas/${classId}`);
             }
         } catch (error) {
@@ -126,7 +128,7 @@ export default function CreateStudent({
                 (error as { response?: { data?: { message?: string } } })
                     .response?.data?.message ||
                 'Terjadi kesalahan saat menambahkan siswa ke kelas';
-            alert(message);
+            showError(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -166,11 +168,10 @@ export default function CreateStudent({
                                     <button
                                         type="button"
                                         onClick={() => setActiveTab('create')}
-                                        className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${
-                                            activeTab === 'create'
+                                        className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${activeTab === 'create'
                                                 ? 'border-b-2 border-blue-600 text-blue-600'
                                                 : 'text-gray-600 hover:text-gray-900'
-                                        }`}
+                                            }`}
                                     >
                                         <div className="flex items-center justify-center gap-2">
                                             <UserPlus className="h-4 w-4" />
@@ -180,11 +181,10 @@ export default function CreateStudent({
                                     <button
                                         type="button"
                                         onClick={() => setActiveTab('assign')}
-                                        className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${
-                                            activeTab === 'assign'
+                                        className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${activeTab === 'assign'
                                                 ? 'border-b-2 border-blue-600 text-blue-600'
                                                 : 'text-gray-600 hover:text-gray-900'
-                                        }`}
+                                            }`}
                                     >
                                         <div className="flex items-center justify-center gap-2">
                                             <Users className="h-4 w-4" />
@@ -207,334 +207,334 @@ export default function CreateStudent({
                                         onSubmit={handleSubmit}
                                         className="space-y-6"
                                     >
-                                {/* Nama Siswa */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Nama Siswa{' '}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        placeholder="Masukkan nama siswa"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Email{' '}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        placeholder="contoh@email.com"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-
-                                {/* NIS & NISN */}
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                            NIS{' '}
-                                            <span className="text-red-500">
-                                                *
-                                            </span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="nis"
-                                            value={formData.nis}
-                                            onChange={handleInputChange}
-                                            placeholder="Nomor Induk Siswa"
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                            NISN
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="nisn"
-                                            value={formData.nisn}
-                                            onChange={handleInputChange}
-                                            placeholder="NISN (opsional)"
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Agama */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Agama{' '}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        name="religion"
-                                        value={formData.religion}
-                                        onChange={handleInputChange}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    >
-                                        <option value="">Pilih Agama</option>
-                                        <option value="Islam">Islam</option>
-                                        <option value="Kristen">Kristen</option>
-                                        <option value="Katolik">Katolik</option>
-                                        <option value="Hindu">Hindu</option>
-                                        <option value="Buddha">Buddha</option>
-                                        <option value="Konghucu">Konghucu</option>
-                                    </select>
-                                </div>
-
-                                {/* Jenis Kelamin */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Jenis Kelamin{' '}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        name="gender"
-                                        value={formData.gender}
-                                        onChange={handleInputChange}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    >
-                                        <option value="">
-                                            Pilih Jenis Kelamin
-                                        </option>
-                                        <option value="L">Laki-laki</option>
-                                        <option value="P">Perempuan</option>
-                                    </select>
-                                </div>
-
-                                {/* Tanggal Lahir */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Tanggal Lahir
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="date_of_birth"
-                                        value={formData.date_of_birth}
-                                        onChange={handleInputChange}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                    />
-                                </div>
-
-                                {/* Alamat */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Alamat
-                                    </label>
-                                    <textarea
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        placeholder="Masukkan alamat lengkap"
-                                        rows={4}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                                    />
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                                    <Link
-                                        href={`/admin/siswa/kelas/${classId}`}
-                                        className="rounded-lg bg-gray-200 px-6 py-2.5 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-300"
-                                    >
-                                        Batal
-                                    </Link>
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-                                    >
-                                        {isSubmitting
-                                            ? 'Menyimpan...'
-                                            : 'Simpan Siswa'}
-                                    </button>
-                                </div>
-                            </form>
-                            )}
-
-                            {/* Tab 2: Assign Existing Student */}
-                            {activeTab === 'assign' && (
-                                <form
-                                    onSubmit={handleAssignStudent}
-                                    className="space-y-6"
-                                >
-                                    {unassignedStudents.length === 0 ? (
-                                        <div className="rounded-lg bg-gray-50 p-8 text-center">
-                                            <Users className="mx-auto mb-3 h-12 w-12 text-gray-400" />
-                                            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                                                Tidak Ada Siswa Tersedia
-                                            </h3>
-                                            <p className="mb-4 text-sm text-gray-600">
-                                                Semua siswa sudah terdaftar di
-                                                kelas atau belum ada siswa yang
-                                                terdaftar.
-                                            </p>
-                                            <Link
-                                                href="/admin/siswa/create-account"
-                                                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-                                            >
-                                                <UserPlus className="h-4 w-4" />
-                                                Buat Akun Siswa Baru
-                                            </Link>
+                                        {/* Nama Siswa */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                Nama Siswa{' '}
+                                                <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleInputChange}
+                                                placeholder="Masukkan nama siswa"
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                                required
+                                            />
                                         </div>
-                                    ) : (
-                                        <>
+
+                                        {/* Email */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                Email{' '}
+                                                <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                                placeholder="contoh@email.com"
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                                required
+                                            />
+                                        </div>
+
+                                        {/* NIS & NISN */}
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div>
                                                 <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                                    Pilih Siswa{' '}
+                                                    NIS{' '}
                                                     <span className="text-red-500">
                                                         *
                                                     </span>
                                                 </label>
-                                                <select
-                                                    value={selectedStudentId}
-                                                    onChange={(e) =>
-                                                        setSelectedStudentId(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <input
+                                                    type="text"
+                                                    name="nis"
+                                                    value={formData.nis}
+                                                    onChange={handleInputChange}
+                                                    placeholder="Nomor Induk Siswa"
                                                     className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                                                     required
-                                                >
-                                                    <option value="">
-                                                        Pilih siswa yang akan
-                                                        ditambahkan
-                                                    </option>
-                                                    {unassignedStudents.map(
-                                                        (student) => (
-                                                            <option
-                                                                key={student.id}
-                                                                value={student.id}
-                                                            >
-                                                                {student.name} -{' '}
-                                                                {student.nis} (
-                                                                {student.email})
-                                                            </option>
-                                                        ),
-                                                    )}
-                                                </select>
-                                                <p className="mt-1 text-xs text-gray-500">
-                                                    Siswa yang ditampilkan adalah
-                                                    siswa yang sudah punya akun
-                                                    tapi belum masuk kelas
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                    NISN
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="nisn"
+                                                    value={formData.nisn}
+                                                    onChange={handleInputChange}
+                                                    placeholder="NISN (opsional)"
+                                                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Agama */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                Agama{' '}
+                                                <span className="text-red-500">*</span>
+                                            </label>
+                                            <select
+                                                name="religion"
+                                                value={formData.religion}
+                                                onChange={handleInputChange}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                                required
+                                            >
+                                                <option value="">Pilih Agama</option>
+                                                <option value="Islam">Islam</option>
+                                                <option value="Kristen">Kristen</option>
+                                                <option value="Katolik">Katolik</option>
+                                                <option value="Hindu">Hindu</option>
+                                                <option value="Buddha">Buddha</option>
+                                                <option value="Konghucu">Konghucu</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Jenis Kelamin */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                Jenis Kelamin{' '}
+                                                <span className="text-red-500">*</span>
+                                            </label>
+                                            <select
+                                                name="gender"
+                                                value={formData.gender}
+                                                onChange={handleInputChange}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                                required
+                                            >
+                                                <option value="">
+                                                    Pilih Jenis Kelamin
+                                                </option>
+                                                <option value="L">Laki-laki</option>
+                                                <option value="P">Perempuan</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Tanggal Lahir */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                Tanggal Lahir
+                                            </label>
+                                            <input
+                                                type="date"
+                                                name="date_of_birth"
+                                                value={formData.date_of_birth}
+                                                onChange={handleInputChange}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* Alamat */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                Alamat
+                                            </label>
+                                            <textarea
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleInputChange}
+                                                placeholder="Masukkan alamat lengkap"
+                                                rows={4}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                                            <Link
+                                                href={`/admin/siswa/kelas/${classId}`}
+                                                className="rounded-lg bg-gray-200 px-6 py-2.5 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-300"
+                                            >
+                                                Batal
+                                            </Link>
+                                            <button
+                                                type="submit"
+                                                disabled={isSubmitting}
+                                                className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {isSubmitting
+                                                    ? 'Menyimpan...'
+                                                    : 'Simpan Siswa'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {/* Tab 2: Assign Existing Student */}
+                                {activeTab === 'assign' && (
+                                    <form
+                                        onSubmit={handleAssignStudent}
+                                        className="space-y-6"
+                                    >
+                                        {unassignedStudents.length === 0 ? (
+                                            <div className="rounded-lg bg-gray-50 p-8 text-center">
+                                                <Users className="mx-auto mb-3 h-12 w-12 text-gray-400" />
+                                                <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                                                    Tidak Ada Siswa Tersedia
+                                                </h3>
+                                                <p className="mb-4 text-sm text-gray-600">
+                                                    Semua siswa sudah terdaftar di
+                                                    kelas atau belum ada siswa yang
+                                                    terdaftar.
                                                 </p>
-                                            </div>
-
-                                            {/* Preview Selected Student */}
-                                            {selectedStudentId && (
-                                                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                                                    <h4 className="mb-3 text-sm font-semibold text-gray-900">
-                                                        Preview Data Siswa
-                                                    </h4>
-                                                    {unassignedStudents
-                                                        .filter(
-                                                            (s) =>
-                                                                s.id.toString() ===
-                                                                selectedStudentId,
-                                                        )
-                                                        .map((student) => (
-                                                            <div
-                                                                key={student.id}
-                                                                className="space-y-2 text-sm"
-                                                            >
-                                                                <div className="flex justify-between">
-                                                                    <span className="text-gray-600">
-                                                                        Nama:
-                                                                    </span>
-                                                                    <span className="font-medium text-gray-900">
-                                                                        {
-                                                                            student.name
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span className="text-gray-600">
-                                                                        Email:
-                                                                    </span>
-                                                                    <span className="font-medium text-gray-900">
-                                                                        {
-                                                                            student.email
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span className="text-gray-600">
-                                                                        NIS:
-                                                                    </span>
-                                                                    <span className="font-medium text-gray-900">
-                                                                        {
-                                                                            student.nis
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span className="text-gray-600">
-                                                                        Agama:
-                                                                    </span>
-                                                                    <span className="font-medium text-gray-900">
-                                                                        {
-                                                                            student.religion
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span className="text-gray-600">
-                                                                        Jenis Kelamin:
-                                                                    </span>
-                                                                    <span className="font-medium text-gray-900">
-                                                                        {student.gender ===
-                                                                        'L'
-                                                                            ? 'Laki-laki'
-                                                                            : 'Perempuan'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                </div>
-                                            )}
-
-                                            {/* Action Buttons */}
-                                            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                                                 <Link
-                                                    href={`/admin/siswa/kelas/${classId}`}
-                                                    className="rounded-lg bg-gray-200 px-6 py-2.5 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-300"
+                                                    href="/admin/siswa/create-account"
+                                                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
                                                 >
-                                                    Batal
+                                                    <UserPlus className="h-4 w-4" />
+                                                    Buat Akun Siswa Baru
                                                 </Link>
-                                                <button
-                                                    type="submit"
-                                                    disabled={
-                                                        isSubmitting ||
-                                                        !selectedStudentId
-                                                    }
-                                                    className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-                                                >
-                                                    {isSubmitting
-                                                        ? 'Menambahkan...'
-                                                        : 'Tambahkan ke Kelas'}
-                                                </button>
                                             </div>
-                                        </>
-                                    )}
-                                </form>
-                            )}
+                                        ) : (
+                                            <>
+                                                <div>
+                                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                                                        Pilih Siswa{' '}
+                                                        <span className="text-red-500">
+                                                            *
+                                                        </span>
+                                                    </label>
+                                                    <select
+                                                        value={selectedStudentId}
+                                                        onChange={(e) =>
+                                                            setSelectedStudentId(
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                                        required
+                                                    >
+                                                        <option value="">
+                                                            Pilih siswa yang akan
+                                                            ditambahkan
+                                                        </option>
+                                                        {unassignedStudents.map(
+                                                            (student) => (
+                                                                <option
+                                                                    key={student.id}
+                                                                    value={student.id}
+                                                                >
+                                                                    {student.name} -{' '}
+                                                                    {student.nis} (
+                                                                    {student.email})
+                                                                </option>
+                                                            ),
+                                                        )}
+                                                    </select>
+                                                    <p className="mt-1 text-xs text-gray-500">
+                                                        Siswa yang ditampilkan adalah
+                                                        siswa yang sudah punya akun
+                                                        tapi belum masuk kelas
+                                                    </p>
+                                                </div>
+
+                                                {/* Preview Selected Student */}
+                                                {selectedStudentId && (
+                                                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                                                        <h4 className="mb-3 text-sm font-semibold text-gray-900">
+                                                            Preview Data Siswa
+                                                        </h4>
+                                                        {unassignedStudents
+                                                            .filter(
+                                                                (s) =>
+                                                                    s.id.toString() ===
+                                                                    selectedStudentId,
+                                                            )
+                                                            .map((student) => (
+                                                                <div
+                                                                    key={student.id}
+                                                                    className="space-y-2 text-sm"
+                                                                >
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-600">
+                                                                            Nama:
+                                                                        </span>
+                                                                        <span className="font-medium text-gray-900">
+                                                                            {
+                                                                                student.name
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-600">
+                                                                            Email:
+                                                                        </span>
+                                                                        <span className="font-medium text-gray-900">
+                                                                            {
+                                                                                student.email
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-600">
+                                                                            NIS:
+                                                                        </span>
+                                                                        <span className="font-medium text-gray-900">
+                                                                            {
+                                                                                student.nis
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-600">
+                                                                            Agama:
+                                                                        </span>
+                                                                        <span className="font-medium text-gray-900">
+                                                                            {
+                                                                                student.religion
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-600">
+                                                                            Jenis Kelamin:
+                                                                        </span>
+                                                                        <span className="font-medium text-gray-900">
+                                                                            {student.gender ===
+                                                                                'L'
+                                                                                ? 'Laki-laki'
+                                                                                : 'Perempuan'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                )}
+
+                                                {/* Action Buttons */}
+                                                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                                                    <Link
+                                                        href={`/admin/siswa/kelas/${classId}`}
+                                                        className="rounded-lg bg-gray-200 px-6 py-2.5 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-300"
+                                                    >
+                                                        Batal
+                                                    </Link>
+                                                    <button
+                                                        type="submit"
+                                                        disabled={
+                                                            isSubmitting ||
+                                                            !selectedStudentId
+                                                        }
+                                                        className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                                                    >
+                                                        {isSubmitting
+                                                            ? 'Menambahkan...'
+                                                            : 'Tambahkan ke Kelas'}
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </form>
+                                )}
                             </div>
                         </div>
                     </div>

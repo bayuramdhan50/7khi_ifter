@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
@@ -49,6 +50,7 @@ interface BangunPagiDetailProps {
 }
 
 export default function BangunPagiDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: BangunPagiDetailProps) {
+    const { showSuccess, showError, showWarning } = useToast();
     // Parse server date for display
     // Use local browser date to avoid timezone issues
     const localDate = new Date();
@@ -188,7 +190,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                         break;
                 }
                 const msg = errors && (errors.error || errors.message || JSON.stringify(errors));
-                alert(msg || 'Gagal menyimpan checkbox. Silakan coba lagi.');
+                showError(msg || 'Gagal menyimpan checkbox. Silakan coba lagi.');
                 setIsSavingCheckbox(false);
             },
 
@@ -199,7 +201,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
         e.preventDefault();
 
         if (!image) {
-            alert('Mohon pilih foto terlebih dahulu');
+            showWarning('Mohon pilih foto terlebih dahulu');
             return;
         }
 
@@ -234,7 +236,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
         router.post('/siswa/activities/bangun-pagi/submit', formData, {
             preserveScroll: true,
             onSuccess: () => {
-                alert('Foto berhasil diupload!');
+                showSuccess('Foto berhasil diupload!');
                 setImage(null);
                 setIsSubmittingPhoto(false);
                 // Reload to get updated photo data
@@ -243,7 +245,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
             onError: (errors: any) => {
                 console.error('Gagal mengupload foto:', errors);
                 const msg = errors && (errors.error || errors.message || JSON.stringify(errors));
-                alert(msg || 'Gagal mengupload foto. Silakan coba lagi.');
+                showError(msg || 'Gagal mengupload foto. Silakan coba lagi.');
                 setIsSubmittingPhoto(false);
             }
         });
@@ -259,7 +261,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
         e.preventDefault();
 
         if (!jamBangun) {
-            alert('Mohon isi jam bangun terlebih dahulu');
+            showWarning('Mohon isi jam bangun terlebih dahulu');
             return;
         }
 
@@ -278,7 +280,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
         router.post('/siswa/activities/bangun-pagi/submit', formData, {
             preserveScroll: true,
             onSuccess: (page) => {
-                alert('Jam bangun berhasil disimpan!');
+                showSuccess('Jam bangun berhasil disimpan!');
                 setIsSubmitting(false);
                 // Reload data from server to get updated submission
                 router.reload({ only: ['todaySubmission'] });
@@ -286,7 +288,7 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
             onError: (errors) => {
                 console.error('Submission errors:', errors);
                 const msg = errors && (errors.error || errors.message || JSON.stringify(errors));
-                alert(msg || 'Gagal menyimpan jam bangun. Silakan coba lagi.');
+                showError(msg || 'Gagal menyimpan jam bangun. Silakan coba lagi.');
                 setIsSubmitting(false);
             },
         });

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
@@ -47,6 +48,7 @@ interface BeribadahMuslimDetailProps {
 }
 
 export default function BeribadahMuslimDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: BeribadahMuslimDetailProps) {
+    const { showSuccess, showError, showWarning } = useToast();
     // Parse server date for display
     // Use local browser date to avoid timezone issues
     const localDate = new Date();
@@ -224,7 +226,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
         e.preventDefault();
 
         if (!image) {
-            alert('Mohon pilih foto terlebih dahulu');
+            showWarning('Mohon pilih foto terlebih dahulu');
             return;
         }
 
@@ -250,13 +252,13 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
             onSuccess: () => {
-                alert('Foto berhasil diupload!');
+                showSuccess('Foto berhasil diupload!');
                 setIsSubmittingPhoto(false);
                 setImage(null);
             },
             onError: (errors: any) => {
                 console.error('Gagal mengupload foto:', errors);
-                alert('Gagal mengupload foto. Silakan coba lagi.');
+                showError('Gagal mengupload foto. Silakan coba lagi.');
                 setIsSubmittingPhoto(false);
             }
         });

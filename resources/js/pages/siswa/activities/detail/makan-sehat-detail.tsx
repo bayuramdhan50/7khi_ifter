@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
@@ -49,6 +50,7 @@ interface MakanSehatDetailProps {
 }
 
 export default function MakanSehatDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: MakanSehatDetailProps) {
+    const { showSuccess, showError, showWarning } = useToast();
     // Parse server date for display
     // Use local browser date to avoid timezone issues
     const localDate = new Date();
@@ -150,7 +152,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
         e.preventDefault();
 
         if (!image) {
-            alert('Mohon pilih foto terlebih dahulu');
+            showWarning('Mohon pilih foto terlebih dahulu');
             return;
         }
 
@@ -170,14 +172,14 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
             onSuccess: () => {
-                alert('Foto berhasil diupload!');
+                showSuccess('Foto berhasil diupload!');
                 setImage(null);
                 setIsSubmittingPhoto(false);
                 router.reload({ only: ['photoUploadedToday', 'photoCountThisMonth', 'todaySubmission'] });
             },
             onError: (errors: any) => {
                 console.error('Gagal mengupload foto:', errors);
-                alert('Gagal mengupload foto. Silakan coba lagi.');
+                showError('Gagal mengupload foto. Silakan coba lagi.');
                 setIsSubmittingPhoto(false);
             }
         });
@@ -188,13 +190,13 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
 
         // Cek apakah data sudah pernah disimpan hari ini
         if (todaySubmission) {
-            alert('Data untuk hari ini sudah disimpan. Anda hanya bisa input data 1 kali per hari.');
+            showWarning('Data untuk hari ini sudah disimpan. Anda hanya bisa input data 1 kali per hari.');
             return;
         }
 
         // Validasi: Pastikan semua dropdown sudah dipilih (tidak boleh kosong/"Pilih")
         if (!nutrition.karbohidrat || !nutrition.protein || !nutrition.sayur || !nutrition.buah) {
-            alert('Mohon pilih semua pilihan (Karbohidrat, Protein, Sayur, dan Buah) sebelum menyimpan data!');
+            showWarning('Mohon pilih semua pilihan (Karbohidrat, Protein, Sayur, dan Buah) sebelum menyimpan data!');
             return;
         }
 
@@ -209,12 +211,12 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
             onSuccess: () => {
-                alert('Data berhasil disimpan!');
+                showSuccess('Data berhasil disimpan!');
                 router.reload({ only: ['todaySubmission'] });
             },
             onError: (errors: any) => {
                 console.error('Gagal menyimpan data:', errors);
-                alert('Gagal menyimpan data. Silakan coba lagi.');
+                showError('Gagal menyimpan data. Silakan coba lagi.');
             }
         });
     };

@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { Class, ChildData } from './types';
@@ -39,6 +40,7 @@ export default function EditParent({
     allClasses,
     parent,
 }: EditParentProps) {
+    const { showError } = useToast();
     const [formData, setFormData] = useState({
         name: parent.name,
         username: parent.username || '',
@@ -181,7 +183,7 @@ export default function EditParent({
             },
             onError: (errors) => {
                 console.error('Error updating parent:', errors);
-                alert('Gagal memperbarui data orang tua. Silakan coba lagi.');
+                showError('Gagal memperbarui data orang tua. Silakan coba lagi.');
             },
         });
     };

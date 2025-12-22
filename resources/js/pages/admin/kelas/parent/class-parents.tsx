@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import { useState } from 'react';
 import ParentsTable from './_components/ParentsTable';
 import SearchBar from './_components/SearchBar';
@@ -13,6 +14,7 @@ export default function ClassParents({
     classDbId,
     parents,
 }: ClassParentsProps) {
+    const { showSuccess, showError } = useToast();
     const [searchQuery, setSearchQuery] = useState('');
     const [showImportModal, setShowImportModal] = useState(false);
 
@@ -42,10 +44,10 @@ export default function ClassParents({
             router.delete(`/admin/orangtua/${parent.id}/delete`, {
                 preserveScroll: true,
                 onSuccess: () => {
-                    alert('Akun orang tua berhasil dihapus!');
+                    showSuccess('Akun orang tua berhasil dihapus!');
                 },
                 onError: (errors) => {
-                    alert(
+                    showError(
                         'Gagal menghapus akun: ' +
                         (errors.error || 'Terjadi kesalahan'),
                     );
