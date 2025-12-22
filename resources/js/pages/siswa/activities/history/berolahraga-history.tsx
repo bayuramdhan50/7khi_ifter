@@ -437,7 +437,7 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                         </div>
                         <div className="p-4">
                             <img
-                                src={`/storage/activity-photos/${selectedPhoto}`}
+                                src={`/storage/${selectedPhoto}`}
                                 alt="Bukti Foto"
                                 className="w-full h-auto rounded-lg"
                             />

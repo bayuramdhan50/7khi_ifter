@@ -128,7 +128,16 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setImage(e.target.files[0]);
+            const file = e.target.files[0];
+            const maxSize = 200 * 1024; // 200KB in bytes
+            
+            if (file.size > maxSize) {
+                showError(`Ukuran file terlalu besar! Maksimal 200KB. File Anda: ${(file.size / 1024).toFixed(2)}KB`);
+                e.target.value = ''; // Reset input
+                return;
+            }
+            
+            setImage(file);
         }
     };
 
@@ -408,6 +417,7 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                             >
                                                 {isSubmittingPhoto ? 'Mengupload...' : 'Upload Foto'}
                                             </Button>
+                                            <p className="text-xs text-gray-500 mt-2 text-center">Maksimal ukuran foto: 200KB</p>
                                         </div>
                                     </div>
                                 </form>

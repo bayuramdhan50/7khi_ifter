@@ -434,7 +434,7 @@ export default function MakanSehatHistory({ auth, activity, submissions }: Makan
                         </div>
                         <div className="p-4">
                             <img
-                                src={`/storage/activity-photos/${selectedPhoto}`}
+                                src={`/storage/${selectedPhoto}`}
                                 alt="Bukti Foto"
                                 className="w-full h-auto rounded-lg"
                                 onError={(e) => {

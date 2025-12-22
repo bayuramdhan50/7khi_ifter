@@ -965,6 +965,7 @@ class DashboardController extends Controller
                 $detail = $todaySubmission->berolahragaDetail;
                 $details = [
                     'waktu_berolahraga' => ['label' => 'Waktu Berolahraga', 'is_checked' => true, 'value' => $detail->waktu_berolahraga],
+                    'exercise_type' => ['label' => 'Jenis Olahraga', 'is_checked' => true, 'value' => $detail->exercise_type],
                 ];
             }
             $submissionData = [
@@ -1320,8 +1321,9 @@ class DashboardController extends Controller
             $month = $submissionDate->month;
             $year = $submissionDate->year;
 
-            // Count photos already uploaded this month (across all activities)
+            // Count photos already uploaded this month FOR THIS ACTIVITY
             $photoCountThisMonth = ActivitySubmission::where('student_id', $student->id)
+                ->where('activity_id', $validated['activity_id'])
                 ->whereYear('date', $year)
                 ->whereMonth('date', $month)
                 ->whereNotNull('photo')

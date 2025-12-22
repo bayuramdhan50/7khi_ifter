@@ -63,6 +63,12 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
         buah: ''
     });
 
+    // Check if nutrition data has been saved (not just photo uploaded)
+    const nutritionDataSaved = !!(todaySubmission?.details?.karbohidrat?.value ||
+        todaySubmission?.details?.protein?.value ||
+        todaySubmission?.details?.sayur?.value ||
+        todaySubmission?.details?.buah?.value);
+
     // Load data yang sudah dipilih dari todaySubmission
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
 
@@ -144,7 +150,16 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setImage(e.target.files[0]);
+            const file = e.target.files[0];
+            const maxSize = 200 * 1024; // 200KB in bytes
+            
+            if (file.size > maxSize) {
+                showError(`Ukuran file terlalu besar! Maksimal 200KB. File Anda: ${(file.size / 1024).toFixed(2)}KB`);
+                e.target.value = ''; // Reset input
+                return;
+            }
+            
+            setImage(file);
         }
     };
 
@@ -189,7 +204,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
         e.preventDefault();
 
         // Cek apakah data sudah pernah disimpan hari ini
-        if (todaySubmission) {
+        if (nutritionDataSaved) {
             showWarning('Data untuk hari ini sudah disimpan. Anda hanya bisa input data 1 kali per hari.');
             return;
         }
@@ -319,7 +334,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.karbohidrat}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, karbohidrat: e.target.value }))}
-                                    disabled={!!todaySubmission || approvalOrangTua}
+                                    disabled={nutritionDataSaved || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {karbohidratOptions.map((option, index) => (
@@ -336,7 +351,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.protein}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, protein: e.target.value }))}
-                                    disabled={!!todaySubmission || approvalOrangTua}
+                                    disabled={nutritionDataSaved || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {proteinOptions.map((option, index) => (
@@ -353,7 +368,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.sayur}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, sayur: e.target.value }))}
-                                    disabled={!!todaySubmission || approvalOrangTua}
+                                    disabled={nutritionDataSaved || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {sayurOptions.map((option, index) => (
@@ -370,7 +385,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                 <select
                                     value={nutrition.buah}
                                     onChange={(e) => setNutrition(prev => ({ ...prev, buah: e.target.value }))}
-                                    disabled={!!todaySubmission || approvalOrangTua}
+                                    disabled={nutritionDataSaved || approvalOrangTua}
                                     className="flex-1 sm:flex-none sm:w-64 px-4 py-2 border-2 border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {buahOptions.map((option, index) => (
@@ -401,7 +416,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
 
                             {/* Submit Button */}
                             <div className="flex justify-center sm:justify-end pt-4">
-                                {todaySubmission ? (
+                                {nutritionDataSaved ? (
                                     <div className="w-full sm:w-auto bg-green-50 border-2 border-green-500 text-green-800 font-semibold py-3 px-8 rounded-lg text-center">
                                         ✓ Data Sudah Disimpan
                                     </div>
@@ -485,6 +500,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                                             >
                                                 {isSubmittingPhoto ? 'Mengupload...' : 'Upload Foto'}
                                             </Button>
+                                            <p className="text-xs text-gray-500 mt-2 text-center">Maksimal ukuran foto: 200KB</p>
                                             {image && (
                                                 <p className="text-sm text-gray-600 mt-2">
                                                     File dipilih: {image.name}

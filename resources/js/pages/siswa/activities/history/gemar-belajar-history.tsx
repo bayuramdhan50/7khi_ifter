@@ -51,7 +51,7 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
-    
+
     // Create a map of submissions by date for quick lookup
     const submissionsByDate = useMemo(() => {
         const map: { [key: string]: Submission } = {};
@@ -197,18 +197,17 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                     </div>
                                                 )}
                                             </div>
-                                            
+
                                             <div className="p-4 space-y-3">
                                                 {/* Kegiatan Belajar - Checkboxes */}
                                                 <div className="p-3 bg-blue-50 rounded-lg">
                                                     <div className="text-xs text-gray-500 mb-2">Kegiatan Belajar</div>
                                                     <div className="grid grid-cols-2 gap-2">
                                                         <div className="flex items-center gap-2">
-                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                                                                submission?.details?.gemar_belajar?.is_checked 
-                                                                    ? 'bg-black border-black' 
+                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${submission?.details?.gemar_belajar?.is_checked
+                                                                    ? 'bg-black border-black'
                                                                     : 'bg-white border-gray-300'
-                                                            }`}>
+                                                                }`}>
                                                                 {submission?.details?.gemar_belajar?.is_checked && (
                                                                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -218,11 +217,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                             <span className="text-xs text-gray-700">Gemar Belajar</span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                                                                submission?.details?.ekstrakurikuler?.is_checked 
-                                                                    ? 'bg-black border-black' 
+                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${submission?.details?.ekstrakurikuler?.is_checked
+                                                                    ? 'bg-black border-black'
                                                                     : 'bg-white border-gray-300'
-                                                            }`}>
+                                                                }`}>
                                                                 {submission?.details?.ekstrakurikuler?.is_checked && (
                                                                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -232,11 +230,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                             <span className="text-xs text-gray-700">Ekstrakurikuler</span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                                                                submission?.details?.bimbingan_belajar?.is_checked 
-                                                                    ? 'bg-black border-black' 
+                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${submission?.details?.bimbingan_belajar?.is_checked
+                                                                    ? 'bg-black border-black'
                                                                     : 'bg-white border-gray-300'
-                                                            }`}>
+                                                                }`}>
                                                                 {submission?.details?.bimbingan_belajar?.is_checked && (
                                                                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -246,11 +243,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                             <span className="text-xs text-gray-700">Bimbingan Belajar</span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                                                                submission?.details?.mengerjakan_tugas?.is_checked 
-                                                                    ? 'bg-black border-black' 
+                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${submission?.details?.mengerjakan_tugas?.is_checked
+                                                                    ? 'bg-black border-black'
                                                                     : 'bg-white border-gray-300'
-                                                            }`}>
+                                                                }`}>
                                                                 {submission?.details?.mengerjakan_tugas?.is_checked && (
                                                                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -260,11 +256,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                             <span className="text-xs text-gray-700">Mengerjakan Tugas</span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                                                                submission?.details?.lainnya?.is_checked 
-                                                                    ? 'bg-black border-black' 
+                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${submission?.details?.lainnya?.is_checked
+                                                                    ? 'bg-black border-black'
                                                                     : 'bg-white border-gray-300'
-                                                            }`}>
+                                                                }`}>
                                                                 {submission?.details?.lainnya?.is_checked && (
                                                                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -360,11 +355,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                         {/* Gemar Belajar */}
                                                         <td className="py-4 px-4 text-center">
                                                             <div className="flex justify-center">
-                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                                                                    submission?.details?.gemar_belajar?.is_checked 
-                                                                        ? 'bg-black border-black' 
+                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${submission?.details?.gemar_belajar?.is_checked
+                                                                        ? 'bg-black border-black'
                                                                         : 'bg-white border-gray-300'
-                                                                }`}>
+                                                                    }`}>
                                                                     {submission?.details?.gemar_belajar?.is_checked && (
                                                                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -377,11 +371,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                         {/* Ekstrakurikuler */}
                                                         <td className="py-4 px-4 text-center">
                                                             <div className="flex justify-center">
-                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                                                                    submission?.details?.ekstrakurikuler?.is_checked 
-                                                                        ? 'bg-black border-black' 
+                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${submission?.details?.ekstrakurikuler?.is_checked
+                                                                        ? 'bg-black border-black'
                                                                         : 'bg-white border-gray-300'
-                                                                }`}>
+                                                                    }`}>
                                                                     {submission?.details?.ekstrakurikuler?.is_checked && (
                                                                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -394,11 +387,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                         {/* Bimbingan Belajar */}
                                                         <td className="py-4 px-4 text-center">
                                                             <div className="flex justify-center">
-                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                                                                    submission?.details?.bimbingan_belajar?.is_checked 
-                                                                        ? 'bg-black border-black' 
+                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${submission?.details?.bimbingan_belajar?.is_checked
+                                                                        ? 'bg-black border-black'
                                                                         : 'bg-white border-gray-300'
-                                                                }`}>
+                                                                    }`}>
                                                                     {submission?.details?.bimbingan_belajar?.is_checked && (
                                                                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -411,11 +403,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                         {/* Mengerjakan Tugas */}
                                                         <td className="py-4 px-4 text-center">
                                                             <div className="flex justify-center">
-                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                                                                    submission?.details?.mengerjakan_tugas?.is_checked 
-                                                                        ? 'bg-black border-black' 
+                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${submission?.details?.mengerjakan_tugas?.is_checked
+                                                                        ? 'bg-black border-black'
                                                                         : 'bg-white border-gray-300'
-                                                                }`}>
+                                                                    }`}>
                                                                     {submission?.details?.mengerjakan_tugas?.is_checked && (
                                                                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -428,11 +419,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                                         {/* Lainnya */}
                                                         <td className="py-4 px-4 text-center">
                                                             <div className="flex justify-center">
-                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                                                                    submission?.details?.lainnya?.is_checked 
-                                                                        ? 'bg-black border-black' 
+                                                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${submission?.details?.lainnya?.is_checked
+                                                                        ? 'bg-black border-black'
                                                                         : 'bg-white border-gray-300'
-                                                                }`}>
+                                                                    }`}>
                                                                     {submission?.details?.lainnya?.is_checked && (
                                                                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -506,11 +496,10 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                                             <button
                                                 key={page}
                                                 onClick={() => setCurrentPage(page)}
-                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                                    currentPage === page
+                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                                                         ? 'bg-blue-500 text-white'
                                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
+                                                    }`}
                                             >
                                                 {page}
                                             </button>
@@ -559,7 +548,7 @@ export default function GemarBelajarHistory({ auth, activity, submissions }: Gem
                         </div>
                         <div className="p-4">
                             <img
-                                src={`/storage/activity-photos/${selectedPhoto}`}
+                                src={`/storage/${selectedPhoto}`}
                                 alt="Bukti Foto"
                                 className="w-full h-auto rounded-lg"
                             />

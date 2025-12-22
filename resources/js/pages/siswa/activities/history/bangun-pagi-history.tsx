@@ -594,7 +594,7 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                         {/* Image */}
                         <div className="p-4">
                             <img
-                                src={`/storage/activity-photos/${selectedPhoto}`}
+                                src={`/storage/${selectedPhoto}`}
                                 alt="Bukti Foto Kegiatan"
                                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
                                 onError={(e) => {

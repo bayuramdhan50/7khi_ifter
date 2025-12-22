@@ -62,8 +62,9 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
     const [isSubmittingPhoto, setIsSubmittingPhoto] = useState(false);
     // Flag untuk menyatakan checkbox sedang disimpan
     const [isSubmitting, setIsSubmitting] = useState(false);
-    // Lock dropdown jika sudah ada value di todaySubmission
-    const isLocked = !!todaySubmission?.details?.waktu_berolahraga?.value || !!todaySubmission?.details?.exercise_type?.value;
+    // Lock dropdown jika sudah ada value di todaySubmission (terpisah untuk masing-masing field)
+    const isWaktuLocked = !!todaySubmission?.details?.waktu_berolahraga?.value;
+    const isExerciseTypeLocked = !!todaySubmission?.details?.exercise_type?.value;
 
     // Dropdown state for exercise duration
     const [waktuBerolahraga, setWaktuBerolahraga] = useState('');
@@ -249,7 +250,16 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setImage(e.target.files[0]);
+            const file = e.target.files[0];
+            const maxSize = 200 * 1024; // 200KB in bytes
+
+            if (file.size > maxSize) {
+                showError(`Ukuran file terlalu besar! Maksimal 200KB. File Anda: ${(file.size / 1024).toFixed(2)}KB`);
+                e.target.value = ''; // Reset input
+                return;
+            }
+
+            setImage(file);
         }
     };
 
@@ -347,10 +357,9 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                 </div>
                             </div>
 
-                            {/* Kegiatan Olahraga Input */}
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">KEGIATAN OLAHRAGA</label>
-                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-left">KEGIATAN OLAHRAGA</label>
+                                <div className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
                                         checked={berolahraga}
@@ -363,31 +372,29 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
 
                             {/* Waktu Berolahraga Dropdown */}
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">WAKTU BEROLAHRAGA</label>
-                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-                                    <select
-                                        value={waktuBerolahraga}
-                                        onChange={(e) => handleWaktuChange(e.target.value)}
-                                        disabled={isLocked || !berolahraga}
-                                        className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm sm:text-base hover:border-blue-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <option value="">Pilih Durasi</option>
-                                        <option value="10">10 Menit</option>
-                                        <option value="20">20 Menit</option>
-                                        <option value="30">30 Menit</option>
-                                        <option value="30+">&gt; 30 Menit</option>
-                                    </select>
-                                </div>
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-left">WAKTU BEROLAHRAGA</label>
+                                <select
+                                    value={waktuBerolahraga}
+                                    onChange={(e) => handleWaktuChange(e.target.value)}
+                                    disabled={isWaktuLocked || !berolahraga}
+                                    className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm sm:text-base hover:border-blue-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <option value="">Pilih Durasi</option>
+                                    <option value="10">10 Menit</option>
+                                    <option value="20">20 Menit</option>
+                                    <option value="30">30 Menit</option>
+                                    <option value="30+">&gt; 30 Menit</option>
+                                </select>
                             </div>
 
                             {/* Jenis Olahraga Dropdown */}
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">JENIS OLAHRAGA</label>
-                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-left">JENIS OLAHRAGA</label>
+                                <div className="flex-1">
                                     <select
                                         value={exerciseType}
                                         onChange={(e) => handleExerciseTypeChange(e.target.value)}
-                                        disabled={isLocked}
+                                        disabled={isExerciseTypeLocked}
                                         className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm sm:text-base hover:border-blue-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <option value="">Pilih Jenis Olahraga</option>
@@ -402,7 +409,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                         <option value="lainnya">Lainnya</option>
                                         <option value="tidak_ada">Tidak ada</option>
                                     </select>
-                                    {!isLocked && !berolahraga && (
+                                    {!isExerciseTypeLocked && !berolahraga && (
                                         <p className="text-xs text-gray-500 mt-1">Memilih jenis olahraga akan otomatis mencentang kegiatan olahraga.</p>
                                     )}
                                 </div>
@@ -410,7 +417,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
 
                             {/* Approval Toggle */}
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">APPROVAL ORANG TUA</label>
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-left">APPROVAL ORANG TUA</label>
                                 <div className="flex items-center gap-3 sm:gap-4">
                                     <button
                                         type="button"
@@ -458,7 +465,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <div className="flex flex-col items-center gap-4">
                                         <label className="cursor-pointer">
                                             <input
                                                 type="file"
@@ -500,6 +507,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                             >
                                                 {isSubmittingPhoto ? 'Mengupload...' : 'Upload Foto'}
                                             </Button>
+                                            <p className="text-xs text-gray-500 mt-2 text-center">Maksimal ukuran foto: 200KB</p>
                                         </div>
                                     </div>
                                 )}
