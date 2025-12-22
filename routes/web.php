@@ -113,6 +113,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Student Excel routes
         Route::get('students/template', [\App\Http\Controllers\Admin\StudentController::class, 'downloadTemplate'])->name('students.template');
         Route::post('students/import', [\App\Http\Controllers\Admin\StudentController::class, 'import'])->name('students.import');
+        Route::get('students/export-activities', [\App\Http\Controllers\Admin\StudentController::class, 'exportActivities'])->name('students.export-activities');
 
         // Guru Routes
         Route::get('guru-dashboard', [AdminDashboardController::class, 'guruDashboard'])->name('guru.dashboard');

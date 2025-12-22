@@ -6,6 +6,7 @@ import ActionBar from './_components/ActionBar';
 import StudentsTable from './_components/StudentsTable';
 import StudentViewModal from './_components/StudentViewModal';
 import StudentFormModal from './_components/StudentFormModal';
+import MonthSelectionModal from './_components/MonthSelectionModal';
 import ExcelImportModal from '@/components/excel-import-modal';
 import {
     ClassStudentsProps,
@@ -24,6 +25,7 @@ export default function ClassStudents({
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
+    const [showMonthModal, setShowMonthModal] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(
         null,
     );
@@ -49,6 +51,16 @@ export default function ClassStudents({
             ...prev,
             [name]: value,
         }));
+    };
+
+    const exportActivities = () => {
+        // Show month selection modal
+        setShowMonthModal(true);
+    };
+
+    const handleMonthConfirm = (startDate: string, endDate: string) => {
+        // Export student activity data with selected date range
+        window.location.href = `/admin/students/export-activities?class_id=${classDbId}&class_name=${encodeURIComponent(className)}&start_date=${startDate}&end_date=${endDate}`;
     };
 
     const downloadCSVTemplate = () => {
@@ -212,7 +224,7 @@ export default function ClassStudents({
                         onView={openViewModal}
                         onEdit={openEditModal}
                         onDelete={handleDeleteStudent}
-                        onExport={downloadCSVTemplate}
+                        onExport={exportActivities}
                     />
 
                     {/* Modal Lihat Detail Siswa */}
@@ -247,6 +259,13 @@ export default function ClassStudents({
                         entityName="Siswa"
                         onSuccess={handleImportSuccess}
                         additionalData={{ class_id: classDbId }}
+                    />
+
+                    {/* Modal Pilih Bulan Export */}
+                    <MonthSelectionModal
+                        isOpen={showMonthModal}
+                        onClose={() => setShowMonthModal(false)}
+                        onConfirm={handleMonthConfirm}
                     />
                 </div>
             </div>
