@@ -14,7 +14,7 @@ class ParentSeeder extends Seeder
     {
         // Get user orangtua
         $orangtuaUser = \App\Models\User::where('role', 'orangtua')->first();
-        
+
         if ($orangtuaUser) {
             // Create parent
             $parent = \App\Models\ParentModel::create([
@@ -26,7 +26,7 @@ class ParentSeeder extends Seeder
 
             // Attach students to parent (3 anak)
             $students = \App\Models\Student::limit(3)->get();
-            
+
             foreach ($students as $index => $student) {
                 \DB::table('parent_student')->insert([
                     'parent_id' => $parent->id,
@@ -43,7 +43,7 @@ class ParentSeeder extends Seeder
         $moreParents = [
             [
                 'name' => 'Budi Santoso',
-                'email' => 'budi.parent@ifter.com',
+                'username' => 'budisantoso',
                 'password' => \Hash::make('password'),
                 'role' => 'orangtua',
                 'phone' => '081234567891',
@@ -52,7 +52,7 @@ class ParentSeeder extends Seeder
             ],
             [
                 'name' => 'Siti Rahayu',
-                'email' => 'siti.parent@ifter.com',
+                'username' => 'sitirahayu',
                 'password' => \Hash::make('password'),
                 'role' => 'orangtua',
                 'phone' => '081234567892',
@@ -65,7 +65,7 @@ class ParentSeeder extends Seeder
             // Create user
             $user = \App\Models\User::create([
                 'name' => $parentData['name'],
-                'email' => $parentData['email'],
+                'username' => $parentData['username'],
                 'password' => $parentData['password'],
                 'role' => $parentData['role'],
             ]);

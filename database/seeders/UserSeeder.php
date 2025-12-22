@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Admin',
             'username' => 'admin',
-            'email' => 'admin@ifter.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_ADMIN,
             'religion' => 'muslim',
@@ -28,7 +27,6 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Guru Test',
             'username' => 'gurutest',
-            'email' => 'guru@ifter.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_GURU,
             'religion' => 'muslim',
@@ -38,7 +36,6 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Orangtua Test',
             'username' => 'orangtuatest',
-            'email' => 'orangtua@ifter.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_ORANGTUA,
             'religion' => 'muslim',
@@ -47,7 +44,7 @@ class UserSeeder extends Seeder
         // Siswa Muslim
         User::create([
             'name' => 'Siswa Muslim',
-            'email' => 'siswa.muslim@ifter.com',
+            'username' => 'siswamuslim',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SISWA,
             'religion' => 'muslim',
@@ -56,7 +53,7 @@ class UserSeeder extends Seeder
         // Siswa Non-Muslim (Kristen)
         User::create([
             'name' => 'Siswa Kristen',
-            'email' => 'siswa.kristen@ifter.com',
+            'username' => 'siswakristen',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SISWA,
             'religion' => 'kristen',
@@ -65,7 +62,7 @@ class UserSeeder extends Seeder
         // Siswa Non-Muslim (Katolik)
         User::create([
             'name' => 'Siswa Katolik',
-            'email' => 'siswa.katolik@ifter.com',
+            'username' => 'siswakatoli',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SISWA,
             'religion' => 'katolik',
@@ -74,7 +71,7 @@ class UserSeeder extends Seeder
         // Siswa Non-Muslim (Hindu)
         User::create([
             'name' => 'Siswa Hindu',
-            'email' => 'siswa.hindu@ifter.com',
+            'username' => 'siswahindu',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SISWA,
             'religion' => 'hindu',
@@ -83,7 +80,7 @@ class UserSeeder extends Seeder
         // Siswa Non-Muslim (Buddha)
         User::create([
             'name' => 'Siswa Buddha',
-            'email' => 'siswa.buddha@ifter.com',
+            'username' => 'siswabuddha',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SISWA,
             'religion' => 'buddha',
@@ -91,7 +88,7 @@ class UserSeeder extends Seeder
 
         User::create([
             'name' => 'Siswa Konghucu',
-            'email' => 'siswa.konghucu@ifter.com',
+            'username' => 'siswakonghucu',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SISWA,
             'religion' => 'konghucu',

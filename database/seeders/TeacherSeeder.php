@@ -14,7 +14,7 @@ class TeacherSeeder extends Seeder
     {
         // Get guru user
         $guruUser = \App\Models\User::where('role', 'guru')->first();
-        
+
         if ($guruUser) {
             \App\Models\Teacher::create([
                 'user_id' => $guruUser->id,
@@ -28,13 +28,13 @@ class TeacherSeeder extends Seeder
         $moreTeachers = [
             [
                 'name' => 'Ibu Dewi',
-                'email' => 'dewi.guru@ifter.com',
+                'username' => 'dewiguru',
                 'nip' => '198205152008012002',
                 'phone' => '081234567894',
             ],
             [
                 'name' => 'Pak Andi',
-                'email' => 'andi.guru@ifter.com',
+                'username' => 'andiguru',
                 'nip' => '198912202010011003',
                 'phone' => '081234567895',
             ],
@@ -43,7 +43,7 @@ class TeacherSeeder extends Seeder
         foreach ($moreTeachers as $teacherData) {
             $user = \App\Models\User::create([
                 'name' => $teacherData['name'],
-                'email' => $teacherData['email'],
+                'username' => $teacherData['username'],
                 'password' => \Hash::make('password'),
                 'role' => 'guru',
             ]);
