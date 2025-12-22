@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import { useState } from 'react';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { Class, ChildData } from './types';
@@ -23,6 +24,7 @@ export default function CreateParent({
     className,
     allClasses,
 }: CreateParentProps) {
+    const { showError } = useToast();
     const [formData, setFormData] = useState({
         name: '',
         username: '',
@@ -147,7 +149,7 @@ export default function CreateParent({
             },
             onError: (errors) => {
                 console.error('Error creating parent:', errors);
-                alert('Gagal membuat akun orang tua. Silakan coba lagi.');
+                showError('Gagal membuat akun orang tua. Silakan coba lagi.');
             },
         });
     };

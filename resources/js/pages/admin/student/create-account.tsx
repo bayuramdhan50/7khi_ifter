@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import axios from 'axios';
 import { ArrowLeft } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -40,6 +41,7 @@ if (csrfToken) {
 }
 
 export default function CreateAccount({ classes }: CreateAccountProps) {
+    const { showSuccess, showError } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -83,7 +85,7 @@ export default function CreateAccount({ classes }: CreateAccountProps) {
             });
 
             if (response.data.success) {
-                alert('Akun siswa berhasil ditambahkan');
+                showSuccess('Akun siswa berhasil ditambahkan');
                 // Reset form
                 setFormData({
                     name: '',
@@ -101,7 +103,7 @@ export default function CreateAccount({ classes }: CreateAccountProps) {
                 (error as { response?: { data?: { message?: string } } })
                     .response?.data?.message ||
                 'Terjadi kesalahan saat menambahkan siswa';
-            alert(message);
+            showError(message);
         } finally {
             setIsSubmitting(false);
         }

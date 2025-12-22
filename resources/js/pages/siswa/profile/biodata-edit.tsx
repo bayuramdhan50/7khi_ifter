@@ -1,9 +1,11 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useToast } from '@/components/ui/toast';
 import { useInitials } from '@/hooks/use-initials';
 import { useState } from 'react';
+import { Heart, Star, Utensils, Coffee, Cat, ThumbsDown } from 'lucide-react';
 
 interface Biodata {
     hobbies?: string[];
@@ -26,6 +28,7 @@ interface BiodataEditProps {
 }
 
 export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
+    const { showSuccess } = useToast();
     const getInitials = useInitials();
     const [formData, setFormData] = useState({
         hobi: biodata?.hobbies?.join(', ') || '',
@@ -39,203 +42,145 @@ export default function BiodataEdit({ auth, biodata }: BiodataEditProps) {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-        // Clear error untuk field ini saat user mulai mengetik
+        setFormData({ ...formData, [name]: value });
         if (errors[name]) {
-            setErrors({
-                ...errors,
-                [name]: '',
-            });
+            setErrors({ ...errors, [name]: '' });
         }
     };
 
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
-        
-        // Optional: Validasi minimal character jika ingin
-        // Contoh: setiap field harus minimal 3 karakter jika diisi
         Object.keys(formData).forEach((key) => {
             const value = formData[key as keyof typeof formData].trim();
             if (value && value.length < 3) {
-                newErrors[key] = 'Minimal 3 karakter jika diisi';
+                newErrors[key] = 'Minimal 3 karakter';
             }
         });
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-        const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
         setIsSubmitting(true);
-            router.post('/siswa/biodata/update', formData, {
-                onSuccess: () => {
-                    setIsSubmitting(false);
-                    window.alert('Biodata berhasil di edit');
-                    router.visit('/siswa/biodata');
-                },
-                onError: (errors) => {
-                    setIsSubmitting(false);
-                    setErrors(errors);
-                }
-            });
+        router.post('/siswa/biodata/update', formData, {
+            onSuccess: () => {
+                setIsSubmitting(false);
+                showSuccess('Biodata berhasil disimpan');
+                router.visit('/siswa/biodata');
+            },
+            onError: (errors) => {
+                setIsSubmitting(false);
+                setErrors(errors);
+            }
+        });
     };
+
+    const formFields = [
+        { name: 'hobi', label: 'Hobi', icon: Heart, iconBg: 'bg-pink-100', iconColor: 'text-pink-500' },
+        { name: 'cita_cita', label: 'Cita-cita', icon: Star, iconBg: 'bg-yellow-100', iconColor: 'text-yellow-500' },
+        { name: 'makanan_kesukaan', label: 'Makanan Kesukaan', icon: Utensils, iconBg: 'bg-orange-100', iconColor: 'text-orange-500' },
+        { name: 'minuman_kesukaan', label: 'Minuman Kesukaan', icon: Coffee, iconBg: 'bg-amber-100', iconColor: 'text-amber-600' },
+        { name: 'hewan_kesukaan', label: 'Hewan Kesukaan', icon: Cat, iconBg: 'bg-green-100', iconColor: 'text-green-500' },
+        { name: 'tidak_disukai', label: 'Yang Tidak Disukai', icon: ThumbsDown, iconBg: 'bg-red-100', iconColor: 'text-red-500' },
+    ];
 
     return (
         <AppLayout>
             <Head title="Edit Biodata" />
 
-            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-8">
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-6 sm:py-8">
                 <div className="container mx-auto px-4">
-                    {/* Profile Photo and Name */}
-                    <div className="flex flex-col items-center mb-8">
-                        <div className="mb-6">
-                            <Avatar className="w-48 h-60 rounded-lg border-4 border-red-600 shadow-lg select-none flex items-center justify-center bg-blue-700">
-                                {/* <AvatarImage src={auth.user.avatar} alt={auth.user.name} /> */}
-                                <AvatarFallback className="w-full h-full flex items-center justify-center text-white text-7xl font-bold rounded-lg bg-blue-700">
-                                    {getInitials(auth.user.name)}
-                                </AvatarFallback>
-                            </Avatar>
-                        </div>
-                        <h1 className="text-3xl font-bold text-blue-900">{auth.user.name}</h1>
-                    </div>
+                    <div className="max-w-2xl mx-auto">
+                        {/* Page Title */}
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Edit Biodata</h1>
 
-                    {/* Form Content */}
-                    <div className="max-w-3xl mx-auto">
-                        {/* Action Buttons */}
-                        <div className="mb-6 flex justify-between items-center">
-                            <Link href="/siswa/biodata">
-                                <Button variant="outline" className="border-gray-600 text-gray-600 hover:bg-gray-100" disabled={isSubmitting}>
-                                    ← Kembali
-                                </Button>
-                            </Link>
-                            <Button
-                                onClick={handleSubmit}
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? 'Menyimpan...' : 'Simpan'}
-                            </Button>
+                        {/* Profile Card */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
+                            {/* Mobile: Stack layout */}
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <Avatar className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md flex-shrink-0">
+                                        <AvatarFallback className="w-full h-full flex items-center justify-center text-white text-lg sm:text-xl font-semibold bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
+                                            {getInitials(auth.user.name)}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0 flex-1">
+                                        <h2 className="text-base sm:text-lg font-semibold text-gray-800 truncate">{auth.user.name}</h2>
+                                        <p className="text-sm text-gray-500">Siswa</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Link href="/siswa/biodata" className="flex-1 sm:flex-none">
+                                        <Button variant="outline" size="sm" disabled={isSubmitting} className="w-full sm:w-auto cursor-pointer">
+                                            Batal
+                                        </Button>
+                                    </Link>
+                                    <Button
+                                        size="sm"
+                                        onClick={handleSubmit}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm flex-1 sm:flex-none cursor-pointer"
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? 'Menyimpan...' : 'Simpan'}
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* General Error Message */}
                         {errors.submit && (
-                            <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                            <div className="mb-4 sm:mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
                                 {errors.submit}
                             </div>
                         )}
 
-                        {/* Form */}
+                        {/* Form Card */}
                         <form onSubmit={handleSubmit}>
-                            <div className="bg-gray-200 rounded-lg p-8 shadow-lg">
-                                <div className="space-y-6">
-                                    {/* Hobi */}
-                                <div>
-                                    <label className="font-bold text-gray-800 block mb-2">Hobiku:</label>
-                                    <textarea
-                                        name="hobi"
-                                        value={formData.hobi}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
-                                            errors.hobi ? 'border-red-500' : 'border-gray-300'
-                                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
-                                        placeholder="Tulis hobi kamu di sini..."
-                                    />
-                                    {errors.hobi && <p className="text-red-500 text-sm mt-1">{errors.hobi}</p>}
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-blue-500 to-indigo-600">
+                                    <h3 className="font-semibold text-white text-sm sm:text-base">Informasi Biodata</h3>
+                                    <p className="text-xs sm:text-sm text-blue-100 mt-0.5">Pisahkan dengan koma jika lebih dari satu</p>
                                 </div>
-
-                                {/* Cita-cita */}
-                                <div>
-                                    <label className="font-bold text-gray-800 block mb-2">Cita-citaku:</label>
-                                    <textarea
-                                        name="cita_cita"
-                                        value={formData.cita_cita}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
-                                            errors.cita_cita ? 'border-red-500' : 'border-gray-300'
-                                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
-                                        placeholder="Tulis cita-cita kamu di sini..."
-                                    />
-                                    {errors.cita_cita && <p className="text-red-500 text-sm mt-1">{errors.cita_cita}</p>}
-                                </div>
-
-                                {/* Makanan Kesukaan */}
-                                <div>
-                                    <label className="font-bold text-gray-800 block mb-2">Makanan kesukaanku:</label>
-                                    <textarea
-                                        name="makanan_kesukaan"
-                                        value={formData.makanan_kesukaan}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
-                                            errors.makanan_kesukaan ? 'border-red-500' : 'border-gray-300'
-                                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
-                                        placeholder="Tulis makanan kesukaan kamu di sini..."
-                                    />
-                                    {errors.makanan_kesukaan && <p className="text-red-500 text-sm mt-1">{errors.makanan_kesukaan}</p>}
-                                </div>
-
-                                {/* Minuman Kesukaan */}
-                                <div>
-                                    <label className="font-bold text-gray-800 block mb-2">Minuman kesukaanku:</label>
-                                    <textarea
-                                        name="minuman_kesukaan"
-                                        value={formData.minuman_kesukaan}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
-                                            errors.minuman_kesukaan ? 'border-red-500' : 'border-gray-300'
-                                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
-                                        placeholder="Tulis minuman kesukaan kamu di sini..."
-                                    />
-                                    {errors.minuman_kesukaan && <p className="text-red-500 text-sm mt-1">{errors.minuman_kesukaan}</p>}
-                                </div>
-
-                                {/* Hewan Kesukaan */}
-                                <div>
-                                    <label className="font-bold text-gray-800 block mb-2">Hewan kesukaanku:</label>
-                                    <textarea
-                                        name="hewan_kesukaan"
-                                        value={formData.hewan_kesukaan}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
-                                            errors.hewan_kesukaan ? 'border-red-500' : 'border-gray-300'
-                                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
-                                        placeholder="Tulis hewan kesukaan kamu di sini..."
-                                    />
-                                    {errors.hewan_kesukaan && <p className="text-red-500 text-sm mt-1">{errors.hewan_kesukaan}</p>}
-                                </div>
-
-                                {/* Sesuatu yang tidak aku sukai */}
-                                <div>
-                                    <label className="font-bold text-gray-800 block mb-2">Sesuatu yang tidak aku sukai:</label>
-                                    <textarea
-                                        name="tidak_disukai"
-                                        value={formData.tidak_disukai}
-                                        onChange={handleChange}
-                                        className={`w-full bg-white rounded-lg p-3 min-h-[80px] border-2 text-black ${
-                                            errors.tidak_disukai ? 'border-red-500' : 'border-gray-300'
-                                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none`}
-                                        placeholder="Tulis sesuatu yang tidak kamu sukai di sini..."
-                                    />
-                                    {errors.tidak_disukai && <p className="text-red-500 text-sm mt-1">{errors.tidak_disukai}</p>}
-                                </div>
+                                <div className="divide-y divide-gray-100">
+                                    {formFields.map((field) => {
+                                        const IconComponent = field.icon;
+                                        const fieldName = field.name as keyof typeof formData;
+                                        return (
+                                            <div key={field.name} className="px-4 sm:px-6 py-3 sm:py-4">
+                                                <div className="flex items-start gap-3">
+                                                    <div className={`${field.iconBg} p-2 rounded-lg flex-shrink-0 mt-0.5`}>
+                                                        <IconComponent className={`w-4 h-4 ${field.iconColor}`} />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <label className="text-xs sm:text-sm font-medium text-gray-700 block mb-1.5">
+                                                            {field.label}
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name={field.name}
+                                                            value={formData[fieldName]}
+                                                            onChange={handleChange}
+                                                            className={`w-full px-3 py-2 text-sm text-gray-900 bg-white border rounded-lg ${errors[field.name]
+                                                                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                                                                : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500'
+                                                                } focus:outline-none focus:ring-1 transition-colors`}
+                                                            placeholder={`Masukkan ${field.label.toLowerCase()}...`}
+                                                        />
+                                                        {errors[field.name] && (
+                                                            <p className="text-red-500 text-xs mt-1">{errors[field.name]}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </form>
-                    </div>
-
-                    {/* Timestamp */}
-                    <div className="text-right text-sm text-gray-500 mt-8 max-w-3xl mx-auto">
-                        Apr 1, 2025    9:41 AM
                     </div>
                 </div>
             </div>

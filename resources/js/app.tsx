@@ -5,6 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
+import { ToastProvider } from './components/ui/toast';
 import axios from 'axios';
 import { router } from '@inertiajs/react';
 
@@ -44,7 +45,9 @@ createInertiaApp({
 
         root.render(
             <StrictMode>
-                <App {...props} />
+                <ToastProvider>
+                    <App {...props} />
+                </ToastProvider>
             </StrictMode>,
         );
     },

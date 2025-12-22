@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import axios from 'axios';
 import { useState } from 'react';
 import ActionBar from './_components/ActionBar';
@@ -21,6 +22,7 @@ export default function ClassStudents({
     classId,
     students,
 }: ClassStudentsProps) {
+    const { showSuccess, showError } = useToast();
     const [searchQuery, setSearchQuery] = useState('');
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -95,7 +97,7 @@ export default function ClassStudents({
 
             if (response.data.success) {
                 router.reload({ only: ['students'] });
-                alert('Data siswa berhasil diupdate');
+                showSuccess('Data siswa berhasil diupdate');
                 setFormData({
                     name: '',
                     nis: '',
@@ -113,7 +115,7 @@ export default function ClassStudents({
                 (error as { response?: { data?: { message?: string } } })
                     .response?.data?.message ||
                 'Terjadi kesalahan saat mengupdate siswa';
-            alert(message);
+            showError(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -154,14 +156,14 @@ export default function ClassStudents({
 
             if (response.data.success) {
                 router.reload({ only: ['students'] });
-                alert('Siswa berhasil dihapus');
+                showSuccess('Siswa berhasil dihapus');
             }
         } catch (error) {
             const message =
                 (error as { response?: { data?: { message?: string } } })
                     .response?.data?.message ||
                 'Terjadi kesalahan saat menghapus siswa';
-            alert(message);
+            showError(message);
         }
     };
 

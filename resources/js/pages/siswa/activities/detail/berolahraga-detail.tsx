@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
@@ -49,6 +50,7 @@ interface BerolahragaDetailProps {
 }
 
 export default function BerolahragaDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: BerolahragaDetailProps) {
+    const { showSuccess, showError, showWarning } = useToast();
     // Use local browser date to avoid timezone issues
     // Server date is only used for initial data loading, not for submission
     const localDate = new Date();
@@ -210,7 +212,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
         e.preventDefault();
 
         if (!image) {
-            alert('Mohon pilih foto terlebih dahulu');
+            showWarning('Mohon pilih foto terlebih dahulu');
             return;
         }
 
@@ -233,13 +235,13 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
             onSuccess: () => {
-                alert('Foto berhasil diupload!');
+                showSuccess('Foto berhasil diupload!');
                 setImage(null);
                 setIsSubmittingPhoto(false);
             },
             onError: (errors: any) => {
                 console.error('Gagal mengupload foto:', errors);
-                alert('Gagal mengupload foto. Silakan coba lagi.');
+                showError('Gagal mengupload foto. Silakan coba lagi.');
                 setIsSubmittingPhoto(false);
             }
         });

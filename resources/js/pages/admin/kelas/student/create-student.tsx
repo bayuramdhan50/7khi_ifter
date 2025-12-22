@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useToast } from '@/components/ui/toast';
 import axios from 'axios';
 import { ArrowLeft, UserPlus, Users } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -42,6 +43,7 @@ export default function CreateStudent({
     classDbId,
     unassignedStudents,
 }: CreateStudentProps) {
+    const { showSuccess, showError } = useToast();
     const [activeTab, setActiveTab] = useState<'create' | 'assign'>('create');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -86,7 +88,7 @@ export default function CreateStudent({
             });
 
             if (response.data.success) {
-                alert('Siswa berhasil ditambahkan');
+                showSuccess('Siswa berhasil ditambahkan');
                 router.visit(`/admin/siswa/kelas/${classId}`);
             }
         } catch (error) {
@@ -94,7 +96,7 @@ export default function CreateStudent({
                 (error as { response?: { data?: { message?: string } } })
                     .response?.data?.message ||
                 'Terjadi kesalahan saat menambahkan siswa';
-            alert(message);
+            showError(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -115,7 +117,7 @@ export default function CreateStudent({
             );
 
             if (response.data.success) {
-                alert('Siswa berhasil ditambahkan ke kelas');
+                showSuccess('Siswa berhasil ditambahkan ke kelas');
                 router.visit(`/admin/siswa/kelas/${classId}`);
             }
         } catch (error) {
@@ -123,7 +125,7 @@ export default function CreateStudent({
                 (error as { response?: { data?: { message?: string } } })
                     .response?.data?.message ||
                 'Terjadi kesalahan saat menambahkan siswa ke kelas';
-            alert(message);
+            showError(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -164,8 +166,8 @@ export default function CreateStudent({
                                         type="button"
                                         onClick={() => setActiveTab('create')}
                                         className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${activeTab === 'create'
-                                                ? 'border-b-2 border-blue-600 text-blue-600'
-                                                : 'text-gray-600 hover:text-gray-900'
+                                            ? 'border-b-2 border-blue-600 text-blue-600'
+                                            : 'text-gray-600 hover:text-gray-900'
                                             }`}
                                     >
                                         <div className="flex items-center justify-center gap-2">
@@ -177,8 +179,8 @@ export default function CreateStudent({
                                         type="button"
                                         onClick={() => setActiveTab('assign')}
                                         className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${activeTab === 'assign'
-                                                ? 'border-b-2 border-blue-600 text-blue-600'
-                                                : 'text-gray-600 hover:text-gray-900'
+                                            ? 'border-b-2 border-blue-600 text-blue-600'
+                                            : 'text-gray-600 hover:text-gray-900'
                                             }`}
                                     >
                                         <div className="flex items-center justify-center gap-2">
