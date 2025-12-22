@@ -47,26 +47,36 @@ export default function Login({
         <>
             <Head title="Log in" />
 
-            <div className="min-h-screen flex flex-col lg:flex-row relative bg-white" style={{ backgroundColor: '#ffffff' }}>
-                {/* Decorative background that extends behind the login card */}
-                <div className="absolute inset-0 pointer-events-none">
+            <div className="min-h-screen flex flex-col lg:flex-row relative bg-white overflow-hidden">
+                {/* Desktop background - fixed position, no zoom */}
+                <div className="hidden lg:block fixed inset-0 z-0">
                     <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: "url('/images/cover%202.png')", backgroundPosition: 'center center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
+                        className="w-full h-full"
+                        style={{
+                            backgroundImage: "url('/images/cover%202.png')",
+                            backgroundPosition: 'center',
+                            backgroundSize: 'cover',
+                            backgroundRepeat: 'no-repeat'
+                        }}
                     />
                 </div>
 
-                {/* Mobile background (keeps small-screen behavior) */}
-                <div className="lg:hidden absolute inset-0">
+                {/* Mobile background - truly fixed even when keyboard appears */}
+                <div className="lg:hidden fixed top-0 left-0 right-0 bottom-0 z-0" style={{ height: '100dvh', width: '100vw', overflow: 'hidden' }}>
                     <div
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: "url('/images/cover%202.png')", backgroundPosition: 'left center', backgroundSize: '160% auto', backgroundRepeat: 'no-repeat' }}
+                        className="w-full h-full"
+                        style={{
+                            backgroundImage: "url('/images/cover%202.png')",
+                            backgroundPosition: '80% bottom',
+                            backgroundSize: 'cover',
+                            backgroundRepeat: 'no-repeat'
+                        }}
                     />
                 </div>
 
                 {/* Left Side - Illustration (kept for spacing on large screens) */}
-                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
-                    {/* Intentionally left blank; background image is placed behind the whole layout so it also appears behind the login card */}
+                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative z-10">
+                    {/* Intentionally left blank; background image is placed behind the whole layout */}
                 </div>
 
                 {/* Right Side - Login Form */}
@@ -88,8 +98,8 @@ export default function Login({
                                     type="button"
                                     onClick={() => setLoginType('siswa')}
                                     className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${loginType === 'siswa'
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                         }`}
                                 >
                                     Siswa
@@ -98,8 +108,8 @@ export default function Login({
                                     type="button"
                                     onClick={() => setLoginType('staff')}
                                     className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${loginType === 'staff'
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                         }`}
                                 >
                                     Guru / Orang Tua

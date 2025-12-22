@@ -51,7 +51,7 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
-    
+
     // Create a map of submissions by date for quick lookup
     const submissionsByDate = useMemo(() => {
         const map: { [key: string]: Submission } = {};
@@ -70,10 +70,10 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
         return submissionsByDate[dateKey];
     };
 
-    // Get checked activities for a specific day (only count if submission is approved)
+    // Get checked activities for a specific day
     const getCheckedActivities = (day: number) => {
         const submission = getSubmissionForDay(day);
-        if (!submission || submission.status !== 'approved') {
+        if (!submission) {
             return {
                 membereskanTempat: false,
                 mandi: false,
@@ -192,98 +192,99 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                                     const submission = getSubmissionForDay(day);
                                     const isApproved = submission?.status === 'approved';
                                     const isPending = submission?.status === 'pending';
-                                    
+
                                     return (
-                                    <div key={day} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md">
-                                                    <span className="text-2xl font-bold text-blue-600">{day}</span>
-                                                </div>
-                                                <div className="text-white">
-                                                    <div className="text-xs opacity-90">Tanggal</div>
-                                                    <div className="text-sm font-bold">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</div>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedDay(day);
-                                                    setShowModal(true);
-                                                }}
-                                                className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-blue-50 transition-colors"
-                                            >
-                                                Detail
-                                            </button>
-                                        </div>
-                                        
-                                        <div className="p-4 space-y-3">
-                                            {/* Jam Bangun */}
-                                            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                                <div className="flex items-center gap-3 flex-1">
-                                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
+                                        <div key={day} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                                            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-md">
+                                                        <span className="text-2xl font-bold text-blue-600">{day}</span>
                                                     </div>
-                                                    <div className="flex-1">
-                                                        <div className="text-xs text-gray-500">Jam Bangun</div>
-                                                        <div className="mt-1 px-2 py-1 border-2 border-gray-300 rounded-lg text-gray-800 text-sm bg-white">
-                                                            {submission?.time || '--:--'}
-                                                        </div>
+                                                    <div className="text-white">
+                                                        <div className="text-xs opacity-90">Tanggal</div>
+                                                        <div className="text-sm font-bold">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</div>
                                                     </div>
                                                 </div>
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedDay(day);
+                                                        setShowModal(true);
+                                                    }}
+                                                    className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-blue-50 transition-colors"
+                                                >
+                                                    Detail
+                                                </button>
                                             </div>
 
-                                            {/* Approval Orang Tua */}
-                                            <div className={`flex items-center justify-between p-3 rounded-lg ${isApproved ? 'bg-green-50' : 'bg-gray-50'}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isApproved ? 'bg-green-100' : 'bg-gray-100'}`}>
-                                                        <svg className={`w-5 h-5 ${isApproved ? 'text-green-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Approval Orang Tua</div>
-                                                        <div className={`text-sm font-semibold ${isApproved ? 'text-green-700' : isPending ? 'text-yellow-600' : 'text-gray-500'}`}>
-                                                            {isApproved ? 'Disetujui' : isPending ? 'Menunggu' : 'Belum Ada'}
+                                            <div className="p-4 space-y-3">
+                                                {/* Jam Bangun */}
+                                                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                                    <div className="flex items-center gap-3 flex-1">
+                                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="text-xs text-gray-500">Jam Bangun</div>
+                                                            <div className="mt-1 px-2 py-1 border-2 border-gray-300 rounded-lg text-gray-800 text-sm bg-white">
+                                                                {submission?.time || '--:--'}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className={`w-12 h-7 rounded-full flex items-center px-1 shadow-inner ${isApproved ? 'bg-green-500' : 'bg-gray-300'}`}>
-                                                    <div className={`bg-white w-5 h-5 rounded-full shadow-md ${isApproved ? 'ml-auto' : ''}`}></div>
-                                                </div>
-                                            </div>
 
-                                            {/* Bukti Foto */}
-                                            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Bukti Foto</div>
-                                                        <div className="text-sm font-semibold text-gray-700">
-                                                            {submission?.photo ? 'Ada Foto' : 'Belum Ada'}
+                                                {/* Approval Orang Tua */}
+                                                <div className={`flex items-center justify-between p-3 rounded-lg ${isApproved ? 'bg-green-50' : 'bg-gray-50'}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isApproved ? 'bg-green-100' : 'bg-gray-100'}`}>
+                                                            <svg className={`w-5 h-5 ${isApproved ? 'text-green-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">Approval Orang Tua</div>
+                                                            <div className={`text-sm font-semibold ${isApproved ? 'text-green-700' : isPending ? 'text-yellow-600' : 'text-gray-500'}`}>
+                                                                {isApproved ? 'Disetujui' : isPending ? 'Menunggu' : 'Belum Ada'}
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                    <div className={`w-12 h-7 rounded-full flex items-center px-1 shadow-inner ${isApproved ? 'bg-green-500' : 'bg-gray-300'}`}>
+                                                        <div className={`bg-white w-5 h-5 rounded-full shadow-md ${isApproved ? 'ml-auto' : ''}`}></div>
+                                                    </div>
                                                 </div>
-                                                {submission?.photo && (
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSelectedPhoto(submission.photo);
-                                                            setShowPhotoModal(true);
-                                                        }}
-                                                        className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-purple-600 transition-colors"
-                                                    >
-                                                        Lihat
-                                                    </button>
-                                                )}
+
+                                                {/* Bukti Foto */}
+                                                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                            <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">Bukti Foto</div>
+                                                            <div className="text-sm font-semibold text-gray-700">
+                                                                {submission?.photo ? 'Ada Foto' : 'Belum Ada'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {submission?.photo && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedPhoto(submission.photo);
+                                                                setShowPhotoModal(true);
+                                                            }}
+                                                            className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:bg-purple-600 transition-colors"
+                                                        >
+                                                            Lihat
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )})}
+                                    )
+                                })}
                             </div>
 
                             {/* Desktop Table Layout */}
@@ -304,77 +305,78 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                                                 const submission = getSubmissionForDay(day);
                                                 const isApproved = submission?.status === 'approved';
                                                 const isPending = submission?.status === 'pending';
-                                                
+
                                                 return (
-                                                <tr key={day} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
-                                                    {/* Tanggal */}
-                                                    <td className="py-4 px-4">
-                                                        <div className="flex justify-center">
-                                                            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                                                                <span className="text-2xl font-bold text-white">{day}</span>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-
-                                                    {/* Jam Bangun */}
-                                                    <td className="py-4 px-4">
-                                                        <div className="flex justify-center">
-                                                            <div className="w-full max-w-[140px] px-3 py-2 border-2 border-gray-300 rounded-lg text-gray-800 text-base text-center bg-gray-50">
-                                                                {submission?.time || '--:--'}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-
-                                                    {/* Approval Orang Tua */}
-                                                    <td className="py-4 px-4">
-                                                        <div className="flex justify-center">
-                                                            <div className={`w-14 h-8 rounded-full flex items-center px-1 shadow-md ${isApproved ? 'bg-green-500' : 'bg-gray-300'}`}>
-                                                                <div className={`bg-white w-6 h-6 rounded-full shadow-md ${isApproved ? 'ml-auto' : ''}`}></div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-
-                                                    {/* Bukti Foto */}
-                                                    <td className="py-4 px-4">
-                                                        <div className="flex justify-center">
-                                                            {submission?.photo ? (
-                                                                <button 
-                                                                    onClick={() => {
-                                                                        setSelectedPhoto(submission.photo);
-                                                                        setShowPhotoModal(true);
-                                                                    }}
-                                                                    className="w-14 h-14 bg-purple-500 border-2 border-purple-600 rounded-xl flex items-center justify-center hover:bg-purple-600 transition-all shadow-md hover:shadow-lg group"
-                                                                >
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                                    </svg>
-                                                                </button>
-                                                            ) : (
-                                                                <div className="w-14 h-14 bg-gray-100 border-2 border-gray-300 rounded-xl flex items-center justify-center shadow-md">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                                    </svg>
+                                                    <tr key={day} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                                                        {/* Tanggal */}
+                                                        <td className="py-4 px-4">
+                                                            <div className="flex justify-center">
+                                                                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                                                                    <span className="text-2xl font-bold text-white">{day}</span>
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    </td>
+                                                            </div>
+                                                        </td>
 
-                                                    {/* Detail Button */}
-                                                    <td className="py-4 px-4">
-                                                        <div className="flex justify-center">
-                                                            <button
-                                                                onClick={() => {
-                                                                    setSelectedDay(day);
-                                                                    setShowModal(true);
-                                                                }}
-                                                                className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-xl text-sm font-semibold"
-                                                            >
-                                                                Lihat Detail
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            )})}
+                                                        {/* Jam Bangun */}
+                                                        <td className="py-4 px-4">
+                                                            <div className="flex justify-center">
+                                                                <div className="w-full max-w-[140px] px-3 py-2 border-2 border-gray-300 rounded-lg text-gray-800 text-base text-center bg-gray-50">
+                                                                    {submission?.time || '--:--'}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+
+                                                        {/* Approval Orang Tua */}
+                                                        <td className="py-4 px-4">
+                                                            <div className="flex justify-center">
+                                                                <div className={`w-14 h-8 rounded-full flex items-center px-1 shadow-md ${isApproved ? 'bg-green-500' : 'bg-gray-300'}`}>
+                                                                    <div className={`bg-white w-6 h-6 rounded-full shadow-md ${isApproved ? 'ml-auto' : ''}`}></div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+
+                                                        {/* Bukti Foto */}
+                                                        <td className="py-4 px-4">
+                                                            <div className="flex justify-center">
+                                                                {submission?.photo ? (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setSelectedPhoto(submission.photo);
+                                                                            setShowPhotoModal(true);
+                                                                        }}
+                                                                        className="w-14 h-14 bg-purple-500 border-2 border-purple-600 rounded-xl flex items-center justify-center hover:bg-purple-600 transition-all shadow-md hover:shadow-lg group"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                ) : (
+                                                                    <div className="w-14 h-14 bg-gray-100 border-2 border-gray-300 rounded-xl flex items-center justify-center shadow-md">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                                        </svg>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </td>
+
+                                                        {/* Detail Button */}
+                                                        <td className="py-4 px-4">
+                                                            <div className="flex justify-center">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setSelectedDay(day);
+                                                                        setShowModal(true);
+                                                                    }}
+                                                                    className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-xl text-sm font-semibold"
+                                                                >
+                                                                    Lihat Detail
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
@@ -406,11 +408,10 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                                             <button
                                                 key={page}
                                                 onClick={() => setCurrentPage(page)}
-                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                                    currentPage === page
+                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                                                         ? 'bg-blue-500 text-white'
                                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
+                                                    }`}
                                             >
                                                 {page}
                                             </button>
@@ -589,7 +590,7 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
-                        
+
                         {/* Image */}
                         <div className="p-4">
                             <img
@@ -606,7 +607,7 @@ export default function BangunPagiHistory({ auth, activity, submissions }: Bangu
                                 }}
                             />
                         </div>
-                        
+
                         {/* Footer */}
                         <div className="p-4 bg-gray-50 border-t border-gray-200">
                             <p className="text-sm text-gray-600 text-center">

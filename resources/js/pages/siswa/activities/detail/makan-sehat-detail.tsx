@@ -50,9 +50,10 @@ interface MakanSehatDetailProps {
 
 export default function MakanSehatDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: MakanSehatDetailProps) {
     // Parse server date for display
-    const serverDate = new Date(currentDate);
-    const [currentMonth] = useState(serverDate); // No setter, read-only
-    const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
+    // Use local browser date to avoid timezone issues
+    const localDate = new Date();
+    const [currentMonth] = useState(localDate);
+    const [selectedDate] = useState(localDate.getDate());
     const [nutrition, setNutrition] = useState({
         karbohidrat: '',
         protein: '',
@@ -147,7 +148,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -159,7 +160,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
         formData.append('photo', image);
-        
+
         // Include nutrition values to preserve them
         formData.append('karbohidrat', nutrition.karbohidrat);
         formData.append('protein', nutrition.protein);
@@ -184,19 +185,19 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Cek apakah data sudah pernah disimpan hari ini
         if (todaySubmission) {
             alert('Data untuk hari ini sudah disimpan. Anda hanya bisa input data 1 kali per hari.');
             return;
         }
-        
+
         // Validasi: Pastikan semua dropdown sudah dipilih (tidak boleh kosong/"Pilih")
         if (!nutrition.karbohidrat || !nutrition.protein || !nutrition.sayur || !nutrition.buah) {
             alert('Mohon pilih semua pilihan (Karbohidrat, Protein, Sayur, dan Buah) sebelum menyimpan data!');
             return;
         }
-        
+
         const formData = new FormData();
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
@@ -416,7 +417,7 @@ export default function MakanSehatDetail({ auth, activity, nextActivity, previou
                         {/* Upload Foto Section - Separate from form */}
                         <div className="mt-6 pt-6 border-t-2 border-gray-200">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Upload Foto Kegiatan</h3>
-                            
+
                             {photoUploadedToday ? (
                                 <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
                                     <div className="flex items-center gap-3">

@@ -51,7 +51,7 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
-    
+
     // Create a map of submissions by date for quick lookup
     const submissionsByDate = useMemo(() => {
         const map: { [key: string]: Submission } = {};
@@ -189,14 +189,8 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                                         <div className="text-sm font-bold">{monthNames[currentMonth.getMonth()]} 2025</div>
                                                     </div>
                                                 </div>
-                                                {submission && submission.time && (
-                                                    <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                                                        <div className="text-xs text-white/80">Waktu</div>
-                                                        <div className="text-sm font-bold text-white">{submission.time}</div>
-                                                    </div>
-                                                )}
                                             </div>
-                                            
+
                                             <div className="p-4 space-y-3">
                                                 {/* Waktu Berolahraga */}
                                                 <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
@@ -226,7 +220,7 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                                         <div className="flex-1">
                                                             <div className="text-xs text-gray-500">Jenis Olahraga</div>
                                                             <div className="text-sm font-semibold text-gray-700">
-                                                                {submission?.details.exercise_type?.value ? submission.details.exercise_type.value.replace('_',' ') : '-'}
+                                                                {submission?.details.exercise_type?.value ? submission.details.exercise_type.value.replace('_', ' ') : '-'}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -287,7 +281,6 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                         <thead>
                                             <tr className="border-b-2 border-gray-200 bg-gray-50">
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">TANGGAL</th>
-                                                <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">WAKTU</th>
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">WAKTU BEROLAHRAGA</th>
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">JENIS OLAHRAGA</th>
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">APPROVAL</th>
@@ -312,12 +305,7 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                                             </div>
                                                         </td>
 
-                                                        {/* Waktu */}
-                                                        <td className="py-4 px-4 text-center">
-                                                            <span className="text-sm font-medium text-gray-700">
-                                                                {submission?.time || '-'}
-                                                            </span>
-                                                        </td>
+
 
                                                         {/* Waktu Berolahraga */}
                                                         <td className="py-4 px-4 text-center">
@@ -329,7 +317,7 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                                         {/* Jenis Olahraga */}
                                                         <td className="py-4 px-4 text-center">
                                                             <span className="text-sm font-medium text-gray-700">
-                                                                {submission?.details.exercise_type?.value ? submission.details.exercise_type.value.replace('_',' ') : '-'}
+                                                                {submission?.details.exercise_type?.value ? submission.details.exercise_type.value.replace('_', ' ') : '-'}
                                                             </span>
                                                         </td>
 
@@ -397,11 +385,10 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                             <button
                                                 key={page}
                                                 onClick={() => setCurrentPage(page)}
-                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                                    currentPage === page
+                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                                                         ? 'bg-blue-500 text-white'
                                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
+                                                    }`}
                                             >
                                                 {page}
                                             </button>

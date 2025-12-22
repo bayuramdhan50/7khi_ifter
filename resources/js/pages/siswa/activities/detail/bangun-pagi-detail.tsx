@@ -50,9 +50,10 @@ interface BangunPagiDetailProps {
 
 export default function BangunPagiDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: BangunPagiDetailProps) {
     // Parse server date for display
-    const serverDate = new Date(currentDate);
-    const [currentMonth] = useState(serverDate); // No setter, read-only
-    const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
+    // Use local browser date to avoid timezone issues
+    const localDate = new Date();
+    const [currentMonth] = useState(localDate);
+    const [selectedDate] = useState(localDate.getDate()); // No setter, read-only
     const [jamBangun, setJamBangun] = useState('');
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
@@ -385,24 +386,27 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                             </div>
 
                             {/* Jam Bangun Input */}
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">JAM BANGUN</label>
-                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-                                    <input
-                                        type="time"
-                                        value={jamBangun}
-                                        onChange={(e) => setJamBangun(e.target.value)}
-                                        readOnly={hasSubmittedTime}
-                                        className="flex-1 px-3 py-2 sm:px-4 sm:py-3 border-2 border-gray-300 rounded-lg text-gray-900 text-sm sm:text-base hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 read-only:bg-blue-50 read-only:cursor-default read-only:border-blue-300"
-                                        required
-                                    />
-                                    <Button
-                                        type="submit"
-                                        disabled={isSubmitting || !jamBangun || hasSubmittedTime}
-                                        className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                    >
-                                        {hasSubmittedTime ? '✓ Terkirim' : (isSubmitting ? 'Menyimpan...' : 'Kirim')}
-                                    </Button>
+                            <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 sm:pt-3">JAM BANGUN</label>
+                                <div className="flex-1 flex flex-col gap-2">
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                        <input
+                                            type="time"
+                                            value={jamBangun}
+                                            onChange={(e) => setJamBangun(e.target.value)}
+                                            readOnly={hasSubmittedTime}
+                                            className="flex-1 px-3 py-2 sm:px-4 sm:py-3 border-2 border-gray-300 rounded-lg text-gray-900 text-sm sm:text-base hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 read-only:bg-blue-50 read-only:cursor-default read-only:border-blue-300"
+                                            required
+                                        />
+                                        <Button
+                                            type="submit"
+                                            disabled={isSubmitting || !jamBangun || hasSubmittedTime}
+                                            className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                        >
+                                            {hasSubmittedTime ? '✓ Terkirim' : (isSubmitting ? 'Menyimpan...' : 'Kirim')}
+                                        </Button>
+                                    </div>
+                                    <p className="text-xs text-gray-500 italic">* Gunakan format 24 jam (contoh: 05:30 untuk jam 5 pagi, 17:30 untuk jam 5 sore)</p>
                                 </div>
                             </div>
 
