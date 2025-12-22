@@ -53,9 +53,9 @@ export default function Login({
                     <div
                         className="w-full h-full"
                         style={{
-                            backgroundImage: "url('/images/cover%202.png')",
+                            backgroundImage: "url('/images/cover%202_fix.png')",
                             backgroundPosition: 'center',
-                            backgroundSize: 'cover',
+                            backgroundSize: '100% 100%',
                             backgroundRepeat: 'no-repeat'
                         }}
                     />
@@ -66,7 +66,7 @@ export default function Login({
                     <div
                         className="w-full h-full"
                         style={{
-                            backgroundImage: "url('/images/cover%202.png')",
+                            backgroundImage: "url('/images/cover%202_fix.png')",
                             backgroundPosition: '80% bottom',
                             backgroundSize: 'cover',
                             backgroundRepeat: 'no-repeat'
