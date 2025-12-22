@@ -32,19 +32,19 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     };
 
     return (
-        <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarGroup className="px-2 py-0 group-data-[collapsible=icon]:mt-3">
+            <SidebarGroupLabel className="text-white/70 font-semibold text-xs uppercase tracking-wider">Menu</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => {
                     // Check if item has subitems
                     const hasSubItems = item.items && item.items.length > 0;
                     const isOpen = openItems.includes(item.title);
-                    
+
                     if (hasSubItems) {
                         return (
-                            <Collapsible 
-                                key={item.title} 
-                                asChild 
+                            <Collapsible
+                                key={item.title}
+                                asChild
                                 open={isOpen}
                                 onOpenChange={() => toggleItem(item.title)}
                             >
@@ -52,6 +52,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     <CollapsibleTrigger asChild>
                                         <SidebarMenuButton
                                             tooltip={{ children: item.title }}
+                                            className="text-white hover:bg-white/10 hover:text-white data-[active=true]:bg-white/15 data-[active=true]:text-white"
                                         >
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
@@ -67,6 +68,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                                         isActive={page.url.startsWith(
                                                             resolveUrl(subItem.href),
                                                         )}
+                                                        className="text-white/90 hover:bg-white/10 hover:text-white data-[active=true]:bg-white/15 data-[active=true]:text-white"
                                                     >
                                                         <Link href={subItem.href} prefetch>
                                                             <span>{subItem.title}</span>
@@ -80,7 +82,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                             </Collapsible>
                         );
                     }
-                    
+
                     // Regular menu item without subitems
                     return (
                         <SidebarMenuItem key={item.title}>
@@ -90,6 +92,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     resolveUrl(item.href),
                                 )}
                                 tooltip={{ children: item.title }}
+                                className="text-white hover:bg-white/10 hover:text-white data-[active=true]:bg-white/15 data-[active=true]:text-white"
                             >
                                 <Link href={item.href} prefetch>
                                     {item.icon && <item.icon />}

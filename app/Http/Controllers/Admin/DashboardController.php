@@ -4,21 +4,44 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\ParentModel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
     /**
-     * Display the admin dashboard with classes.
+     * Display the admin dashboard with statistics.
      */
     public function index(): Response
     {
-        // TODO: Get classes from database
-        // For now, return empty array and let frontend use mock data
-        
-        return Inertia::render('admin/dashboard', [
-            'classes' => [],
+        $stats = [
+            'totalSiswa' => User::where('role', User::ROLE_SISWA)->count(),
+            'totalGuru' => User::where('role', User::ROLE_GURU)->count(),
+            'totalOrangtua' => User::where('role', User::ROLE_ORANGTUA)->count(),
+            'totalKelas' => \App\Models\ClassModel::count(),
+        ];
+
+        return Inertia::render('admin/beranda/dashboard', [
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Display the classes page.
+     */
+    public function kelas(): Response
+    {
+        $classes = \App\Models\ClassModel::withCount('students')
+            ->orderBy('grade')
+            ->orderBy('section')
+            ->get();
+
+        return Inertia::render('admin/kelas/kelas', [
+            'classes' => $classes,
         ]);
     }
 
@@ -46,7 +69,7 @@ class DashboardController extends Controller
             'admin' => $users->where('role', User::ROLE_ADMIN)->count(),
         ];
 
-        return Inertia::render('admin/users', [
+        return Inertia::render('admin/kelolapengguna/users', [
             'users' => $users,
             'userStats' => $userStats,
         ]);
@@ -57,8 +80,20 @@ class DashboardController extends Controller
      */
     public function siswaDashboard(): Response
     {
-        return Inertia::render('admin/siswa-dashboard', [
-            'classes' => [],
+        $classes = \App\Models\ClassModel::withCount('students')
+            ->orderBy('grade')
+            ->orderBy('section')
+            ->get()
+            ->map(function ($class) {
+                return [
+                    'id' => strtolower($class->grade . $class->section), // "1a", "2b", etc.
+                    'name' => 'Kelas ' . $class->name, // "Kelas 1A"
+                    'studentCount' => $class->students_count,
+                ];
+            });
+
+        return Inertia::render('admin/manajemen/siswa/dashboard/siswa-dashboard', [
+            'classes' => $classes,
         ]);
     }
 
@@ -67,29 +102,110 @@ class DashboardController extends Controller
      */
     public function classStudents(string $classId): Response
     {
-        // TODO: Get students from database based on class
-        // For now, return empty array and let frontend use mock data
-        
-        $className = match($classId) {
-            '1a' => 'Kelas 1A',
-            '1b' => 'Kelas 1B',
-            '2a' => 'Kelas 2A',
-            '2b' => 'Kelas 2B',
-            '3a' => 'Kelas 3A',
-            '3b' => 'Kelas 3B',
-            '4a' => 'Kelas 4A',
-            '4b' => 'Kelas 4B',
-            '5a' => 'Kelas 5A',
-            '5b' => 'Kelas 5B',
-            '6a' => 'Kelas 6A',
-            '6b' => 'Kelas 6B',
-            default => 'Kelas',
-        };
+        // Parse classId (format: "1a", "2b") to get grade and section
+        $grade = (int) substr($classId, 0, 1);
+        $section = strtoupper(substr($classId, 1));
 
-        return Inertia::render('admin/class-students', [
+        // Find the class
+        $class = \App\Models\ClassModel::where('grade', $grade)
+            ->where('section', $section)
+            ->first();
+
+        if (!$class) {
+            abort(404, 'Kelas tidak ditemukan');
+        }
+
+        $className = 'Kelas ' . $class->name;
+
+        // Get students with their user data and biodata
+        $students = \App\Models\Student::where('class_id', $class->id)
+            ->with(['user', 'biodata'])
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'id' => $student->id,
+                    'name' => $student->user->name ?? 'N/A',
+                    'email' => $student->user->email ?? 'N/A',
+                    'nis' => $student->nis ?? 'N/A',
+                    'nisn' => $student->nisn ?? 'N/A',
+                    'religion' => $student->religion ?? ($student->biodata->religion ?? 'N/A'),
+                    'gender' => $student->gender ?? ($student->biodata->gender ?? 'N/A'),
+                    'date_of_birth' => $student->date_of_birth?->format('Y-m-d') ?? null,
+                    'address' => $student->address ?? 'N/A',
+                ];
+            });
+
+        return Inertia::render('admin/kelas/student/class-students', [
             'className' => $className,
             'classId' => $classId,
-            'students' => [],
+            'classDbId' => $class->id, // Add database ID for API calls
+            'students' => $students,
+        ]);
+    }
+
+    /**
+     * Display create student page for a specific class.
+     */
+    public function createStudent(string $classId): Response
+    {
+        // Parse classId (format: "1a", "2b") to get grade and section
+        $grade = (int) substr($classId, 0, 1);
+        $section = strtoupper(substr($classId, 1));
+
+        // Find the class
+        $class = \App\Models\ClassModel::where('grade', $grade)
+            ->where('section', $section)
+            ->first();
+
+        if (!$class) {
+            abort(404, 'Kelas tidak ditemukan');
+        }
+
+        $className = 'Kelas ' . $class->name;
+
+        // Get students without class (unassigned)
+        $unassignedStudents = \App\Models\Student::whereNull('class_id')
+            ->with('user')
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'id' => $student->id,
+                    'name' => $student->user->name ?? 'N/A',
+                    'email' => $student->user->email ?? 'N/A',
+                    'nis' => $student->nis ?? 'N/A',
+                    'nisn' => $student->nisn ?? 'N/A',
+                    'religion' => $student->religion ?? 'N/A',
+                    'gender' => $student->gender ?? 'N/A',
+                ];
+            });
+
+        return Inertia::render('admin/kelas/student/create-student', [
+            'className' => $className,
+            'classId' => $classId,
+            'classDbId' => $class->id,
+            'unassignedStudents' => $unassignedStudents,
+        ]);
+    }
+
+    /**
+     * Display create account page for students.
+     */
+    public function createStudentAccount(): Response
+    {
+        $classes = \App\Models\ClassModel::orderBy('grade')
+            ->orderBy('section')
+            ->get()
+            ->map(function ($class) {
+                return [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'grade' => $class->grade,
+                    'section' => $class->section,
+                ];
+            });
+
+        return Inertia::render('admin/student/create-account', [
+            'classes' => $classes,
         ]);
     }
 
@@ -110,7 +226,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/siswa-management', [
+        return Inertia::render('admin/manajemen/siswa/management/siswa-management', [
             'siswa' => $siswa,
             'totalSiswa' => $siswa->count(),
         ]);
@@ -121,11 +237,41 @@ class DashboardController extends Controller
      */
     public function guruDashboard(): Response
     {
-        // TODO: Get teachers from database
-        // For now, return empty array and let frontend use mock data
-        
-        return Inertia::render('admin/guru-dashboard', [
-            'teachers' => [],
+        $teachers = \App\Models\Teacher::with(['user', 'classes'])
+            ->get()
+            ->map(function ($teacher) {
+                $assignedClass = $teacher->classes->first();
+                return [
+                    'id' => $teacher->id,
+                    'user_id' => $teacher->user_id,
+                    'name' => $teacher->user->name ?? 'N/A',
+                    'email' => $teacher->user->email ?? 'N/A',
+                    'nip' => $teacher->nip ?? '-',
+                    'phone' => $teacher->phone ?? '-',
+                    'address' => $teacher->address ?? '-',
+                    'is_active' => $teacher->is_active,
+                    'class_id' => $assignedClass ? $assignedClass->id : null,
+                    'class_name' => $assignedClass ? $assignedClass->name : '-',
+                    'createdAt' => $teacher->created_at->format('d/m/Y'),
+                ];
+            });
+
+        // Get all classes for the dropdown
+        $allClasses = \App\Models\ClassModel::orderBy('grade')
+            ->orderBy('section')
+            ->get()
+            ->map(function ($class) {
+                return [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'grade' => $class->grade,
+                    'section' => $class->section,
+                ];
+            });
+
+        return Inertia::render('admin/manajemen/guru/dashboard/guru-dashboard', [
+            'teachers' => $teachers,
+            'allClasses' => $allClasses,
         ]);
     }
 
@@ -146,7 +292,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/guru-management', [
+        return Inertia::render('admin/manajemen/guru/management/guru-management', [
             'guru' => $guru,
             'totalGuru' => $guru->count(),
         ]);
@@ -157,8 +303,28 @@ class DashboardController extends Controller
      */
     public function orangtuaDashboard(): Response
     {
-        return Inertia::render('admin/orangtua-dashboard', [
-            'classes' => [],
+        $classes = \App\Models\ClassModel::orderBy('grade')
+            ->orderBy('section')
+            ->get()
+            ->map(function ($class) {
+                // Count parents through students in this class
+                $parentCount = \App\Models\Student::where('class_id', $class->id)
+                    ->with('parents')
+                    ->get()
+                    ->pluck('parents')
+                    ->flatten()
+                    ->unique('id')
+                    ->count();
+
+                return [
+                    'id' => strtolower($class->grade . $class->section),
+                    'name' => 'Kelas ' . $class->name,
+                    'parentCount' => $parentCount,
+                ];
+            });
+
+        return Inertia::render('admin/manajemen/orangtua/dashboard/orangtua-dashboard', [
+            'classes' => $classes,
         ]);
     }
 
@@ -167,30 +333,361 @@ class DashboardController extends Controller
      */
     public function classParents(string $classId): Response
     {
-        // TODO: Get parents from database based on class
-        // For now, return empty array and let frontend use mock data
-        
-        $className = match($classId) {
-            '1a' => 'Kelas 1A',
-            '1b' => 'Kelas 1B',
-            '2a' => 'Kelas 2A',
-            '2b' => 'Kelas 2B',
-            '3a' => 'Kelas 3A',
-            '3b' => 'Kelas 3B',
-            '4a' => 'Kelas 4A',
-            '4b' => 'Kelas 4B',
-            '5a' => 'Kelas 5A',
-            '5b' => 'Kelas 5B',
-            '6a' => 'Kelas 6A',
-            '6b' => 'Kelas 6B',
-            default => 'Kelas',
-        };
+        // Parse classId (format: "1a", "2b") to get grade and section
+        $grade = (int) substr($classId, 0, 1);
+        $section = strtoupper(substr($classId, 1));
 
-        return Inertia::render('admin/class-parents', [
+        // Find the class
+        $class = \App\Models\ClassModel::where('grade', $grade)
+            ->where('section', $section)
+            ->first();
+
+        if (!$class) {
+            abort(404, 'Kelas tidak ditemukan');
+        }
+
+        $className = 'Kelas ' . $class->name;
+
+        // Get parents through students in this class
+        $students = \App\Models\Student::where('class_id', $class->id)
+            ->with(['parents.user'])
+            ->get();
+
+        $parentsCollection = collect();
+        foreach ($students as $student) {
+            foreach ($student->parents as $parent) {
+                if (!$parentsCollection->contains('id', $parent->id)) {
+                    $parentsCollection->push([
+                        'id' => $parent->id,
+                        'parentName' => $parent->user->name ?? 'N/A',
+                        'email' => $parent->user->email ?? 'N/A',
+                        'phone' => $parent->phone ?? 'N/A',
+                        'studentName' => $student->user->name ?? 'N/A',
+                        'studentClass' => $class->name ?? 'N/A',
+                    ]);
+                }
+            }
+        }
+
+        return Inertia::render('admin/kelas/parent/class-parents', [
             'className' => $className,
             'classId' => $classId,
-            'parents' => [],
+            'parents' => $parentsCollection->values(),
+            'allClasses' => \App\Models\ClassModel::with(['students.user'])
+                ->get()
+                ->map(function ($class) {
+                    return [
+                        'id' => $class->id,
+                        'name' => $class->name,
+                        'students' => $class->students->map(function ($student) {
+                            return [
+                                'id' => $student->id,
+                                'name' => $student->user->name ?? 'N/A',
+                                'class_id' => $student->class_id,
+                            ];
+                        }),
+                    ];
+                }),
         ]);
+    }
+
+    /**
+     * Display create parent form.
+     */
+    public function createParent(string $classId): Response
+    {
+        // Parse classId (format: "1a", "2b") to get grade and section
+        $grade = (int) substr($classId, 0, 1);
+        $section = strtoupper(substr($classId, 1));
+
+        // Find the class
+        $class = \App\Models\ClassModel::where('grade', $grade)
+            ->where('section', $section)
+            ->first();
+
+        if (!$class) {
+            abort(404, 'Kelas tidak ditemukan');
+        }
+
+        $className = 'Kelas ' . $class->name;
+
+        return Inertia::render('admin/kelas/parent/create-parent', [
+            'className' => $className,
+            'classId' => $classId,
+            'allClasses' => \App\Models\ClassModel::with(['students.user'])
+                ->get()
+                ->map(function ($class) {
+                    return [
+                        'id' => $class->id,
+                        'name' => $class->name,
+                        'students' => $class->students->map(function ($student) {
+                            return [
+                                'id' => $student->id,
+                                'name' => $student->user->name ?? 'N/A',
+                                'class_id' => $student->class_id,
+                            ];
+                        }),
+                    ];
+                }),
+        ]);
+    }
+
+    /**
+     * Store parent data to database.
+     */
+    public function storeParent(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:50|unique:users,username',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+            'occupation' => 'nullable|string|max:100',
+            'children' => 'required|array|min:1',
+            'children.*.classId' => 'required|exists:classes,id',
+            'children.*.studentId' => 'required|exists:students,id',
+            'children.*.relationship' => 'required|in:ayah,ibu,wali',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // 1. Create User account for parent
+            $user = User::create([
+                'name' => $validated['name'],
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'password' => Hash::make('password123'), // Default password
+                'role' => User::ROLE_ORANGTUA,
+            ]);
+
+            // 2. Create Parent record
+            $parent = ParentModel::create([
+                'user_id' => $user->id,
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'occupation' => $validated['occupation'],
+            ]);
+
+            // 3. Attach students to parent with relationship
+            foreach ($validated['children'] as $child) {
+                DB::table('parent_student')->insert([
+                    'parent_id' => $parent->id,
+                    'student_id' => $child['studentId'],
+                    'relationship' => $child['relationship'],
+                    'is_primary' => false, // Set first child as primary if needed
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.orangtua.class', ['classId' => $request->input('classId')])
+                ->with('success', 'Akun orang tua berhasil dibuat!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withErrors(['error' => 'Gagal membuat akun: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Display edit parent form.
+     */
+    public function editParent(int $parentId): Response
+    {
+        // Find the parent with user and students relationships
+        $parent = ParentModel::with(['user', 'students.user', 'students.class'])
+            ->findOrFail($parentId);
+
+        // Map parent data with children
+        $parentData = [
+            'id' => $parent->id,
+            'name' => $parent->user->name,
+            'username' => $parent->user->username,
+            'email' => $parent->user->email,
+            'phone' => $parent->phone,
+            'address' => $parent->address,
+            'occupation' => $parent->occupation,
+            'children' => $parent->students->map(function ($student, $index) {
+                $relationship = DB::table('parent_student')
+                    ->where('parent_id', $student->pivot->parent_id)
+                    ->where('student_id', $student->id)
+                    ->value('relationship');
+
+                return [
+                    'id' => $index + 1,
+                    'classId' => $student->class_id,
+                    'studentId' => $student->id,
+                    'relationship' => $relationship ?? 'ayah',
+                ];
+            })->values()->toArray(),
+        ];
+
+        // Get classId from query parameter if provided
+        $classId = request()->query('classId', null);
+
+        // Determine className if classId is provided
+        $className = '';
+        if ($classId) {
+            // Parse classId (format: "1a", "2b")
+            $grade = (int) substr($classId, 0, 1);
+            $section = strtoupper(substr($classId, 1));
+
+            $class = \App\Models\ClassModel::where('grade', $grade)
+                ->where('section', $section)
+                ->first();
+
+            if ($class) {
+                $className = 'Kelas ' . $class->name;
+            }
+        }
+
+        // Get all classes with students
+        $allClasses = \App\Models\ClassModel::with(['students.user'])
+            ->get()
+            ->map(function ($class) {
+                return [
+                    'id' => $class->id,
+                    'name' => $class->name,
+                    'students' => $class->students->map(function ($student) {
+                        return [
+                            'id' => $student->id,
+                            'name' => $student->user->name ?? 'N/A',
+                            'class_id' => $student->class_id,
+                        ];
+                    }),
+                ];
+            });
+
+        return Inertia::render('admin/kelas/parent/edit-parent', [
+            'parent' => $parentData,
+            'classId' => $classId,
+            'className' => $className,
+            'allClasses' => $allClasses,
+        ]);
+    }
+
+    /**
+     * Update parent data in database.
+     */
+    public function updateParent(Request $request, int $parentId)
+    {
+        $parent = ParentModel::with('user')->findOrFail($parentId);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => [
+                'required',
+                'string',
+                'max:50',
+                'unique:users,username,' . $parent->user_id,
+            ],
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email,' . $parent->user_id,
+            ],
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+            'occupation' => 'nullable|string|max:100',
+            'children' => 'required|array|min:1',
+            'children.*.classId' => 'required|exists:classes,id',
+            'children.*.studentId' => 'required|exists:students,id',
+            'children.*.relationship' => 'required|in:ayah,ibu,wali',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // 1. Update User account
+            $parent->user->update([
+                'name' => $validated['name'],
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+            ]);
+
+            // 2. Update Parent record
+            $parent->update([
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'occupation' => $validated['occupation'],
+            ]);
+
+            // 3. Sync students - delete old relationships and insert new ones
+            DB::table('parent_student')
+                ->where('parent_id', $parent->id)
+                ->delete();
+
+            foreach ($validated['children'] as $child) {
+                DB::table('parent_student')->insert([
+                    'parent_id' => $parent->id,
+                    'student_id' => $child['studentId'],
+                    'relationship' => $child['relationship'],
+                    'is_primary' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            // Redirect back to class parents page
+            $classId = $request->input('classId');
+            if ($classId) {
+                return redirect()
+                    ->route('admin.orangtua.class', ['classId' => $classId])
+                    ->with('success', 'Data orang tua berhasil diperbarui!');
+            }
+
+            return redirect()
+                ->route('admin.orangtua.dashboard')
+                ->with('success', 'Data orang tua berhasil diperbarui!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withErrors(['error' => 'Gagal memperbarui data: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Delete parent account.
+     */
+    public function deleteParent(int $parentId)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Find parent with user
+            $parent = ParentModel::with('user')->findOrFail($parentId);
+            $user = $parent->user;
+
+            // 1. Delete parent_student relationships
+            DB::table('parent_student')
+                ->where('parent_id', $parent->id)
+                ->delete();
+
+            // 2. Delete parent record
+            $parent->delete();
+
+            // 3. Delete user account
+            $user->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->back()
+                ->with('success', 'Akun orang tua berhasil dihapus!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withErrors(['error' => 'Gagal menghapus akun: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -210,7 +707,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('admin/orangtua-management', [
+        return Inertia::render('admin/manajemen/orangtua/management/orangtua-management', [
             'orangtua' => $orangtua,
             'totalOrangTua' => $orangtua->count(),
         ]);

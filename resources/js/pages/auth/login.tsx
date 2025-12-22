@@ -4,8 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { store } from '@/routes/login';
-import { Form, Head } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface LoginProps {
@@ -20,28 +19,54 @@ export default function Login({
     canRegister,
 }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const [loginType, setLoginType] = useState<'siswa' | 'staff'>('siswa');
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        nis: '',
+        username: '',
+        password: '',
+        remember: false,
+        email: '',
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Clear unused field based on login type before submit
+        if (loginType === 'siswa') {
+            setData('username', '');
+        } else {
+            setData('nis', '');
+        }
+
+        // Post to login
+        post('/login');
+    };
 
     return (
         <>
             <Head title="Log in" />
 
-            <div className="min-h-screen flex flex-col lg:flex-row relative" style={{ background: 'linear-gradient(to bottom, #a8d8ea 0%, #d4f1f4 100%)' }}>
-                {/* Background Image for Mobile */}
-                <div className="lg:hidden absolute inset-0">
-                    <img 
-                        src="/images/bg_login_page.png" 
-                        alt="SMPN 37 Bandung" 
-                        className="w-full h-full object-cover opacity-30"
+            <div className="min-h-screen flex flex-col lg:flex-row relative bg-white" style={{ backgroundColor: '#ffffff' }}>
+                {/* Decorative background that extends behind the login card */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: "url('/images/cover%202.png')", backgroundPosition: 'center center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
                     />
                 </div>
 
-                {/* Left Side - Illustration */}
-                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
-                    <img 
-                        src="/images/bg_login_page.png" 
-                        alt="SMPN 37 Bandung" 
-                        className="absolute inset-0 w-full h-full object-cover"
+                {/* Mobile background (keeps small-screen behavior) */}
+                <div className="lg:hidden absolute inset-0">
+                    <div
+                        className="w-full h-full bg-cover bg-center"
+                        style={{ backgroundImage: "url('/images/cover%202.png')", backgroundPosition: 'left center', backgroundSize: '160% auto', backgroundRepeat: 'no-repeat' }}
                     />
+                </div>
+
+                {/* Left Side - Illustration (kept for spacing on large screens) */}
+                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
+                    {/* Intentionally left blank; background image is placed behind the whole layout so it also appears behind the login card */}
                 </div>
 
                 {/* Right Side - Login Form */}
@@ -53,8 +78,32 @@ export default function Login({
                                     Login to your Account
                                 </h1>
                                 <p className="text-xs sm:text-sm text-blue-600">
-                                    with your registered Email Address
+                                    {loginType === 'siswa' ? 'Login dengan NIS Anda' : 'Login dengan Username Anda'}
                                 </p>
+                            </div>
+
+                            {/* Login Type Toggle */}
+                            <div className="mb-6 flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setLoginType('siswa')}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${loginType === 'siswa'
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        }`}
+                                >
+                                    Siswa
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setLoginType('staff')}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${loginType === 'staff'
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        }`}
+                                >
+                                    Guru / Orang Tua
+                                </button>
                             </div>
 
                             {status && (
@@ -63,90 +112,123 @@ export default function Login({
                                 </div>
                             )}
 
-                            <Form
-                                {...store.form()}
-                                resetOnSuccess={['password']}
+                            <form
+                                onSubmit={handleSubmit}
                                 className="space-y-4 sm:space-y-6"
                             >
-                                {({ processing, errors }) => (
-                                    <>
-                                        {/* Email Field */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="email" className="text-gray-700 text-xs sm:text-sm">
-                                                Email address*
-                                            </Label>
-                                            <Input
-                                                id="email"
-                                                type="email"
-                                                name="email"
-                                                required
-                                                autoFocus
-                                                tabIndex={1}
-                                                autoComplete="email"
-                                                placeholder="Enter email address"
-                                                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
-                                            />
-                                            <InputError message={errors.email} />
-                                        </div>
-
-                                        {/* Password Field */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="password" className="text-gray-700 text-xs sm:text-sm">
-                                                Enter password*
-                                            </Label>
-                                            <div className="relative">
-                                                <Input
-                                                    id="password"
-                                                    type={showPassword ? "text" : "password"}
-                                                    name="password"
-                                                    required
-                                                    tabIndex={2}
-                                                    autoComplete="current-password"
-                                                    placeholder="Password"
-                                                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14 sm:pr-16 text-black text-sm sm:text-base"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium px-2"
-                                                    tabIndex={-1}
-                                                >
-                                                    {showPassword ? 'Hide' : 'Show'}
-                                                </button>
-                                            </div>
-                                            <InputError message={errors.password} />
-                                        </div>
-
-                                        {/* Remember Me */}
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id="remember"
-                                                name="remember"
-                                                tabIndex={3}
-                                                className="border-blue-600"
-                                            />
-                                            <Label
-                                                htmlFor="remember"
-                                                className="text-xs sm:text-sm text-gray-700 cursor-pointer"
-                                            >
-                                                Remember my password
-                                            </Label>
-                                        </div>
-
-                                        {/* Login Button */}
-                                        <Button
-                                            type="submit"
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base"
-                                            tabIndex={4}
-                                            disabled={processing}
-                                            data-test="login-button"
-                                        >
-                                            {processing && <Spinner />}
-                                            Login
-                                        </Button>
-                                    </>
+                                {/* Show validation errors if any */}
+                                {(errors.nis || errors.username || errors.email || errors.password || (errors as any).login_error) && (
+                                    <div className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <p className="text-red-700 text-xs sm:text-sm font-medium">
+                                            {(errors as any).login_error || errors.nis || errors.username || errors.email || errors.password || 'NIS/Username atau Password tidak valid'}
+                                        </p>
+                                    </div>
                                 )}
-                            </Form>
+                                {/* Conditional Field based on login type */}
+                                {loginType === 'siswa' ? (
+                                    /* NIS Field for Siswa */
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nis" className="text-gray-700 text-xs sm:text-sm">
+                                            NIS (Nomor Induk Siswa)*
+                                        </Label>
+                                        <Input
+                                            id="nis"
+                                            type="text"
+                                            name="nis"
+                                            required
+                                            autoFocus
+                                            tabIndex={1}
+                                            autoComplete="username"
+                                            placeholder="Masukkan NIS Anda"
+                                            value={data.nis}
+                                            onChange={(e) => setData('nis', e.target.value)}
+                                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
+                                        />
+                                        <InputError message={errors.nis} />
+                                    </div>
+                                ) : (
+                                    /* Username Field for Admin/Guru/Orangtua */
+                                    <div className="space-y-2">
+                                        <Label htmlFor="username" className="text-gray-700 text-xs sm:text-sm">
+                                            Username*
+                                        </Label>
+                                        <Input
+                                            id="username"
+                                            type="text"
+                                            name="username"
+                                            required
+                                            autoFocus
+                                            tabIndex={1}
+                                            autoComplete="username"
+                                            placeholder="Masukkan Username Anda"
+                                            value={data.username}
+                                            onChange={(e) => setData('username', e.target.value)}
+                                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
+                                        />
+                                        <InputError message={errors.username} />
+                                    </div>
+                                )}
+
+                                {/* Password Field */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="password" className="text-gray-700 text-xs sm:text-sm">
+                                        Kata Sandi*
+                                    </Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="password"
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            required
+                                            tabIndex={2}
+                                            autoComplete="current-password"
+                                            placeholder="Masukkan kata sandi"
+                                            value={data.password}
+                                            onChange={(e) => setData('password', e.target.value)}
+                                            className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14 sm:pr-16 text-black text-sm sm:text-base"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium px-2"
+                                            tabIndex={-1}
+                                        >
+                                            {showPassword ? 'Sembunyikan' : 'Tampilkan'}
+                                        </button>
+                                    </div>
+                                    <InputError message={errors.password} />
+                                </div>
+
+                                {/* Remember Me */}
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id="remember"
+                                        name="remember"
+                                        tabIndex={3}
+                                        className="border-blue-600"
+                                        checked={data.remember}
+                                        onCheckedChange={(checked) => setData('remember', checked === true)}
+                                    />
+                                    <Label
+                                        htmlFor="remember"
+                                        className="text-xs sm:text-sm text-gray-700 cursor-pointer"
+                                    >
+                                        Ingat kata sandi saya
+                                    </Label>
+                                </div>
+
+                                {/* Login Button */}
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base"
+                                    tabIndex={4}
+                                    disabled={processing}
+                                    data-test="login-button"
+                                >
+                                    {processing && <Spinner />}
+                                    Masuk
+                                </Button>
+                            </form>
                         </div>
                     </div>
                 </div>

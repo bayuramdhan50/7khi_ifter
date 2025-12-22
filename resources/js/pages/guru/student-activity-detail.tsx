@@ -7,11 +7,16 @@ import { useState } from 'react';
 
 interface ActivityTask {
     id: number;
-    tanggal: string;
-    waktu: string;
-    jawaban: string;
+    tanggal: number;
+    date: string;
+    waktu: string | null;
+    notes: string | null;
+    status: string;
     approval_orangtua: boolean;
     bukti_foto: string | null;
+    approved_by: number | null;
+    approved_at: string | null;
+    rejection_reason: string | null;
 }
 
 interface Activity {
@@ -20,6 +25,7 @@ interface Activity {
     icon: string;
     color: string;
     month: string;
+    year: number;
     tasks: ActivityTask[];
 }
 
@@ -60,23 +66,6 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
         }
     };
 
-    // Mock calendar data for display
-    const currentYear = 2025;
-    const months = [
-        { name: 'JANUARI', color: 'bg-yellow-200' },
-        { name: 'FEBRUARI', color: 'bg-pink-200' },
-        { name: 'MARET', color: 'bg-blue-200' },
-        { name: 'APRIL', color: 'bg-yellow-100' },
-        { name: 'MEI', color: 'bg-pink-100' },
-        { name: 'JUNI', color: 'bg-blue-100' },
-        { name: 'JULI', color: 'bg-yellow-50' },
-        { name: 'AGUSTUS', color: 'bg-teal-200' },
-        { name: 'SEPTEMBER', color: 'bg-green-200' },
-        { name: 'OKTOBER', color: 'bg-orange-200' },
-        { name: 'NOVEMBER', color: 'bg-amber-200' },
-        { name: 'DESEMBER', color: 'bg-red-200' },
-    ];
-
     return (
         <AppLayout>
             <Head title={`${student.name} - ${activity.title}`} />
@@ -92,13 +81,25 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                             <h1 className="text-xl md:text-2xl font-bold text-blue-700">Jurnal Harian</h1>
                         </div>
 
-                        <h2 className="text-base md:text-xl text-gray-600 mb-2">Kegiatan {activity.id} {activity.title} - {student.name}</h2>
+                        <h2 className="text-base md:text-xl text-gray-600 mb-4">Kegiatan {activity.id} {activity.title} - {student.name}</h2>
+
+                        {/* Breadcrumb */}
+                        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600 mb-4">
+                            <Link href="/guru/dashboard" className="hover:text-blue-600 truncate">
+                                Dashboard
+                            </Link>
+                            <span>/</span>
+                            <Link href={`/guru/siswa/${student.id}/activities`} className="hover:text-blue-600 truncate">
+                                Siswa {student.name}
+                            </Link>
+                            <span>/</span>
+                            <span className="text-gray-900 font-medium truncate">Kegiatan {activity.id}</span>
+                        </div>
                     </div>
 
                     {/* Main Content */}
-                    <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
-                        {/* Left Side - Activity Card & Form */}
-                        <div className="flex-1">
+                    <div className="w-full">
+                        <div className="w-full">
                             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-8">
                                 <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8 mb-6 md:mb-8">
                                     {/* Activity Card */}
@@ -148,57 +149,69 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                         </thead>
                                         <tbody>
                                             {activity.tasks.map((task, index) => (
-                                                <tr key={task.id} className="hover:bg-gray-50">
+                                                <tr key={task.date} className={`hover:bg-gray-50 ${
+                                                    task.status === 'approved' ? 'bg-green-50' :
+                                                    task.status === 'rejected' ? 'bg-red-50' :
+                                                    task.status === 'pending' ? 'bg-yellow-50' : ''
+                                                }`}>
                                                     <td className="border border-gray-300 px-4 py-3 text-center">
                                                         <div className="bg-gray-200 rounded px-3 py-2 inline-block font-medium">
                                                             {task.tanggal}
                                                         </div>
                                                     </td>
                                                     <td className="border border-gray-300 px-4 py-3">
-                                                        <Input
-                                                            type="text"
-                                                            placeholder="Masukan Jawaban"
-                                                            defaultValue={task.waktu}
-                                                            className="text-center"
-                                                            disabled={task.approval_orangtua}
-                                                        />
+                                                        <div className="text-center">
+                                                            {task.waktu ? (
+                                                                <span className="font-medium text-gray-900">{task.waktu}</span>
+                                                            ) : (
+                                                                <span className="text-gray-400 italic">Belum submit</span>
+                                                            )}
+                                                            {task.notes && (
+                                                                <p className="text-xs text-gray-600 mt-1">{task.notes}</p>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="border border-gray-300 px-4 py-3">
-                                                        <div className="flex items-center justify-center gap-4">
-                                                            <Button
-                                                                size="sm"
-                                                                className="bg-gray-800 hover:bg-gray-900 text-white"
-                                                                disabled={task.approval_orangtua}
-                                                                onClick={() => handleSubmit(task.id)}
-                                                            >
-                                                                Submit
-                                                            </Button>
-                                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={task.approval_orangtua}
-                                                                    disabled
-                                                                    className="sr-only peer"
-                                                                />
-                                                                <div className={`w-11 h-6 rounded-full peer ${
-                                                                    task.approval_orangtua 
-                                                                        ? 'bg-green-500' 
-                                                                        : 'bg-gray-300'
-                                                                } peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all`}></div>
-                                                            </label>
+                                                        <div className="flex flex-col items-center gap-2">
+                                                            {task.status === 'approved' && (
+                                                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                                                                    ✓ Approved
+                                                                </span>
+                                                            )}
+                                                            {task.status === 'rejected' && (
+                                                                <div className="text-center">
+                                                                    <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">
+                                                                        ✗ Rejected
+                                                                    </span>
+                                                                    {task.rejection_reason && (
+                                                                        <p className="text-xs text-red-600 mt-1">{task.rejection_reason}</p>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                            {task.status === 'pending' && (
+                                                                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">
+                                                                    ⏳ Pending
+                                                                </span>
+                                                            )}
+                                                            {task.status === 'not_submitted' && (
+                                                                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
+                                                                    - Belum Submit
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </td>
                                                     <td className="border border-gray-300 px-4 py-3 text-center">
-                                                        <label className="cursor-pointer inline-flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded transition-colors">
-                                                            <Camera className="w-5 h-5 text-gray-700" />
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                className="hidden"
-                                                                onChange={(e) => handleFileChange(e, task.id)}
-                                                                disabled={task.approval_orangtua}
-                                                            />
-                                                        </label>
+                                                        {task.bukti_foto ? (
+                                                            <a href={`/storage/${task.bukti_foto}`} target="_blank" rel="noopener noreferrer">
+                                                                <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-100 hover:bg-blue-200 rounded transition-colors cursor-pointer">
+                                                                    <Camera className="w-5 h-5 text-blue-700" />
+                                                                </div>
+                                                            </a>
+                                                        ) : (
+                                                            <div className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 rounded">
+                                                                <Camera className="w-5 h-5 text-gray-400" />
+                                                            </div>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -209,107 +222,81 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                 {/* Tasks - Mobile Card View */}
                                 <div className="md:hidden space-y-4">
                                     {activity.tasks.map((task, index) => (
-                                        <div key={task.id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                                        <div key={task.date} className={`border border-gray-300 rounded-lg p-4 ${
+                                            task.status === 'approved' ? 'bg-green-50' :
+                                            task.status === 'rejected' ? 'bg-red-50' :
+                                            task.status === 'pending' ? 'bg-yellow-50' : 'bg-gray-50'
+                                        }`}>
                                             <div className="flex items-center justify-between mb-3">
                                                 <div className="bg-gray-200 rounded px-3 py-1.5 font-bold text-gray-900">
                                                     Tanggal: {task.tanggal}
                                                 </div>
-                                                <label className="relative inline-flex items-center cursor-pointer">
-                                                    <span className="text-xs text-gray-600 mr-2">Approval</span>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={task.approval_orangtua}
-                                                        disabled
-                                                        className="sr-only peer"
-                                                    />
-                                                    <div className={`w-9 h-5 rounded-full peer ${
-                                                        task.approval_orangtua 
-                                                            ? 'bg-green-500' 
-                                                            : 'bg-gray-300'
-                                                    } peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all`}></div>
-                                                </label>
+                                                {task.status === 'approved' && (
+                                                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                                                        ✓ Approved
+                                                    </span>
+                                                )}
+                                                {task.status === 'rejected' && (
+                                                    <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">
+                                                        ✗ Rejected
+                                                    </span>
+                                                )}
+                                                {task.status === 'pending' && (
+                                                    <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">
+                                                        ⏳ Pending
+                                                    </span>
+                                                )}
                                             </div>
 
                                             <div className="space-y-3">
                                                 <div>
                                                     <label className="text-xs font-bold text-gray-700 mb-1 block">WAKTU</label>
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Masukan Jawaban"
-                                                        defaultValue={task.waktu}
-                                                        className="text-center"
-                                                        disabled={task.approval_orangtua}
-                                                    />
+                                                    {task.waktu ? (
+                                                        <div className="text-sm font-medium text-gray-900 bg-white p-2 rounded border">
+                                                            {task.waktu}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-sm text-gray-400 italic bg-white p-2 rounded border">
+                                                            Belum submit
+                                                        </div>
+                                                    )}
                                                 </div>
 
-                                                <div className="flex gap-2">
-                                                    <Button
-                                                        size="sm"
-                                                        className="flex-1 bg-gray-800 hover:bg-gray-900 text-white"
-                                                        disabled={task.approval_orangtua}
-                                                        onClick={() => handleSubmit(task.id)}
-                                                    >
-                                                        Submit
-                                                    </Button>
-                                                    <label className="cursor-pointer inline-flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded transition-colors flex-shrink-0">
-                                                        <Camera className="w-5 h-5 text-gray-700" />
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            className="hidden"
-                                                            onChange={(e) => handleFileChange(e, task.id)}
-                                                            disabled={task.approval_orangtua}
-                                                        />
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right Side - Calendar */}
-                        <div className="w-full lg:w-80">
-                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 md:p-4 lg:sticky lg:top-4">
-                                <div className="text-center mb-3 md:mb-4">
-                                    <h3 className="text-lg md:text-xl font-bold text-gray-800">Kalender</h3>
-                                    <p className="text-xl md:text-2xl font-bold text-blue-600">{currentYear}</p>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2 md:gap-3">
-                                    {months.map((month, index) => (
-                                        <div
-                                            key={index}
-                                            className={`${month.color} rounded-lg p-2 md:p-3 border border-gray-300`}
-                                        >
-                                            <div className="text-[10px] md:text-xs font-bold text-gray-700 mb-1 md:mb-2 text-center">
-                                                {month.name}
-                                            </div>
-                                            <div className="grid grid-cols-7 gap-[2px] md:gap-1">
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">S</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">M</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">T</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">W</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">T</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">F</div>
-                                                <div className="text-[6px] md:text-[8px] text-center text-gray-600">S</div>
-                                                {/* Mock calendar days - simplified */}
-                                                {[...Array(31)].map((_, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="text-[6px] md:text-[8px] text-center text-gray-700"
-                                                    >
-                                                        {i + 1}
+                                                {task.notes && (
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-700 mb-1 block">CATATAN</label>
+                                                        <div className="text-xs text-gray-700 bg-white p-2 rounded border">
+                                                            {task.notes}
+                                                        </div>
                                                     </div>
-                                                ))}
+                                                )}
+
+                                                {task.rejection_reason && (
+                                                    <div>
+                                                        <label className="text-xs font-bold text-red-700 mb-1 block">ALASAN REJECT</label>
+                                                        <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                                                            {task.rejection_reason}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div className="flex gap-2 items-center">
+                                                    <label className="text-xs font-bold text-gray-700">BUKTI FOTO:</label>
+                                                    {task.bukti_foto ? (
+                                                        <a href={`/storage/${task.bukti_foto}`} target="_blank" rel="noopener noreferrer">
+                                                            <div className="cursor-pointer inline-flex items-center justify-center w-10 h-10 bg-blue-100 hover:bg-blue-200 rounded transition-colors">
+                                                                <Camera className="w-5 h-5 text-blue-700" />
+                                                            </div>
+                                                        </a>
+                                                    ) : (
+                                                        <div className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 rounded">
+                                                            <Camera className="w-5 h-5 text-gray-400" />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
-                                </div>
-
-                                <div className="mt-3 md:mt-4 text-right text-[10px] md:text-xs text-gray-500">
-                                    Apr 1, 2025 · 9:41 AM
                                 </div>
                             </div>
                         </div>
@@ -318,10 +305,10 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                     {/* Back Button */}
                     <div className="mt-6">
                         <Link href={`/guru/siswa/${student.id}/activities`}>
-                            <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                                <ArrowLeft className="w-4 h-4 mr-2" />
+                            <button className="px-4 md:px-6 py-2 md:py-3 bg-gray-900 text-white rounded-lg font-medium text-sm md:text-base hover:bg-gray-800 transition-colors inline-flex items-center gap-2">
+                                <ArrowLeft className="w-4 h-4" />
                                 Kembali
-                            </Button>
+                            </button>
                         </Link>
                     </div>
                 </div>

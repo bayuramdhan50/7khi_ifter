@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { dashboard } from '@/routes/siswa';
 import { show as showActivity } from '@/routes/siswa/activity';
@@ -25,32 +25,102 @@ interface BermasyarakatDetailProps {
     activity: Activity;
     nextActivity?: Activity | null;
     previousActivity?: Activity | null;
+    photoCountThisMonth: number;
+    photoUploadedToday: boolean;
+    currentDate: string;
+    todaySubmission?: {
+        id: number;
+        date: string;
+        time: string;
+        photo: string | null;
+        status: string;
+        details: {
+            tarka?: { label: string; is_checked: boolean };
+            kerja_bakti?: { label: string; is_checked: boolean };
+            gotong_royong?: { label: string; is_checked: boolean };
+            lainnya?: { label: string; is_checked: boolean };
+        };
+    } | null;
 }
 
-export default function BermasyarakatDetail({ auth, activity, nextActivity, previousActivity }: BermasyarakatDetailProps) {
-    const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(1);
-    const [bermasyarakat, setBermasyarakat] = useState(false);
-    const [approvalOrangTua, setApprovalOrangTua] = useState(false);
+export default function BermasyarakatDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, currentDate, todaySubmission }: BermasyarakatDetailProps) {
+    // Parse server date for display
+    const serverDate = new Date(currentDate);
+    const [currentMonth] = useState(serverDate); // No setter, read-only
+    const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Load checkbox state from today's submission
+    const [tarka, setTarka] = useState(todaySubmission?.details?.tarka?.is_checked || false);
+    const [kerjaBakti, setKerjaBakti] = useState(todaySubmission?.details?.kerja_bakti?.is_checked || false);
+    const [gotongRoyong, setGotongRoyong] = useState(todaySubmission?.details?.gotong_royong?.is_checked || false);
+    const [lainnya, setLainnya] = useState(todaySubmission?.details?.lainnya?.is_checked || false);
     const [image, setImage] = useState<File | null>(null);
-    const [tarka, setTarka] = useState(false);
-    const [kerjaBakti, setKerjaBakti] = useState(false);
-    const [gotongRoyong, setGotongRoyong] = useState(false);
-    const [lainnya, setLainnya] = useState(false);
+    const [isSubmittingPhoto, setIsSubmittingPhoto] = useState(false);
+    const [approvalOrangTua, setApprovalOrangTua] = useState(false);
 
     const monthNames = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
         'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
     ];
 
-    const changeMonth = (direction: 'prev' | 'next') => {
-        const newMonth = new Date(currentMonth);
-        if (direction === 'prev') {
-            newMonth.setMonth(newMonth.getMonth() - 1);
+    // Sync approval state so student sees changes when parent approves
+    useEffect(() => {
+        if (todaySubmission && todaySubmission.status === 'approved') {
+            setApprovalOrangTua(true);
         } else {
-            newMonth.setMonth(newMonth.getMonth() + 1);
+            setApprovalOrangTua(false);
         }
-        setCurrentMonth(newMonth);
+    }, [todaySubmission]);
+
+    // (UI) Approval Toggle will be rendered to match other activity detail pages
+
+    // Auto-update function for checkboxes
+    const handleCheckboxChange = (field: string, checked: boolean, setter: (value: boolean) => void) => {
+        setter(checked);
+        setIsSubmitting(true);
+
+        const year = currentMonth.getFullYear();
+        const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
+
+        // Use setTimeout to ensure state is updated
+        setTimeout(() => {
+            const formData = new FormData();
+            formData.append('activity_id', activity.id.toString());
+            formData.append('date', dateString);
+            
+            // Build current state object
+            const currentState = {
+                tarka: tarka,
+                kerja_bakti: kerjaBakti,
+                gotong_royong: gotongRoyong,
+                lainnya: lainnya,
+            };
+            
+            // Update the changed field
+            currentState[field as keyof typeof currentState] = checked;
+            
+            // Send all checkbox states
+            formData.append('tarka', currentState.tarka ? '1' : '0');
+            formData.append('kerja_bakti', currentState.kerja_bakti ? '1' : '0');
+            formData.append('gotong_royong', currentState.gotong_royong ? '1' : '0');
+            formData.append('lainnya', currentState.lainnya ? '1' : '0');
+
+            router.post('/siswa/activities/submit', formData, {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    setIsSubmitting(false);
+                },
+                onError: (errors: any) => {
+                    console.error('Gagal menyimpan:', errors);
+                    setter(!checked); // Rollback on error
+                    setIsSubmitting(false);
+                }
+            });
+        }, 0);
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,13 +129,40 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log({
-            tanggal: selectedDate,
-            bermasyarakat,
-            approvalOrangTua,
-            image
+        
+        if (!image) {
+            alert('Mohon pilih foto terlebih dahulu');
+            return;
+        }
+
+        setIsSubmittingPhoto(true);
+
+        const formData = new FormData();
+        formData.append('activity_id', activity.id.toString());
+        formData.append('date', currentDate);
+        formData.append('photo', image);
+        
+        // Include checkbox values to preserve them
+        formData.append('tarka', tarka ? '1' : '0');
+        formData.append('kerja_bakti', kerjaBakti ? '1' : '0');
+        formData.append('gotong_royong', gotongRoyong ? '1' : '0');
+        formData.append('lainnya', lainnya ? '1' : '0');
+
+        router.post('/siswa/activities/submit', formData, {
+            preserveScroll: true,
+            onSuccess: () => {
+                alert('Foto berhasil diupload!');
+                setImage(null);
+                setIsSubmittingPhoto(false);
+                router.reload({ only: ['photoUploadedToday', 'photoCountThisMonth'] });
+            },
+            onError: (errors: any) => {
+                console.error('Gagal mengupload foto:', errors);
+                alert('Gagal mengupload foto. Silakan coba lagi.');
+                setIsSubmittingPhoto(false);
+            }
         });
     };
 
@@ -109,31 +206,17 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                         )}
                     </div>
 
-                    {/* Month Navigation */}
-                    <div className="flex items-center justify-center gap-3 sm:gap-8 mb-4 sm:mb-8">
-                        <button
-                            onClick={() => changeMonth('prev')}
-                            className="text-gray-700 hover:text-blue-600 hover:scale-110 transition-all duration-200 p-1 sm:p-2 rounded-full hover:bg-blue-100"
-                        >
-                            <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
-                        </button>
-
+                    {/* Month Display */}
+                    <div className="flex items-center justify-center mb-4 sm:mb-8">
                         <div className="text-center">
                             <h2 className="text-lg sm:text-3xl font-bold text-blue-900">
                                 Bulan : {monthNames[currentMonth.getMonth()]}
                             </h2>
                         </div>
-
-                        <button
-                            onClick={() => changeMonth('next')}
-                            className="text-gray-700 hover:text-blue-600 hover:scale-110 transition-all duration-200 p-1 sm:p-2 rounded-full hover:bg-blue-100"
-                        >
-                            <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
-                        </button>
                     </div>
 
                     {/* Main Content Card */}
-                    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 border-2 sm:border-4 border-gray-800">
+                    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8">
                         <h1 className="text-base sm:text-2xl font-bold text-blue-900 mb-4 sm:mb-8 text-center">
                             Kebiasaan {activity.id}: {activity.title.toUpperCase()}
                         </h1>
@@ -141,18 +224,10 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                         {/* Activity Icon Card */}
                         <div className="flex justify-center mb-4 sm:mb-8">
                             <div className="relative">
-                                {/* <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-8 h-8 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-lg z-10">
-                                    <span className="text-white font-bold text-sm sm:text-xl">{activity.id}</span>
-                                </div> */}
-
                                 <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 sm:border-4 border-blue-900 overflow-hidden w-48 sm:w-64">
                                     <div className={`${activity.color} p-8 flex items-center justify-center`}>
-                                        <div className="bg-blue-200 rounded-2xl p-6 w-full">
-                                            <img
-                                                src="/api/placeholder/200/150"
-                                                alt={activity.title}
-                                                className="w-full h-auto rounded-lg"
-                                            />
+                                        <div className="bg-blue-200 rounded-2xl p-6 w-full flex items-center justify-center">
+                                            <span className="text-6xl">{activity.icon}</span>
                                         </div>
                                     </div>
                                     <div className="p-4 text-center">
@@ -163,40 +238,19 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                            {/* Date Input */}
+                        <form className="space-y-4 sm:space-y-6">
+                            {/* Date Input (Read-only) */}
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 justify-center sm:justify-start">
                                 <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48 text-center sm:text-left">TANGGAL</label>
                                 <div className="flex items-center gap-2 justify-center sm:justify-start">
-                                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
+                                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-300">
                                         <input
-                                            // type="number"
-                                            // min="1"
-                                            // max="31"
+                                            type="text"
                                             value={selectedDate}
-                                            onChange={(e) => setSelectedDate(Number(e.target.value))}
-                                            className="w-10 h-10 sm:w-12 sm:h-12 text-center text-xl sm:text-2xl font-bold text-gray-900 bg-transparent border-none focus:outline-none"
+                                            readOnly
+                                            className="w-10 h-10 sm:w-12 sm:h-12 text-center text-xl sm:text-2xl font-bold text-gray-900 bg-transparent border-none focus:outline-none cursor-default"
                                         />
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Kegiatan Bermasyarakat Input */}
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">KEGIATAN BERMASYARAKAT</label>
-                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-                                    <input
-                                        type="checkbox"
-                                        checked={bermasyarakat}
-                                        onChange={(e) => setBermasyarakat(e.target.checked)}
-                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
-                                    />
-                                    {/* <Button
-                                        type="button"
-                                        className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base"
-                                    >
-                                        Submit
-                                    </Button> */}
                                 </div>
                             </div>
 
@@ -212,10 +266,11 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                     <input
                                         type="checkbox"
                                         checked={tarka}
-                                        onChange={(e) => setTarka(e.target.checked)}
-                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                        onChange={(e) => handleCheckboxChange('tarka', e.target.checked, setTarka)}
+                                        disabled={isSubmitting || approvalOrangTua}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
-                                    {/* <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button> */}
+                                    {/* Hapus tulisan 'Menyimpan...' */}
                                 </div>
                             </div>
 
@@ -226,10 +281,10 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                     <input
                                         type="checkbox"
                                         checked={kerjaBakti}
-                                        onChange={(e) => setKerjaBakti(e.target.checked)}
-                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                        onChange={(e) => handleCheckboxChange('kerja_bakti', e.target.checked, setKerjaBakti)}
+                                        disabled={isSubmitting || approvalOrangTua}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
-                                    {/* <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button> */}
                                 </div>
                             </div>
 
@@ -240,10 +295,10 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                     <input
                                         type="checkbox"
                                         checked={gotongRoyong}
-                                        onChange={(e) => setGotongRoyong(e.target.checked)}
-                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                        onChange={(e) => handleCheckboxChange('gotong_royong', e.target.checked, setGotongRoyong)}
+                                        disabled={isSubmitting || approvalOrangTua}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
-                                    {/* <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button> */}
                                 </div>
                             </div>
 
@@ -254,10 +309,10 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                     <input
                                         type="checkbox"
                                         checked={lainnya}
-                                        onChange={(e) => setLainnya(e.target.checked)}
-                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200"
+                                        onChange={(e) => handleCheckboxChange('lainnya', e.target.checked, setLainnya)}
+                                        disabled={isSubmitting || approvalOrangTua}
+                                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-all duration-200 disabled:opacity-50"
                                     />
-                                    {/* <Button type="button" className="bg-gray-800 hover:bg-gray-700 hover:scale-105 transition-all duration-200 text-white px-6 sm:px-8 py-2 shadow-md hover:shadow-lg text-sm sm:text-base">Submit</Button> */}
                                 </div>
                             </div>
 
@@ -276,43 +331,96 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                                                 }`}
                                         />
                                     </button>
-
-                                    {/* Image Upload */}
-                                    <label className="cursor-pointer">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageChange}
-                                            className="hidden"
-                                        />
-                                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:bg-blue-50 hover:border-blue-400 hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md">
-                                            {image ? (
-                                                <img
-                                                    src={URL.createObjectURL(image)}
-                                                    alt="Preview"
-                                                    className="w-full h-full object-cover rounded-lg"
-                                                />
-                                            ) : (
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            )}
-                                        </div>
-                                    </label>
                                 </div>
                             </div>
 
-                            {/* Timestamp */}
-                            <div className="text-center sm:text-right text-xs sm:text-sm text-gray-500">
-                                {new Date().toLocaleString('id-ID', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </div>
                         </form>
+
+                        {/* Upload Foto Section - Separate from form */}
+                        <div className="mt-6 pt-6 border-t-2 border-gray-200">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Upload Foto Kegiatan</h3>
+                            
+                            {photoUploadedToday ? (
+                                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
+                                    <div className="flex items-center gap-3">
+                                        <svg className="w-6 h-6 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                        <div>
+                                            <p className="font-semibold text-green-800">✓ Foto sudah diupload</p>
+                                            <p className="text-sm text-green-600">Anda sudah mengupload foto untuk hari ini</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : photoCountThisMonth >= 1 ? (
+                                <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
+                                    <div className="flex items-center gap-3">
+                                        <svg className="w-6 h-6 text-orange-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                        <div>
+                                            <p className="font-semibold text-orange-800">Batas Upload Tercapai</p>
+                                            <p className="text-sm text-orange-600">Anda sudah mengupload foto untuk bulan ini</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <form onSubmit={handlePhotoSubmit}>
+                                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                                        {/* Preview Section */}
+                                        <div className="flex-shrink-0">
+                                            <label className="cursor-pointer block">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                    className="hidden"
+                                                    disabled={isSubmittingPhoto}
+                                                />
+                                                <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:bg-blue-50 hover:border-blue-400 transition-all duration-200">
+                                                    {image ? (
+                                                        <img
+                                                            src={URL.createObjectURL(image)}
+                                                            alt="Preview"
+                                                            className="w-full h-full object-cover rounded-lg"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                            <p className="text-xs text-gray-500 mt-1">Pilih Foto</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        {/* Upload Button Section */}
+                                        <div className="flex-1 w-full">
+                                            <Button
+                                                type="submit"
+                                                disabled={!image || isSubmittingPhoto}
+                                                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+                                            >
+                                                {isSubmittingPhoto ? 'Mengupload...' : 'Upload Foto'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+
+                        {/* Timestamp */}
+                        <div className="text-center sm:text-right text-xs sm:text-sm text-gray-500 mt-6">
+                            {new Date().toLocaleString('id-ID', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>

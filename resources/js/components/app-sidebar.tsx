@@ -1,4 +1,3 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -9,17 +8,35 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { dashboard as siswaDashboard, biodata as siswaBiodata, lagu as siswaLagu } from '@/routes/siswa';
+import { dashboard as guruDashboard } from '@/routes/guru';
+import { dashboard as orangtuaDashboard } from '@/routes/orangtua';
+import {
+    biodata as siswaBiodata,
+    dashboard as siswaDashboard,
+    kegiatanHarian as siswaKegiatanHarian,
+    lagu as siswaLagu,
+} from '@/routes/siswa';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, User, Music, Calendar, Users, GraduationCap, UserCog } from 'lucide-react';
+import {
+    Calendar,
+    LayoutGrid,
+    Music,
+    School,
+    User,
+    UserCog,
+    Users,
+    BarChart3,
+    UserSearch,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Beranda',
         href: dashboard(),
         icon: LayoutGrid,
     },
@@ -27,7 +44,7 @@ const mainNavItems: NavItem[] = [
 
 const siswaNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Beranda',
         href: siswaDashboard(),
         icon: LayoutGrid,
     },
@@ -43,28 +60,49 @@ const siswaNavItems: NavItem[] = [
     },
     {
         title: 'Kegiatan Harian',
-        href: siswaDashboard(),
+        href: siswaKegiatanHarian(),
         icon: Calendar,
     },
 ];
 
 const adminNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Beranda',
         href: '/admin/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Kelas',
+        href: '/admin/kelas',
+        icon: School,
+    },
+    {
+        title: 'Manajemen',
+        href: '#',
+        icon: Users,
         items: [
             {
-                title: 'Siswa',
+                title: 'Dashboard Siswa',
                 href: '/admin/siswa-dashboard',
             },
             {
-                title: 'Guru',
+                title: 'Dashboard Guru',
                 href: '/admin/guru-dashboard',
             },
             {
-                title: 'Orang Tua',
+                title: 'Dashboard Orang Tua',
                 href: '/admin/orangtua-dashboard',
+            },
+        ],
+    },
+    {
+        title: 'Akun Siswa',
+        href: '#',
+        icon: Users,
+        items: [
+            {
+                title: 'Tambah Akun Siswa',
+                href: '/admin/siswa/create-account',
             },
         ],
     },
@@ -75,18 +113,33 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
-const footerNavItems: NavItem[] = [
+const guruNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
+        title: 'Beranda',
+        href: guruDashboard(),
+        icon: LayoutGrid,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'Monitoring Aktivitas Kelas',
+        href: '/guru/monitoring-aktivitas',
+        icon: BarChart3,
+    },
+    {
+        title: 'Monitoring Aktivitas Siswa',
+        href: '/guru/monitoring-siswa',
+        icon: UserSearch,
     },
 ];
+
+const orangtuaNavItems: NavItem[] = [
+    {
+        title: 'Beranda',
+        href: orangtuaDashboard(),
+        icon: LayoutGrid,
+    },
+];
+
+const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
@@ -94,18 +147,37 @@ export function AppSidebar() {
 
     // Determine which nav items to show based on role
     let navItems = mainNavItems;
+    let logoHref: string | ReturnType<typeof dashboard> = dashboard();
+
     if (userRole === 'siswa') {
         navItems = siswaNavItems;
+        logoHref = siswaDashboard();
     } else if (userRole === 'admin') {
         navItems = adminNavItems;
+        logoHref = '/admin/dashboard';
+    } else if (userRole === 'guru') {
+        navItems = guruNavItems;
+        logoHref = guruDashboard();
+    } else if (userRole === 'orangtua') {
+        navItems = orangtuaNavItems;
+        logoHref = orangtuaDashboard();
     }
+
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+            className="border-r-0 bg-[#344460]"
+        >
+            <SidebarHeader className="border-b border-white/20 pt-3 pb-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                        <SidebarMenuButton
+                            size="lg"
+                            asChild
+                            className="group-data-[collapsible=icon]:mt-1 hover:bg-white/10"
+                        >
+                            <Link href={logoHref} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -117,8 +189,7 @@ export function AppSidebar() {
                 <NavMain items={navItems} />
             </SidebarContent>
 
-            <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+            <SidebarFooter className="border-t border-blue-400/30">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

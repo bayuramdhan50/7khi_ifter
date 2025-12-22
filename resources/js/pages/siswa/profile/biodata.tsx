@@ -1,6 +1,17 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useInitials } from '@/hooks/use-initials';
+
+interface Biodata {
+    hobbies?: string[];
+    aspirations?: string[];
+    favorite_foods?: string[];
+    favorite_drinks?: string[];
+    favorite_animals?: string[];
+    disliked_items?: string[];
+}
 
 interface BiodataProps {
     auth: {
@@ -10,9 +21,24 @@ interface BiodataProps {
             role: string;
         };
     };
+    biodata?: Biodata;
 }
 
-export default function Biodata({ auth }: BiodataProps) {
+export default function Biodata({ auth, biodata }: BiodataProps) {
+    const getInitials = useInitials();
+    // Helper function untuk render data dengan empty state handling
+    const renderDataList = (items?: string[]) => {
+        if (!items || items.length === 0) {
+            return <div className="text-gray-400 italic">Belum diisi</div>;
+        }
+        return (
+            <div className="space-y-2 text-sm text-gray-700">
+                {items.map((item, index) => (
+                    <div key={index}>{item}</div>
+                ))}
+            </div>
+        );
+    };
     return (
         <AppLayout>
             <Head title="Biodata Siswa" />
@@ -22,11 +48,13 @@ export default function Biodata({ auth }: BiodataProps) {
                     {/* Profile Photo and Name */}
                     <div className="flex flex-col items-center mb-8">
                         <div className="mb-6">
-                            <img
-                                src="/api/placeholder/200/250"
-                                alt={auth.user.name}
-                                className="w-48 h-60 object-cover rounded-lg border-4 border-red-600 shadow-lg"
-                            />
+                            <Avatar className="w-48 h-60 rounded-lg border-4 border-red-600 shadow-lg select-none flex items-center justify-center bg-blue-700">
+                                {/* AvatarImage src bisa diganti jika ada foto user */}
+                                {/* <AvatarImage src={auth.user.avatar} alt={auth.user.name} /> */}
+                                <AvatarFallback className="w-full h-full flex items-center justify-center text-white text-7xl font-bold rounded-lg bg-blue-700">
+                                    {getInitials(auth.user.name)}
+                                </AvatarFallback>
+                            </Avatar>
                         </div>
                         <h1 className="text-3xl font-bold text-blue-900">{auth.user.name}</h1>
                     </div>
@@ -49,7 +77,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Hobiku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.hobbies)}
                                     </div>
                                 </div>
 
@@ -57,7 +85,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Cita-citaku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.aspirations)}
                                     </div>
                                 </div>
 
@@ -65,7 +93,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Makanan kesukaanku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.favorite_foods)}
                                     </div>
                                 </div>
 
@@ -73,7 +101,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Minuman kesukaanku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.favorite_drinks)}
                                     </div>
                                 </div>
 
@@ -81,7 +109,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Hewan kesukaanku:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.favorite_animals)}
                                     </div>
                                 </div>
 
@@ -89,7 +117,7 @@ export default function Biodata({ auth }: BiodataProps) {
                                 <div>
                                     <label className="font-bold text-gray-800 block mb-2">Sesuatu yang tidak aku sukai:</label>
                                     <div className="bg-white rounded-lg p-3 min-h-[60px]">
-                                        {/* Empty for now */}
+                                        {renderDataList(biodata?.disliked_items)}
                                     </div>
                                 </div>
                             </div>
