@@ -186,9 +186,11 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
                         setSarapan(!newValue);
                         break;
                 }
-                alert('Gagal menyimpan checkbox. Silakan coba lagi.');
+                const msg = errors && (errors.error || errors.message || JSON.stringify(errors));
+                alert(msg || 'Gagal menyimpan checkbox. Silakan coba lagi.');
                 setIsSavingCheckbox(false);
             },
+
         });
     };
 
@@ -239,7 +241,8 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
             },
             onError: (errors: any) => {
                 console.error('Gagal mengupload foto:', errors);
-                alert('Gagal mengupload foto. Silakan coba lagi.');
+                const msg = errors && (errors.error || errors.message || JSON.stringify(errors));
+                alert(msg || 'Gagal mengupload foto. Silakan coba lagi.');
                 setIsSubmittingPhoto(false);
             }
         });
@@ -281,7 +284,8 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
             },
             onError: (errors) => {
                 console.error('Submission errors:', errors);
-                alert('Gagal menyimpan jam bangun. Silakan coba lagi.');
+                const msg = errors && (errors.error || errors.message || JSON.stringify(errors));
+                alert(msg || 'Gagal menyimpan jam bangun. Silakan coba lagi.');
                 setIsSubmitting(false);
             },
         });

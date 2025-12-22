@@ -1547,7 +1547,6 @@ class DashboardController extends Controller
             [
                 'jam_bangun' => $request->input('time') ?? $submission->time,
                 'membereskan_tempat_tidur' => $membereskanTempatTidur === '1' || $membereskanTempatTidur === 1 || $membereskanTempatTidur === true,
-                'membereskan_tempat_tidur' => $tidyBed === '1' || $tidyBed === 1 || $tidyBed === true,
                 'mandi' => $mandi === '1' || $mandi === 1 || $mandi === true,
                 'berpakaian_rapi' => $berpakaianRapi === '1' || $berpakaianRapi === 1 || $berpakaianRapi === true,
                 'sarapan' => $sarapan === '1' || $sarapan === 1 || $sarapan === true,
