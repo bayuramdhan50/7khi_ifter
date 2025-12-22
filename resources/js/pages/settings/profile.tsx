@@ -37,7 +37,7 @@ export default function Profile({
                 <div className="space-y-6">
                     <HeadingSmall
                         title="Informasi Profil"
-                        description="Perbarui nama dan alamat email Anda"
+                        description="Perbarui nama Anda"
                     />
 
                     <Form
@@ -68,25 +68,7 @@ export default function Profile({
                                     />
                                 </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">Alamat Email</Label>
 
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        className="mt-1 block w-full"
-                                        defaultValue={auth.user.email}
-                                        name="email"
-                                        required
-                                        autoComplete="username"
-                                        placeholder="Alamat email"
-                                    />
-
-                                    <InputError
-                                        className="mt-2"
-                                        message={errors.email}
-                                    />
-                                </div>
 
                                 {auth.user.role !== 'siswa' && (
                                     <div className="grid gap-2">
@@ -125,10 +107,10 @@ export default function Profile({
 
                                             {status ===
                                                 'verification-link-sent' && (
-                                                <div className="mt-2 text-sm font-medium text-green-600">
-                                                    Link verifikasi baru telah dikirim ke alamat email Anda.
-                                                </div>
-                                            )}
+                                                    <div className="mt-2 text-sm font-medium text-green-600">
+                                                        Link verifikasi baru telah dikirim ke alamat email Anda.
+                                                    </div>
+                                                )}
                                         </div>
                                     )}
 
