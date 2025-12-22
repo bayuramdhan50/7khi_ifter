@@ -110,6 +110,8 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
                         searchQuery={searchQuery}
                         onSearchChange={handleSearchChange}
                         userStats={userStats}
+                        itemsPerPage={itemsPerPage}
+                        onItemsPerPageChange={handleItemsPerPageChange}
                     />
 
                     {/* Users Table */}
@@ -125,10 +127,8 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
-                        itemsPerPage={itemsPerPage}
                         totalItems={sortedUsers.length}
                         onPageChange={setCurrentPage}
-                        onItemsPerPageChange={handleItemsPerPageChange}
                     />
                 </div>
             </div>

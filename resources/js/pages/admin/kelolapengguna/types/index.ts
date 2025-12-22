@@ -1,6 +1,8 @@
 export interface User {
     id: number;
     name: string;
+    username: string;
+    password: string;
     role: 'siswa' | 'orangtua' | 'guru' | 'admin';
     createdAt: string;
 }

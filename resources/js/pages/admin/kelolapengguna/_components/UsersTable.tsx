@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { SortColumn, SortOrder, User } from '../types';
 import { SortIcon, getRoleBadgeColor, getRoleLabel } from './utils';
 
@@ -16,6 +18,20 @@ export default function UsersTable({
     onSort,
     searchQuery,
 }: UsersTableProps) {
+    const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
+
+    const togglePasswordVisibility = (userId: number) => {
+        setVisiblePasswords(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(userId)) {
+                newSet.delete(userId);
+            } else {
+                newSet.add(userId);
+            }
+            return newSet;
+        });
+    };
+
     return (
         <div className="overflow-hidden rounded-xl bg-white shadow-lg sm:rounded-2xl">
             <div className="overflow-x-auto">
@@ -26,7 +42,7 @@ export default function UsersTable({
                                 className="cursor-pointer px-2 py-3 text-left text-xs font-bold text-gray-700 hover:bg-gray-100 sm:px-4 sm:py-4 sm:text-sm"
                                 onClick={() => onSort('id')}
                             >
-                                ID{' '}
+                                No{' '}
                                 <SortIcon
                                     column="id"
                                     sortBy={sortBy}
@@ -43,6 +59,12 @@ export default function UsersTable({
                                     sortBy={sortBy}
                                     sortOrder={sortOrder}
                                 />
+                            </th>
+                            <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 sm:px-4 sm:py-4 sm:text-sm">
+                                Username
+                            </th>
+                            <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 sm:px-4 sm:py-4 sm:text-sm">
+                                Password
                             </th>
                             <th
                                 className="cursor-pointer px-2 py-3 text-center text-xs font-bold text-gray-700 hover:bg-gray-100 sm:px-4 sm:py-4 sm:text-sm"
@@ -69,20 +91,46 @@ export default function UsersTable({
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {users.map((user, index) => (
                             <tr
                                 key={user.id}
                                 className="border-b border-gray-200 hover:bg-gray-50"
                             >
                                 <td className="px-2 py-3 sm:px-4 sm:py-4">
                                     <span className="text-xs font-medium text-gray-900 sm:text-sm">
-                                        {user.id}
+                                        {index + 1}
                                     </span>
                                 </td>
                                 <td className="px-2 py-3 sm:px-4 sm:py-4">
                                     <span className="text-xs font-medium text-gray-900 sm:text-sm">
                                         {user.name}
                                     </span>
+                                </td>
+                                <td className="px-2 py-3 sm:px-4 sm:py-4">
+                                    <span className="text-xs font-medium text-gray-600 sm:text-sm">
+                                        {user.username || '-'}
+                                    </span>
+                                </td>
+                                <td className="px-2 py-3 sm:px-4 sm:py-4">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-medium text-gray-600 sm:text-sm font-mono">
+                                            {visiblePasswords.has(user.id)
+                                                ? (user.password || '-')
+                                                : '••••••••'}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => togglePasswordVisibility(user.id)}
+                                            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                                            title={visiblePasswords.has(user.id) ? 'Sembunyikan password' : 'Tampilkan password'}
+                                        >
+                                            {visiblePasswords.has(user.id) ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
+                                        </button>
+                                    </div>
                                 </td>
                                 <td className="px-2 py-3 sm:px-4 sm:py-4">
                                     <div className="flex justify-center">

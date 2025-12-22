@@ -54,6 +54,8 @@ class DashboardController extends Controller
             return [
                 'id' => $user->id,
                 'name' => $user->name,
+                'username' => $user->username ?? $user->email ?? '-',
+                'password' => $user->plain_password ?? '********',
                 'role' => $user->role,
                 'createdAt' => $user->created_at->format('Y-m-d'),
             ];
