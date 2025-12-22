@@ -168,10 +168,10 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
             <Head title="Dashboard Orang Tua" />
 
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
-                <div className="container mx-auto px-4 py-8">
+                <div className="container mx-auto px-4 py-6">
                     <DashboardHeader userName={auth.user.name} />
 
-                    <div className="flex flex-col lg:flex-row gap-8">
+                    <div className="flex flex-col lg:flex-row gap-6">
                         <StudentList
                             students={students}
                             selectedStudent={selectedStudent}
@@ -180,26 +180,27 @@ export default function OrangtuaDashboard({ auth, students = [], submissions = [
                         />
 
                         <div className="flex-1">
+                            {/* Filter and Entries Row */}
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                <StatusFilter
+                                    filterStatus={filterStatus}
+                                    onFilterChange={handleFilterChange}
+                                />
 
-                            <StatusFilter
-                                filterStatus={filterStatus}
-                                onFilterChange={handleFilterChange}
-                            />
-
-                            {/* Items per page selector placed above the table */}
-                            <div className="flex items-center gap-3 px-4 py-3 mb-4">
-                                <span className="text-sm font-medium text-gray-700">Show</span>
-                                <select
-                                    value={itemsPerPage}
-                                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value={5}>5</option>
-                                    <option value={10}>10</option>
-                                    <option value={20}>20</option>
-                                    <option value={31}>31</option>
-                                </select>
-                                <span className="text-sm font-medium text-gray-700">entries</span>
+                                <div className="inline-flex items-center gap-2 bg-white rounded-xl shadow-sm px-4 py-2 border border-gray-100">
+                                    <span className="text-sm text-gray-500">Show</span>
+                                    <select
+                                        value={itemsPerPage}
+                                        onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                                        className="px-2 py-1 border border-gray-200 rounded-lg text-sm font-semibold bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                    >
+                                        <option value={5}>5</option>
+                                        <option value={10}>10</option>
+                                        <option value={20}>20</option>
+                                        <option value={31}>31</option>
+                                    </select>
+                                    <span className="text-sm text-gray-500">entries</span>
+                                </div>
                             </div>
 
                             <SubmissionsTable

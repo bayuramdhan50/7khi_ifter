@@ -23,7 +23,7 @@ export default function ConfirmationModal({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/50 backdrop-blur-md"
       onClick={onClose}
     >
       <div
@@ -52,7 +52,7 @@ export default function ConfirmationModal({
           <div className="flex gap-3 w-full">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors cursor-pointer"
             >
               Batal
             </button>
@@ -61,9 +61,9 @@ export default function ConfirmationModal({
                 onConfirm();
                 onClose();
               }}
-              className={`flex-1 px-4 py-2 rounded-lg text-white font-medium transition-colors ${isApprove
-                  ? 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200'
-                  : 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-200'
+              className={`flex-1 px-4 py-2 rounded-lg text-white font-medium transition-colors cursor-pointer ${isApprove
+                ? 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200'
+                : 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-200'
                 }`}
             >
               {isApprove ? 'Ya, Setujui' : 'Ya, Tolak'}

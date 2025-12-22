@@ -49,8 +49,30 @@ export default function SubmissionsTable({
 
     return (
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full">
+            <div
+                className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100"
+                style={{
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#60a5fa #f3f4f6'
+                }}
+            >
+                <style>{`
+                    .scrollbar-thin::-webkit-scrollbar {
+                        height: 10px;
+                    }
+                    .scrollbar-thin::-webkit-scrollbar-track {
+                        background: #f3f4f6;
+                        border-radius: 5px;
+                    }
+                    .scrollbar-thin::-webkit-scrollbar-thumb {
+                        background: #60a5fa;
+                        border-radius: 5px;
+                    }
+                    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                        background: #3b82f6;
+                    }
+                `}</style>
+                <table className="w-full min-w-[700px]">
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-100">
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">

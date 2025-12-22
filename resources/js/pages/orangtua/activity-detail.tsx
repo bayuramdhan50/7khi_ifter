@@ -52,10 +52,12 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
     isOpen: boolean;
     type: 'approve' | 'reject';
     submissionId: number | null;
+    activityTitle: string;
   }>({
     isOpen: false,
     type: 'approve',
     submissionId: null,
+    activityTitle: '',
   });
 
   const [rejectionReason, setRejectionReason] = useState('');
@@ -76,19 +78,21 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleApprove = (submissionId: number) => {
+  const handleApprove = (submissionId: number, activityTitle: string) => {
     setConfirmationModal({
       isOpen: true,
       type: 'approve',
       submissionId,
+      activityTitle,
     });
   };
 
-  const handleReject = (submissionId: number) => {
-    setConfirmationModal({ // Reset reason when opening
+  const handleReject = (submissionId: number, activityTitle: string) => {
+    setConfirmationModal({
       isOpen: true,
       type: 'reject',
       submissionId,
+      activityTitle,
     });
     setRejectionReason('');
   };
@@ -159,32 +163,25 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
 
       <div className="min-h-screen bg-gray-50/50 py-8">
         <div className="container mx-auto px-4 max-w-3xl">
-          {/* Navigation Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div>
-              <Link
-                href={dashboard.url()}
-                className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Kembali ke Dashboard</span>
-              </Link>
-              <h1 className="text-2xl font-bold text-gray-900">Laporan Harian</h1>
-              <p className="text-gray-500">
-                {student.name} • {formattedDate}
-              </p>
-            </div>
-
-            {/* Close Button - Below Topbar */}
+          {/* Close Button - Fixed position (hidden when modal open) */}
+          {!confirmationModal.isOpen && (
             <Link
               href={dashboard.url()}
-              className="absolute top-20 right-4 flex items-center justify-center w-10 h-10 rounded-full bg-white border-2 border-gray-300 text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-400 transition-all shadow-lg hover:shadow-xl"
+              className="fixed top-20 right-4 z-[70] flex items-center justify-center w-10 h-10 rounded-full bg-white text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all shadow-lg border border-gray-200"
               title="Tutup"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
             </Link>
+          )}
+
+          {/* Info Header - Sticky */}
+          <div className="sticky top-0 z-[60] bg-white/95 backdrop-blur-sm rounded-xl shadow-md p-4 mb-6 border border-gray-100">
+            <h1 className="text-xl font-bold text-gray-900">Laporan Harian</h1>
+            <p className="text-sm text-gray-500">
+              {student.name} • {formattedDate}
+            </p>
           </div>
 
           {/* Timeline List */}
@@ -295,8 +292,8 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
                         <div className="pt-6 mt-6 border-t border-gray-100 flex gap-3 justify-end">
 
                           <button
-                            onClick={() => handleApprove(activity.submission!.id)}
-                            className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 hover:shadow-md hover:shadow-green-200 transition-all flex items-center gap-2"
+                            onClick={() => handleApprove(activity.submission!.id, activity.title)}
+                            className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 hover:shadow-md hover:shadow-green-200 transition-all flex items-center gap-2 cursor-pointer"
                           >
                             <CheckCircle2 className="w-4 h-4" />
                             Setujui
@@ -330,8 +327,8 @@ export default function ActivityDetail({ auth, activities, student, date }: Acti
         type={confirmationModal.type}
       />
 
-      {/* Scroll to Top Button - Mobile Only */}
-      {showScrollTop && (
+      {/* Scroll to Top Button - Mobile Only (hidden when modal open) */}
+      {showScrollTop && !confirmationModal.isOpen && (
         <button
           onClick={scrollToTop}
           className="md:hidden fixed bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"

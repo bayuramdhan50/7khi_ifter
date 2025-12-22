@@ -6,51 +6,26 @@ interface StatusFilterProps {
 }
 
 export default function StatusFilter({ filterStatus, onFilterChange }: StatusFilterProps) {
+    const filters = [
+        { key: 'all', label: 'Semua', activeColor: 'bg-blue-500 text-white shadow-blue-200' },
+        { key: 'pending', label: 'Menunggu', activeColor: 'bg-yellow-500 text-white shadow-yellow-200' },
+        { key: 'approved', label: 'Disetujui', activeColor: 'bg-green-500 text-white shadow-green-200' },
+    ] as const;
+
     return (
-        <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
-            <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-medium text-gray-700">Filter:</span>
+        <div className="inline-flex items-center gap-1 bg-white rounded-xl shadow-sm p-1.5 border border-gray-100">
+            {filters.map((filter) => (
                 <button
-                    onClick={() => onFilterChange('all')}
-                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        filterStatus === 'all'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    key={filter.key}
+                    onClick={() => onFilterChange(filter.key)}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all cursor-pointer ${filterStatus === filter.key
+                            ? `${filter.activeColor} shadow-md`
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                 >
-                    Semua
+                    {filter.label}
                 </button>
-                <button
-                    onClick={() => onFilterChange('pending')}
-                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        filterStatus === 'pending'
-                            ? 'bg-yellow-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                >
-                    Menunggu
-                </button>
-                <button
-                    onClick={() => onFilterChange('approved')}
-                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        filterStatus === 'approved'
-                            ? 'bg-green-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                >
-                    Disetujui
-                </button>
-                <button
-                    onClick={() => onFilterChange('rejected')}
-                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                        filterStatus === 'rejected'
-                            ? 'bg-red-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                >
-                    Ditolak
-                </button>
-            </div>
+            ))}
         </div>
     );
 }
