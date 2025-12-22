@@ -17,7 +17,15 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+        $user = auth()->user();
+        
+        return match ($user->role) {
+            \App\Models\User::ROLE_SISWA => redirect()->route('siswa.dashboard'),
+            \App\Models\User::ROLE_ORANGTUA => redirect()->route('orangtua.dashboard'),
+            \App\Models\User::ROLE_GURU => redirect()->route('guru.dashboard'),
+            \App\Models\User::ROLE_ADMIN => redirect()->route('admin.dashboard'),
+            default => redirect()->route('login'),
+        };
     })->name('dashboard');
 
     // Siswa Routes
