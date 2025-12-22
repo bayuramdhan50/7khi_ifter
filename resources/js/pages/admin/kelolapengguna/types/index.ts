@@ -1,7 +1,6 @@
 export interface User {
     id: number;
     name: string;
-    email: string;
     role: 'siswa' | 'orangtua' | 'guru' | 'admin';
     createdAt: string;
 }
@@ -27,5 +26,5 @@ export interface AdminUsersProps {
 }
 
 export type RoleFilter = 'all' | 'siswa' | 'orangtua' | 'guru' | 'admin';
-export type SortColumn = 'name' | 'email' | 'role' | 'createdAt';
+export type SortColumn = 'id' | 'name' | 'role' | 'createdAt';
 export type SortOrder = 'asc' | 'desc';

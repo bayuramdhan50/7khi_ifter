@@ -24,9 +24,6 @@ export default function TeachersTable({
                             <th className="px-3 py-3 text-left text-xs font-bold text-gray-900 sm:px-4 sm:py-4 sm:text-sm">
                                 Nama Guru
                             </th>
-                            <th className="px-3 py-3 text-left text-xs font-bold text-gray-900 sm:px-4 sm:py-4 sm:text-sm">
-                                Email
-                            </th>
                             <th className="px-3 py-3 text-center text-xs font-bold text-gray-900 sm:px-4 sm:py-4 sm:text-sm">
                                 NIP
                             </th>
@@ -60,11 +57,6 @@ export default function TeachersTable({
                                         {teacher.name}
                                     </span>
                                 </td>
-                                <td className="px-3 py-3 sm:px-4 sm:py-4">
-                                    <span className="text-xs text-gray-700 sm:text-sm">
-                                        {teacher.email}
-                                    </span>
-                                </td>
                                 <td className="px-3 py-3 text-center sm:px-4 sm:py-4">
                                     <span className="text-xs text-gray-700 sm:text-sm">
                                         {teacher.nip}
@@ -82,11 +74,10 @@ export default function TeachersTable({
                                 </td>
                                 <td className="px-3 py-3 text-center sm:px-4 sm:py-4">
                                     <span
-                                        className={`inline-block rounded-lg px-2 py-1 text-xs font-semibold sm:px-3 sm:text-sm ${
-                                            teacher.is_active
+                                        className={`inline-block rounded-lg px-2 py-1 text-xs font-semibold sm:px-3 sm:text-sm ${teacher.is_active
                                                 ? 'bg-green-100 text-green-800'
                                                 : 'bg-red-100 text-red-800'
-                                        }`}
+                                            }`}
                                     >
                                         {teacher.is_active
                                             ? 'Aktif'

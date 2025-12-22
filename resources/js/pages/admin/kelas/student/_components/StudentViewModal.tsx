@@ -43,13 +43,6 @@ export default function StudentViewModal({
                         </p>
                     </div>
 
-                    <div>
-                        <label className="mb-1 block text-sm font-semibold text-gray-700">
-                            Email
-                        </label>
-                        <p className="text-gray-900">{student.email || '-'}</p>
-                    </div>
-
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="mb-1 block text-sm font-semibold text-gray-700">

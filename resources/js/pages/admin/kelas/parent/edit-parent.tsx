@@ -19,7 +19,6 @@ interface EditParentProps {
         id: number;
         name: string;
         username?: string;
-        email: string;
         phone?: string;
         address?: string;
         occupation?: string;
@@ -42,7 +41,6 @@ export default function EditParent({
     const [formData, setFormData] = useState({
         name: parent.name,
         username: parent.username || '',
-        email: parent.email,
         phone: parent.phone || '',
         address: parent.address || '',
         occupation: parent.occupation || '',
@@ -165,7 +163,6 @@ export default function EditParent({
         router.put(`/admin/orangtua/${parent.id}/update`, {
             name: formData.name,
             username: formData.username,
-            email: formData.email,
             phone: formData.phone,
             address: formData.address,
             occupation: formData.occupation,
@@ -231,23 +228,6 @@ export default function EditParent({
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         placeholder="Masukkan nama orang tua"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Email{' '}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        placeholder="contoh@email.com"
                                         className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-purple-500"
                                         required
                                     />

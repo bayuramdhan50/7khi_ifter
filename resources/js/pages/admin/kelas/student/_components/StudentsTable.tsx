@@ -52,9 +52,6 @@ export default function StudentsTable({
                             <th className="px-2 py-2.5 text-center text-[11px] font-bold text-gray-900 sm:px-4 sm:py-4 sm:text-xs lg:px-6 lg:text-sm">
                                 NAMA
                             </th>
-                            <th className="hidden px-2 py-2.5 text-center text-[11px] font-bold text-gray-900 sm:px-4 sm:py-4 sm:text-xs md:table-cell lg:px-6 lg:text-sm">
-                                EMAIL
-                            </th>
                             <th className="px-2 py-2.5 text-center text-[11px] font-bold text-gray-900 sm:px-4 sm:py-4 sm:text-xs lg:px-6 lg:text-sm">
                                 NIS
                             </th>
@@ -89,11 +86,6 @@ export default function StudentsTable({
                                 <td className="px-2 py-2.5 text-center sm:px-4 sm:py-4 lg:px-6">
                                     <span className="text-[11px] font-bold text-gray-900 sm:text-xs lg:text-sm">
                                         {student.name}
-                                    </span>
-                                </td>
-                                <td className="hidden px-2 py-2.5 text-center sm:px-4 sm:py-4 md:table-cell lg:px-6">
-                                    <span className="text-[11px] text-gray-700 sm:text-xs lg:text-sm">
-                                        {student.email || '-'}
                                     </span>
                                 </td>
                                 <td className="px-2 py-2.5 text-center sm:px-4 sm:py-4 lg:px-6">

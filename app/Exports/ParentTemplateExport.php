@@ -20,7 +20,6 @@ class ParentTemplateExport implements FromArray, WithHeadings, WithStyles, WithC
         return [
             'Nama Lengkap',
             'Username',
-            'Email',
             'No. Telepon',
             'Alamat',
             'Pekerjaan',
@@ -42,7 +41,6 @@ class ParentTemplateExport implements FromArray, WithHeadings, WithStyles, WithC
             [
                 'Budi Hartono',
                 'budi.hartono',
-                'budi.hartono@gmail.com',
                 '081234567890',
                 'Jl. Melati No. 10, Jakarta',
                 'Wiraswasta',
@@ -50,7 +48,6 @@ class ParentTemplateExport implements FromArray, WithHeadings, WithStyles, WithC
             [
                 'Siti Rahayu',
                 'siti.rahayu',
-                'siti.rahayu@gmail.com',
                 '082345678901',
                 'Jl. Mawar No. 15, Bogor',
                 'Ibu Rumah Tangga',
@@ -64,7 +61,7 @@ class ParentTemplateExport implements FromArray, WithHeadings, WithStyles, WithC
     public function styles(Worksheet $sheet)
     {
         // Style header row
-        $sheet->getStyle('A1:F1')->applyFromArray([
+        $sheet->getStyle('A1:E1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -80,8 +77,12 @@ class ParentTemplateExport implements FromArray, WithHeadings, WithStyles, WithC
             ],
         ]);
 
+        // Format No. Telepon column (C) as TEXT to prevent formatting issues
+        $sheet->getStyle('C:C')->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
         // Style sample data rows
-        $sheet->getStyle('A3:F5')->applyFromArray([
+        $sheet->getStyle('A3:E5')->applyFromArray([
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'E7E6E6'],
@@ -97,13 +98,13 @@ class ParentTemplateExport implements FromArray, WithHeadings, WithStyles, WithC
             "INSTRUKSI PENGISIAN:\n\n" .
             "1. Nama Lengkap: WAJIB diisi\n" .
             "2. Username: WAJIB diisi, harus unik (tidak boleh duplikat)\n" .
-            "3. Email: WAJIB diisi, harus unik (tidak boleh duplikat)\n" .
-            "4. No. Telepon: Opsional\n" .
-            "5. Alamat: Opsional\n" .
-            "6. Pekerjaan: Opsional\n\n" .
+            "3. No. Telepon: Opsional (format sebagai TEXT untuk menjaga angka 0 di depan)\n" .
+            "4. Alamat: Opsional\n" .
+            "5. Pekerjaan: Opsional\n\n" .
             "CATATAN:\n" .
             "- Orang tua akan otomatis masuk ke kelas tempat import dilakukan\n" .
             "- Hubungkan orang tua dengan siswa melalui tombol Edit setelah import\n" .
+            "- Kolom No. Telepon sudah diformat sebagai TEXT\n" .
             "- Baris 2 kosong, baris 3 dan 4 adalah contoh data\n" .
             "- Password default untuk semua orang tua: 'password123'\n" .
             "- Orang tua harus mengganti password setelah login pertama kali"
@@ -120,10 +121,9 @@ class ParentTemplateExport implements FromArray, WithHeadings, WithStyles, WithC
         return [
             'A' => 30, // Nama Lengkap
             'B' => 20, // Username
-            'C' => 35, // Email
-            'D' => 18, // No. Telepon
-            'E' => 40, // Alamat
-            'F' => 25, // Pekerjaan
+            'C' => 18, // No. Telepon
+            'D' => 40, // Alamat
+            'E' => 25, // Pekerjaan
         ];
     }
 }

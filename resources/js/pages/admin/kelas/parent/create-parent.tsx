@@ -26,7 +26,6 @@ export default function CreateParent({
     const [formData, setFormData] = useState({
         name: '',
         username: '',
-        email: '',
         phone: '',
         address: '',
         occupation: '',
@@ -133,7 +132,6 @@ export default function CreateParent({
         router.post('/admin/orangtua/store', {
             name: formData.name,
             username: formData.username,
-            email: formData.email,
             phone: formData.phone,
             address: formData.address,
             occupation: formData.occupation,
@@ -199,23 +197,6 @@ export default function CreateParent({
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         placeholder="Masukkan nama orang tua"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                        Email{' '}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        placeholder="contoh@email.com"
                                         className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-purple-500"
                                         required
                                     />
@@ -309,17 +290,17 @@ export default function CreateParent({
                                                 </h3>
                                                 {formData.children.length >
                                                     1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removeChild(child.id)
-                                                        }
-                                                        className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                        Hapus
-                                                    </button>
-                                                )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removeChild(child.id)
+                                                            }
+                                                            className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                            Hapus
+                                                        </button>
+                                                    )}
                                             </div>
 
                                             <div className="grid gap-4 md:grid-cols-3">
@@ -431,7 +412,7 @@ export default function CreateParent({
                                                                 Pilih Anak
                                                             </option>
                                                             {availableStudents.length >
-                                                            0 ? (
+                                                                0 ? (
                                                                 availableStudents.map(
                                                                     (
                                                                         student,

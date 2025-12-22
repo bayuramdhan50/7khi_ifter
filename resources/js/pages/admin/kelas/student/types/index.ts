@@ -1,7 +1,6 @@
 export interface Student {
     id: number;
     name: string;
-    email?: string;
     nis?: string;
     nisn?: string;
     religion: string;
@@ -32,7 +31,6 @@ export interface ClassStudentsProps {
 
 export interface FormData {
     name: string;
-    email: string;
     nis: string;
     nisn: string;
     religion: string;

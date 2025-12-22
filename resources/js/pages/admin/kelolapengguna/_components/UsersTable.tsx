@@ -22,8 +22,16 @@ export default function UsersTable({
                 <table className="w-full min-w-[640px]">
                     <thead>
                         <tr className="border-b-2 border-gray-200 bg-gray-50">
-                            <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 sm:px-4 sm:py-4 sm:text-sm">
-                                ID
+                            <th
+                                className="cursor-pointer px-2 py-3 text-left text-xs font-bold text-gray-700 hover:bg-gray-100 sm:px-4 sm:py-4 sm:text-sm"
+                                onClick={() => onSort('id')}
+                            >
+                                ID{' '}
+                                <SortIcon
+                                    column="id"
+                                    sortBy={sortBy}
+                                    sortOrder={sortOrder}
+                                />
                             </th>
                             <th
                                 className="cursor-pointer px-2 py-3 text-left text-xs font-bold text-gray-700 hover:bg-gray-100 sm:px-4 sm:py-4 sm:text-sm"
@@ -32,17 +40,6 @@ export default function UsersTable({
                                 Nama{' '}
                                 <SortIcon
                                     column="name"
-                                    sortBy={sortBy}
-                                    sortOrder={sortOrder}
-                                />
-                            </th>
-                            <th
-                                className="cursor-pointer px-2 py-3 text-left text-xs font-bold text-gray-700 hover:bg-gray-100 sm:px-4 sm:py-4 sm:text-sm"
-                                onClick={() => onSort('email')}
-                            >
-                                Email{' '}
-                                <SortIcon
-                                    column="email"
                                     sortBy={sortBy}
                                     sortOrder={sortOrder}
                                 />
@@ -85,11 +82,6 @@ export default function UsersTable({
                                 <td className="px-2 py-3 sm:px-4 sm:py-4">
                                     <span className="text-xs font-medium text-gray-900 sm:text-sm">
                                         {user.name}
-                                    </span>
-                                </td>
-                                <td className="px-2 py-3 sm:px-4 sm:py-4">
-                                    <span className="text-xs text-gray-600 sm:text-sm">
-                                        {user.email}
                                     </span>
                                 </td>
                                 <td className="px-2 py-3 sm:px-4 sm:py-4">

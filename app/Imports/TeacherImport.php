@@ -25,15 +25,28 @@ class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     public function model(array $row)
     {
         try {
+            // Skip instruction rows and sample data rows
+            $name = trim($row['nama_lengkap'] ?? '');
+
+            // Skip if name is empty or starts with "INSTRUKSI"
+            if (empty($name) || stripos($name, 'INSTRUKSI') !== false) {
+                return null;
+            }
+
+            // Skip sample data rows (common sample names)
+            $sampleNames = ['Budi Santoso', 'Siti Nurhaliza'];
+            if (in_array($name, $sampleNames)) {
+                return null;
+            }
+
             DB::beginTransaction();
 
             // Generate username from name
-            $username = $this->generateUsername($row['nama_lengkap']);
+            $username = $this->generateUsername($name);
 
             // Create user account
             $user = User::create([
-                'name' => $row['nama_lengkap'],
-                'email' => $row['email'],
+                'name' => $name,
                 'username' => $username,
                 'password' => Hash::make('password'),
                 'role' => User::ROLE_GURU,
@@ -93,11 +106,6 @@ class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
                 'string',
                 'max:255',
             ],
-            'email' => [
-                'required',
-                'email',
-                'unique:users,email',
-            ],
             'nip' => [
                 'nullable',
                 'unique:teachers,nip',
@@ -119,9 +127,6 @@ class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     {
         return [
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
-            'email.required' => 'Email wajib diisi',
-            'email.email' => 'Format email tidak valid',
-            'email.unique' => 'Email sudah terdaftar',
             'nip.unique' => 'NIP sudah terdaftar',
             'no_telepon.max' => 'No. telepon maksimal 20 karakter',
         ];

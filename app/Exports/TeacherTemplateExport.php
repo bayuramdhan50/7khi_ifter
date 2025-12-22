@@ -19,7 +19,6 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
     {
         return [
             'Nama Lengkap',
-            'Email',
             'NIP',
             'No. Telepon',
             'Alamat',
@@ -40,14 +39,12 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
             // Sample data
             [
                 'Budi Santoso',
-                'budi.santoso@sekolah.com',
                 '198501012010011001', // NIP 18 digit
                 '081234567890',
                 'Jl. Merdeka No. 123, Jakarta',
             ],
             [
                 'Siti Nurhaliza',
-                'siti.nurhaliza@sekolah.com',
                 '199002152012012001', // NIP 18 digit
                 '082345678901',
                 'Jl. Sudirman No. 456, Bandung',
@@ -61,7 +58,7 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
     public function styles(Worksheet $sheet)
     {
         // Style header row
-        $sheet->getStyle('A1:E1')->applyFromArray([
+        $sheet->getStyle('A1:D1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -77,12 +74,16 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
             ],
         ]);
 
-        // Format NIP column (C) as TEXT to prevent scientific notation
+        // Format NIP column (B) as TEXT to prevent scientific notation
+        $sheet->getStyle('B:B')->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
+        // Format No. Telepon column (C) as TEXT to prevent formatting issues
         $sheet->getStyle('C:C')->getNumberFormat()
             ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
 
         // Style sample data rows
-        $sheet->getStyle('A3:E5')->applyFromArray([
+        $sheet->getStyle('A3:D5')->applyFromArray([
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'E7E6E6'],
@@ -97,13 +98,12 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
         $sheet->getComment('A1')->getText()->createTextRun(
             "INSTRUKSI PENGISIAN:\n\n" .
             "1. Nama Lengkap: WAJIB diisi (username akan otomatis dibuat dari nama)\n" .
-            "2. Email: WAJIB diisi, harus unik (tidak boleh duplikat)\n" .
-            "3. NIP: Opsional, jika diisi harus unik (18 digit, format sebagai TEXT)\n" .
-            "4. No. Telepon: Opsional\n" .
-            "5. Alamat: Opsional\n\n" .
+            "2. NIP: Opsional, jika diisi harus unik (18 digit, format sebagai TEXT)\n" .
+            "3. No. Telepon: Opsional (format sebagai TEXT untuk menjaga angka 0 di depan)\n" .
+            "4. Alamat: Opsional\n\n" .
             "CATATAN:\n" .
             "- Username akan otomatis dibuat dari Nama Lengkap (format: nama.lengkap)\n" .
-            "- Kolom NIP sudah diformat sebagai TEXT untuk mencegah format scientific (E+17)\n" .
+            "- Kolom NIP dan No. Telepon sudah diformat sebagai TEXT\n" .
             "- Baris 2 kosong, baris 3 dan 4 adalah contoh data\n" .
             "- Password default untuk semua guru: 'password'\n" .
             "- Guru harus mengganti password setelah login pertama kali"
@@ -119,10 +119,9 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
     {
         return [
             'A' => 30, // Nama Lengkap
-            'B' => 35, // Email
-            'C' => 25, // NIP
-            'D' => 18, // No. Telepon
-            'E' => 40, // Alamat
+            'B' => 25, // NIP
+            'C' => 18, // No. Telepon
+            'D' => 40, // Alamat
         ];
     }
 }

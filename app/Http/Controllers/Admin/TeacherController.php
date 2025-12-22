@@ -22,7 +22,6 @@ class TeacherController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'nip' => 'nullable|string|max:20|unique:teachers,nip',
             'phone' => 'nullable|string|max:20',
@@ -33,9 +32,12 @@ class TeacherController extends Controller
         DB::beginTransaction();
         try {
             // Create user
+            // Generate username from name
+            $username = $this->generateUsernameFromName($validated['name']);
+
             $user = User::create([
                 'name' => $validated['name'],
-                'email' => $validated['email'],
+                'username' => $username,
                 'password' => Hash::make($validated['password']),
                 'role' => User::ROLE_GURU,
             ]);
@@ -71,7 +73,6 @@ class TeacherController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($teacher->user_id)],
             'password' => 'nullable|string|min:8|confirmed',
             'nip' => ['nullable', 'string', 'max:20', Rule::unique('teachers')->ignore($teacher->id)],
             'phone' => 'nullable|string|max:20',
@@ -85,7 +86,6 @@ class TeacherController extends Controller
             // Update user
             $userData = [
                 'name' => $validated['name'],
-                'email' => $validated['email'],
             ];
 
             if (!empty($validated['password'])) {
@@ -209,5 +209,28 @@ class TeacherController extends Controller
                 'message' => 'Terjadi kesalahan saat import: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Generate username from name.
+     */
+    private function generateUsernameFromName($name)
+    {
+        // Convert to lowercase and replace spaces with dots
+        $baseUsername = strtolower(str_replace(' ', '.', $name));
+
+        // Remove special characters except dots
+        $baseUsername = preg_replace('/[^a-z0-9.]/', '', $baseUsername);
+
+        $username = $baseUsername;
+        $counter = 1;
+
+        // Check if username exists, add number if needed
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+
+        return $username;
     }
 }

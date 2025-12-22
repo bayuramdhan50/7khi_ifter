@@ -28,7 +28,6 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
     {
         return [
             'Nama Lengkap',
-            'Email',
             'NIS',
             'NISN',
             'Agama',
@@ -54,7 +53,6 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             // Sample data with pre-filled class ID
             [
                 'Ahmad Fauzi',
-                'ahmad.fauzi@sekolah.com',
                 '2023001',
                 '0051234567',
                 'Islam',
@@ -66,7 +64,6 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             ],
             [
                 'Siti Aminah',
-                'siti.aminah@sekolah.com',
                 '2023002',
                 '0051234568',
                 'Islam',
@@ -85,7 +82,7 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
     public function styles(Worksheet $sheet)
     {
         // Style header row
-        $sheet->getStyle('A1:J1')->applyFromArray([
+        $sheet->getStyle('A1:I1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -101,14 +98,14 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             ],
         ]);
 
-        // Format NIS (C) and NISN (D) columns as TEXT to prevent scientific notation
-        $sheet->getStyle('C:C')->getNumberFormat()
+        // Format NIS (B) and NISN (C) columns as TEXT to prevent scientific notation
+        $sheet->getStyle('B:B')->getNumberFormat()
             ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
-        $sheet->getStyle('D:D')->getNumberFormat()
+        $sheet->getStyle('C:C')->getNumberFormat()
             ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
 
         // Style sample data rows
-        $sheet->getStyle('A3:J5')->applyFromArray([
+        $sheet->getStyle('A3:I5')->applyFromArray([
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'E7E6E6'],
@@ -123,15 +120,14 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
         $sheet->getComment('A1')->getText()->createTextRun(
             "INSTRUKSI PENGISIAN:\n\n" .
             "1. Nama Lengkap: WAJIB diisi (username akan otomatis dibuat dari nama)\n" .
-            "2. Email: WAJIB diisi, harus unik\n" .
-            "3. NIS: WAJIB diisi, harus unik\n" .
-            "4. NISN: Opsional, jika diisi harus unik\n" .
-            "5. Agama: WAJIB diisi (Islam/Kristen/Katolik/Hindu/Buddha/Konghucu)\n" .
-            "6. Jenis Kelamin: WAJIB diisi (L untuk Laki-laki, P untuk Perempuan)\n" .
-            "7. Tanggal Lahir: Opsional (format: YYYY-MM-DD, contoh: 2010-05-15)\n" .
-            "8. Alamat: Opsional\n" .
-            "9. ID Kelas: Opsional (harus ID kelas yang valid)\n" .
-            "10. Status Aktif: WAJIB diisi (Ya/Tidak)\n\n" .
+            "2. NIS: WAJIB diisi, harus unik\n" .
+            "3. NISN: Opsional, jika diisi harus unik\n" .
+            "4. Agama: WAJIB diisi (Islam/Kristen/Katolik/Hindu/Buddha/Konghucu)\n" .
+            "5. Jenis Kelamin: WAJIB diisi (L untuk Laki-laki, P untuk Perempuan)\n" .
+            "6. Tanggal Lahir: Opsional (format: YYYY-MM-DD, contoh: 2010-05-15)\n" .
+            "7. Alamat: Opsional\n" .
+            "8. ID Kelas: Opsional (harus ID kelas yang valid)\n" .
+            "9. Status Aktif: WAJIB diisi (Ya/Tidak)\n\n" .
             "CATATAN:\n" .
             "- Username akan otomatis dibuat dari Nama Lengkap (format: nama.lengkap)\n" .
             "- Baris 2 kosong, baris 3 dan 4 adalah contoh data\n" .
@@ -149,15 +145,14 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
     {
         return [
             'A' => 25, // Nama Lengkap
-            'B' => 30, // Email
-            'C' => 15, // NIS
-            'D' => 15, // NISN
-            'E' => 15, // Agama
-            'F' => 18, // Jenis Kelamin
-            'G' => 18, // Tanggal Lahir
-            'H' => 35, // Alamat
-            'I' => 12, // ID Kelas
-            'J' => 15, // Status Aktif
+            'B' => 15, // NIS
+            'C' => 15, // NISN
+            'D' => 15, // Agama
+            'E' => 18, // Jenis Kelamin
+            'F' => 18, // Tanggal Lahir
+            'G' => 35, // Alamat
+            'H' => 12, // ID Kelas
+            'I' => 15, // Status Aktif
         ];
     }
 }

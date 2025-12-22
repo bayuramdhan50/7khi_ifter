@@ -99,22 +99,6 @@ export default function ParentFormModal({
                         />
                     </div>
 
-                    {/* Email */}
-                    <div>
-                        <label className="mb-2 block text-sm font-semibold text-gray-700">
-                            Email <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={onInputChange}
-                            placeholder="contoh@email.com"
-                            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-                            required
-                        />
-                    </div>
-
                     {/* No. Telepon */}
                     <div>
                         <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -295,7 +279,7 @@ export default function ParentFormModal({
                                                             Pilih Anak
                                                         </option>
                                                         {availableStudents.length >
-                                                        0 ? (
+                                                            0 ? (
                                                             availableStudents.map(
                                                                 (student) => (
                                                                     <option
@@ -324,12 +308,12 @@ export default function ParentFormModal({
                                                     </select>
                                                     {availableStudents.length ===
                                                         0 && (
-                                                        <p className="mt-1 text-xs text-gray-500">
-                                                            Belum ada siswa
-                                                            terdaftar di kelas
-                                                            ini
-                                                        </p>
-                                                    )}
+                                                            <p className="mt-1 text-xs text-gray-500">
+                                                                Belum ada siswa
+                                                                terdaftar di kelas
+                                                                ini
+                                                            </p>
+                                                        )}
                                                 </div>
                                             )}
                                         </div>

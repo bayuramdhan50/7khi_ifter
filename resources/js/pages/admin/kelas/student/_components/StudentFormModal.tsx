@@ -70,21 +70,6 @@ export default function StudentFormModal({
                         />
                     </div>
 
-                    <div>
-                        <label className="mb-2 block text-sm font-semibold text-gray-700">
-                            Email <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={onInputChange}
-                            placeholder="contoh@email.com"
-                            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
-                    </div>
-
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="mb-2 block text-sm font-semibold text-gray-700">

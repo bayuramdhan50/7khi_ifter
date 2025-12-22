@@ -24,7 +24,6 @@ class StudentController extends Controller
         $validated = $request->validate([
             'class_id' => 'nullable|exists:classes,id',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
             'nis' => 'required|string|unique:students,nis',
             'nisn' => 'nullable|string|unique:students,nisn',
             'religion' => 'required|string|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
@@ -34,10 +33,12 @@ class StudentController extends Controller
         ]);
 
         // Create user account
+        // Generate username from name
+        $username = $this->generateUsernameFromName($validated['name']);
+
         $user = User::create([
             'name' => $validated['name'],
-            'email' => $validated['email'],
-            'username' => $validated['email'],
+            'username' => $username,
             'password' => Hash::make('password'), // Default password
             'role' => User::ROLE_SISWA,
             'religion' => $validated['religion'],
@@ -60,7 +61,7 @@ class StudentController extends Controller
             'student' => [
                 'id' => $student->id,
                 'name' => $user->name,
-                'email' => $user->email,
+                'username' => $user->username,
                 'nis' => $student->nis,
                 'religion' => $user->religion,
                 'gender' => $student->gender,
@@ -99,7 +100,6 @@ class StudentController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($student->user_id)],
             'nis' => ['required', 'string', Rule::unique('students', 'nis')->ignore($student->id)],
             'nisn' => ['nullable', 'string', Rule::unique('students', 'nisn')->ignore($student->id)],
             'religion' => 'required|string|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
@@ -111,7 +111,6 @@ class StudentController extends Controller
         // Update user account
         $student->user->update([
             'name' => $validated['name'],
-            'email' => $validated['email'],
             'religion' => $validated['religion'],
         ]);
 
@@ -130,7 +129,7 @@ class StudentController extends Controller
             'student' => [
                 'id' => $student->id,
                 'name' => $student->user->name,
-                'email' => $student->user->email,
+                'username' => $student->user->username,
                 'nis' => $student->nis,
                 'religion' => $student->user->religion,
                 'gender' => $student->gender,
@@ -236,21 +235,26 @@ class StudentController extends Controller
     }
 
     /**
-     * Generate email from name.
+     * Generate username from name.
      */
-    private function generateEmailFromName($name)
+    private function generateUsernameFromName($name)
     {
-        $baseEmail = strtolower(str_replace(' ', '.', $name)) . '@ifter.com';
-        $email = $baseEmail;
+        // Convert to lowercase and replace spaces with dots
+        $baseUsername = strtolower(str_replace(' ', '.', $name));
+
+        // Remove special characters except dots
+        $baseUsername = preg_replace('/[^a-z0-9.]/', '', $baseUsername);
+
+        $username = $baseUsername;
         $counter = 1;
 
-        // Check if email exists, add number if needed
-        while (User::where('email', $email)->exists()) {
-            $email = strtolower(str_replace(' ', '.', $name)) . $counter . '@ifter.com';
+        // Check if username exists, add number if needed
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
             $counter++;
         }
 
-        return $email;
+        return $username;
     }
 
     /**
@@ -265,7 +269,7 @@ class StudentController extends Controller
 
         // Clean class name for filename
         $cleanClassName = str_replace([' ', 'Kelas '], '', $className);
-        
+
         // Generate filename with date
         $dateStr = \Carbon\Carbon::now()->format('Ymd');
         $filename = 'Aktivitas_Siswa_' . $cleanClassName . '_' . $dateStr . '.xlsx';

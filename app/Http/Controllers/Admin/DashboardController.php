@@ -54,7 +54,6 @@ class DashboardController extends Controller
             return [
                 'id' => $user->id,
                 'name' => $user->name,
-                'email' => $user->email,
                 'role' => $user->role,
                 'createdAt' => $user->created_at->format('Y-m-d'),
             ];
@@ -125,7 +124,6 @@ class DashboardController extends Controller
                 return [
                     'id' => $student->id,
                     'name' => $student->user->name ?? 'N/A',
-                    'email' => $student->user->email ?? 'N/A',
                     'nis' => $student->nis ?? 'N/A',
                     'nisn' => $student->nisn ?? 'N/A',
                     'religion' => $student->religion ?? ($student->biodata->religion ?? 'N/A'),
@@ -171,7 +169,6 @@ class DashboardController extends Controller
                 return [
                     'id' => $student->id,
                     'name' => $student->user->name ?? 'N/A',
-                    'email' => $student->user->email ?? 'N/A',
                     'nis' => $student->nis ?? 'N/A',
                     'nisn' => $student->nisn ?? 'N/A',
                     'religion' => $student->religion ?? 'N/A',
@@ -221,7 +218,6 @@ class DashboardController extends Controller
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'email' => $user->email,
                     'createdAt' => $user->created_at->format('Y-m-d'),
                 ];
             });
@@ -245,7 +241,6 @@ class DashboardController extends Controller
                     'id' => $teacher->id,
                     'user_id' => $teacher->user_id,
                     'name' => $teacher->user->name ?? 'N/A',
-                    'email' => $teacher->user->email ?? 'N/A',
                     'nip' => $teacher->nip ?? '-',
                     'phone' => $teacher->phone ?? '-',
                     'address' => $teacher->address ?? '-',
@@ -287,7 +282,6 @@ class DashboardController extends Controller
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'email' => $user->email,
                     'createdAt' => $user->created_at->format('Y-m-d'),
                 ];
             });
@@ -369,7 +363,6 @@ class DashboardController extends Controller
             $parentsMap[$parent->id] = [
                 'id' => $parent->id,
                 'parentName' => $parent->user->name ?? 'N/A',
-                'email' => $parent->user->email ?? 'N/A',
                 'phone' => $parent->phone ?? 'N/A',
                 'studentName' => $childrenNames ?: null,
                 'studentClass' => $class->name ?? 'N/A',
@@ -394,7 +387,6 @@ class DashboardController extends Controller
                     $parentsMap[$parent->id] = [
                         'id' => $parent->id,
                         'parentName' => $parent->user->name ?? 'N/A',
-                        'email' => $parent->user->email ?? 'N/A',
                         'phone' => $parent->phone ?? 'N/A',
                         'studentName' => $student->user->name ?? 'N/A',
                         'studentClass' => $class->name ?? 'N/A',
@@ -477,7 +469,6 @@ class DashboardController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:50|unique:users,username',
-            'email' => 'required|email|unique:users,email',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'occupation' => 'nullable|string|max:100',
@@ -494,7 +485,6 @@ class DashboardController extends Controller
             $user = User::create([
                 'name' => $validated['name'],
                 'username' => $validated['username'],
-                'email' => $validated['email'],
                 'password' => Hash::make('password123'), // Default password
                 'role' => User::ROLE_ORANGTUA,
             ]);
@@ -546,7 +536,6 @@ class DashboardController extends Controller
             'id' => $parent->id,
             'name' => $parent->user->name,
             'username' => $parent->user->username,
-            'email' => $parent->user->email,
             'phone' => $parent->phone,
             'address' => $parent->address,
             'occupation' => $parent->occupation,
@@ -624,11 +613,6 @@ class DashboardController extends Controller
                 'max:50',
                 'unique:users,username,' . $parent->user_id,
             ],
-            'email' => [
-                'required',
-                'email',
-                'unique:users,email,' . $parent->user_id,
-            ],
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'occupation' => 'nullable|string|max:100',
@@ -651,7 +635,6 @@ class DashboardController extends Controller
             $parent->user->update([
                 'name' => $validated['name'],
                 'username' => $validated['username'],
-                'email' => $validated['email'],
             ]);
 
             // 2. Update Parent record
@@ -758,7 +741,6 @@ class DashboardController extends Controller
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'email' => $user->email,
                     'createdAt' => $user->created_at->format('Y-m-d'),
                 ];
             });

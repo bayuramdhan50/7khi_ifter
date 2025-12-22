@@ -24,8 +24,7 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
     // Search users
     const searchedUsers = filteredUsers.filter(
         (user) =>
-            user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchQuery.toLowerCase()),
+            user.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     // Sort users
@@ -33,12 +32,12 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
         let compareA: string | number = '';
         let compareB: string | number = '';
 
-        if (sortBy === 'name') {
+        if (sortBy === 'id') {
+            compareA = a.id;
+            compareB = b.id;
+        } else if (sortBy === 'name') {
             compareA = a.name.toLowerCase();
             compareB = b.name.toLowerCase();
-        } else if (sortBy === 'email') {
-            compareA = a.email.toLowerCase();
-            compareB = b.email.toLowerCase();
         } else if (sortBy === 'role') {
             compareA = a.role.toLowerCase();
             compareB = b.role.toLowerCase();
