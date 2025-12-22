@@ -49,10 +49,11 @@ interface BerolahragaDetailProps {
 }
 
 export default function BerolahragaDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: BerolahragaDetailProps) {
-    // Parse server date for display
-    const serverDate = new Date(currentDate);
-    const [currentMonth] = useState(serverDate); // No setter, read-only
-    const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
+    // Use local browser date to avoid timezone issues
+    // Server date is only used for initial data loading, not for submission
+    const localDate = new Date();
+    const [currentMonth] = useState(localDate); // No setter, read-only
+    const [selectedDate] = useState(localDate.getDate()); // No setter, read-only
     const [berolahraga, setBerolahraga] = useState(false);
     const [approvalOrangTua, setApprovalOrangTua] = useState(false);
     const [image, setImage] = useState<File | null>(null);
@@ -77,17 +78,16 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
             }
         }
 
-<<<<<<< HEAD
         if (todaySubmission?.details?.exercise_type) {
             const jenis = todaySubmission.details.exercise_type.value;
             if (jenis) {
                 setExerciseType(jenis);
                 setBerolahraga(true); // Auto-check checkbox jika ada jenis olahraga
             }
-=======
+        }
+
         if (todaySubmission) {
             setApprovalOrangTua(todaySubmission.status === 'approved');
->>>>>>> 55c3dfb1d8ac006e6e38e2117c351819deb3905c
         }
     }, [todaySubmission]);
 
@@ -109,13 +109,8 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
     const handleCheckboxChange = (field: string, value: boolean, setter: (val: boolean) => void) => {
         const updatedValue = value;
         setter(updatedValue);
-<<<<<<< HEAD
-        
-        // Jika checkbox unchecked, reset waktu berolahraga dan jenis olahraga
-=======
 
-        // Jika checkbox unchecked, reset waktu berolahraga
->>>>>>> 55c3dfb1d8ac006e6e38e2117c351819deb3905c
+        // Jika checkbox unchecked, reset waktu berolahraga dan jenis olahraga
         if (!updatedValue) {
             setWaktuBerolahraga('');
             setExerciseType('');

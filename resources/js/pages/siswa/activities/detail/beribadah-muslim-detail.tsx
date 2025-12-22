@@ -48,9 +48,10 @@ interface BeribadahMuslimDetailProps {
 
 export default function BeribadahMuslimDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, todaySubmission, currentDate }: BeribadahMuslimDetailProps) {
     // Parse server date for display
-    const serverDate = new Date(currentDate);
-    const [currentMonth] = useState(serverDate); // No setter, read-only
-    const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
+    // Use local browser date to avoid timezone issues
+    const localDate = new Date();
+    const [currentMonth] = useState(localDate);
+    const [selectedDate] = useState(localDate.getDate());
     const [prayers, setPrayers] = useState({
         subuh: false,
         dzuhur: false,

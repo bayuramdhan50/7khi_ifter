@@ -51,7 +51,7 @@ export default function BeribadahMuslimHistory({ auth, activity, submissions }: 
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
-    
+
     // Create a map of submissions by date for quick lookup
     const submissionsByDate = useMemo(() => {
         const map: { [key: string]: Submission } = {};
@@ -70,10 +70,10 @@ export default function BeribadahMuslimHistory({ auth, activity, submissions }: 
         return submissionsByDate[dateKey];
     };
 
-    // Get checked activities for a specific day from real submission data (only when approved)
+    // Get checked activities for a specific day from real submission data
     const getCheckedActivities = (day: number) => {
         const submission = getSubmissionForDay(day);
-        if (!submission || submission.status !== 'approved') {
+        if (!submission) {
             return {
                 mengaji: false,
                 berdoa: false,
@@ -222,7 +222,7 @@ export default function BeribadahMuslimHistory({ auth, activity, submissions }: 
                                                 Detail
                                             </button>
                                         </div>
-                                        
+
                                         <div className="p-4 space-y-3">
                                             {/* Sholat Checkboxes */}
                                             <div className="grid grid-cols-5 gap-2">
@@ -435,11 +435,10 @@ export default function BeribadahMuslimHistory({ auth, activity, submissions }: 
                                             <button
                                                 key={page}
                                                 onClick={() => setCurrentPage(page)}
-                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                                    currentPage === page
+                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                                                         ? 'bg-blue-500 text-white'
                                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
+                                                    }`}
                                             >
                                                 {page}
                                             </button>

@@ -129,20 +129,10 @@ export default function SiswaDashboard({ auth, activities, completionPercentage,
                                             </div>
                                         </div>
 
-                                        {/* Completion text */}
-                                        <div className="mb-2 sm:mb-3 text-sm text-gray-600 text-center sm:text-left">
-                                            <span className="font-semibold">{completedDays}/7 Hari Tuntas!</span>
-                                        </div>
+
                                     </div>
 
-                                    {/* Date Picker - Hidden di mobile atau di bawah */}
-                                    <div className="flex-shrink-0 w-full sm:w-auto">
-                                        <input
-                                            type="date"
-                                            defaultValue="2025-08-17"
-                                            className="w-full px-3 py-2 sm:px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 text-sm sm:text-base hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer"
-                                        />
-                                    </div>
+
                                 </div>
                             </div>
 

@@ -255,6 +255,14 @@ class DashboardController extends Controller
                 ->whereMonth('date', now()->month)
                 ->with(['activity'])
                 ->get()
+                ->map(function ($submission) {
+                    return [
+                        'id' => $submission->id,
+                        'date' => $submission->date->format('Y-m-d'), // Explicit format to avoid timezone issues
+                        'status' => $submission->status,
+                        'activity_id' => $submission->activity_id,
+                    ];
+                })
                 ->groupBy('activity_id');
         } else {
             $submissions = collect();
@@ -1283,7 +1291,7 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'activity_id' => 'required|exists:activities,id',
-            // 'date' removed from trusted input: date will be set on server-side to prevent students from setting it
+            'date' => 'nullable|date',
             'time' => 'nullable|date_format:H:i:s,H:i',
             'membereskan_tempat_tidur' => 'nullable',
             'mandi' => 'nullable',
@@ -1298,10 +1306,12 @@ class DashboardController extends Controller
         // Get student record
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
-        // Use server-side date (or optional test_date in non-production) to prevent students from setting custom dates
-        $submissionDateStr = request('test_date') && config('app.env') !== 'production'
-            ? request('test_date')
-            : now()->format('Y-m-d');
+        // Use date from request if provided (ensures sync with frontend display)
+        // Otherwise fallback to server date or test_date
+        $submissionDateStr = $request->input('date') 
+            ?? (request('test_date') && config('app.env') !== 'production'
+                ? request('test_date')
+                : now()->format('Y-m-d'));
 
         // Check if user is trying to upload a photo
         if ($request->hasFile('photo')) {
@@ -1425,9 +1435,10 @@ class DashboardController extends Controller
      */
     public function submitActivity(Request $request)
     {
-        // Basic validation - date is not accepted from students; server will assign the date on submission
+        // Basic validation - date is accepted but server will assign the date on submission
         $validated = $request->validate([
             'activity_id' => 'required|exists:activities,id',
+            'date' => 'nullable|date',
             'photo' => 'nullable|image|max:2048',
         ]);
 
@@ -1437,10 +1448,12 @@ class DashboardController extends Controller
         // Get student record
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
-        // Use server-side date (or optional test_date in non-prod) to prevent students from setting custom dates
-        $submissionDateStr = request('test_date') && config('app.env') !== 'production'
-            ? request('test_date')
-            : now()->format('Y-m-d');
+        // Use date from request if provided (ensures sync with frontend display)
+        // Otherwise fallback to server date or test_date
+        $submissionDateStr = $request->input('date') 
+            ?? (request('test_date') && config('app.env') !== 'production'
+                ? request('test_date')
+                : now()->format('Y-m-d'));
 
         // Check if user is trying to upload a photo
         if ($request->hasFile('photo')) {
@@ -1547,7 +1560,6 @@ class DashboardController extends Controller
             [
                 'jam_bangun' => $request->input('time') ?? $submission->time,
                 'membereskan_tempat_tidur' => $membereskanTempatTidur === '1' || $membereskanTempatTidur === 1 || $membereskanTempatTidur === true,
-                'membereskan_tempat_tidur' => $tidyBed === '1' || $tidyBed === 1 || $tidyBed === true,
                 'mandi' => $mandi === '1' || $mandi === 1 || $mandi === true,
                 'berpakaian_rapi' => $berpakaianRapi === '1' || $berpakaianRapi === 1 || $berpakaianRapi === true,
                 'sarapan' => $sarapan === '1' || $sarapan === 1 || $sarapan === true,

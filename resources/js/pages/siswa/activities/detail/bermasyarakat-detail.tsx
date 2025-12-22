@@ -45,11 +45,12 @@ interface BermasyarakatDetailProps {
 
 export default function BermasyarakatDetail({ auth, activity, nextActivity, previousActivity, photoCountThisMonth, photoUploadedToday, currentDate, todaySubmission }: BermasyarakatDetailProps) {
     // Parse server date for display
-    const serverDate = new Date(currentDate);
-    const [currentMonth] = useState(serverDate); // No setter, read-only
-    const [selectedDate] = useState(serverDate.getDate()); // No setter, read-only
+    // Use local browser date to avoid timezone issues
+    const localDate = new Date();
+    const [currentMonth] = useState(localDate);
+    const [selectedDate] = useState(localDate.getDate());
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     // Load checkbox state from today's submission
     const [tarka, setTarka] = useState(todaySubmission?.details?.tarka?.is_checked || false);
     const [kerjaBakti, setKerjaBakti] = useState(todaySubmission?.details?.kerja_bakti?.is_checked || false);
@@ -90,7 +91,7 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
             const formData = new FormData();
             formData.append('activity_id', activity.id.toString());
             formData.append('date', dateString);
-            
+
             // Build current state object
             const currentState = {
                 tarka: tarka,
@@ -98,10 +99,10 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                 gotong_royong: gotongRoyong,
                 lainnya: lainnya,
             };
-            
+
             // Update the changed field
             currentState[field as keyof typeof currentState] = checked;
-            
+
             // Send all checkbox states
             formData.append('tarka', currentState.tarka ? '1' : '0');
             formData.append('kerja_bakti', currentState.kerja_bakti ? '1' : '0');
@@ -131,7 +132,7 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
 
     const handlePhotoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!image) {
             alert('Mohon pilih foto terlebih dahulu');
             return;
@@ -143,7 +144,7 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
         formData.append('activity_id', activity.id.toString());
         formData.append('date', currentDate);
         formData.append('photo', image);
-        
+
         // Include checkbox values to preserve them
         formData.append('tarka', tarka ? '1' : '0');
         formData.append('kerja_bakti', kerjaBakti ? '1' : '0');
@@ -339,7 +340,7 @@ export default function BermasyarakatDetail({ auth, activity, nextActivity, prev
                         {/* Upload Foto Section - Separate from form */}
                         <div className="mt-6 pt-6 border-t-2 border-gray-200">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Upload Foto Kegiatan</h3>
-                            
+
                             {photoUploadedToday ? (
                                 <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
                                     <div className="flex items-center gap-3">
