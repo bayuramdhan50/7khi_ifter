@@ -129,19 +129,9 @@ export default function SiswaDashboard({ auth, activities, completionPercentage,
                                             </div>
                                         </div>
 
-                                        {/* Rating Stars */}
-                                        <div className="flex items-center justify-center sm:justify-start gap-1 sm:gap-2 mb-2">
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <svg
-                                                    key={star}
-                                                    className={`w-4 h-4 sm:w-6 sm:h-6 ${star <= 5 ? 'text-yellow-400' : 'text-gray-300'}`}
-                                                    fill="currentColor"
-                                                    viewBox="0 0 20 20"
-                                                >
-                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                </svg>
-                                            ))}
-                                            <span className="ml-2 text-xs sm:text-sm text-gray-600">{completedDays}/7 Hari Tuntas!</span>
+                                        {/* Completion text */}
+                                        <div className="mb-2 sm:mb-3 text-sm text-gray-600 text-center sm:text-left">
+                                            <span className="font-semibold">{completedDays}/7 Hari Tuntas!</span>
                                         </div>
                                     </div>
 
@@ -165,7 +155,7 @@ export default function SiswaDashboard({ auth, activities, completionPercentage,
                                     <Link
                                         key={activity.id}
                                         href={getActivityDetailRoute(activity)}
-                                        className="relative bg-white rounded-2xl sm:rounded-3xl shadow-lg p-3 sm:p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer border-2 sm:border-4 border-gray-800 hover:border-blue-600"
+                                        className="relative bg-white rounded-2xl sm:rounded-3xl shadow-lg p-3 sm:p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer"
                                     >
                                         {/* Badge */}
                                         <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">

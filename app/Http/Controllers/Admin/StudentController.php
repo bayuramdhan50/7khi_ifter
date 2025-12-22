@@ -252,4 +252,27 @@ class StudentController extends Controller
 
         return $email;
     }
+
+    /**
+     * Export student activity data for a class.
+     */
+    public function exportActivities(Request $request)
+    {
+        $classId = $request->query('class_id');
+        $className = $request->query('class_name', 'Kelas');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        // Clean class name for filename
+        $cleanClassName = str_replace([' ', 'Kelas '], '', $className);
+        
+        // Generate filename with date
+        $dateStr = \Carbon\Carbon::now()->format('Ymd');
+        $filename = 'Aktivitas_Siswa_' . $cleanClassName . '_' . $dateStr . '.xlsx';
+
+        return Excel::download(
+            new \App\Exports\StudentActivityExport($classId, $className, $startDate, $endDate),
+            $filename
+        );
+    }
 }

@@ -181,7 +181,7 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                     </div>
 
                     {/* Main Content Card */}
-                    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 border-2 sm:border-4 border-gray-800">
+                    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8">
                         <h1 className="text-base sm:text-2xl font-bold text-blue-900 mb-4 sm:mb-8 text-center">
                             Kebiasaan {activity.id}: {activity.title.toUpperCase()}
                         </h1>

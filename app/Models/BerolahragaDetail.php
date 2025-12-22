@@ -11,6 +11,7 @@ class BerolahragaDetail extends Model
         'submission_id',
         'berolahraga',
         'waktu_berolahraga',
+        'exercise_type',
     ];
 
     protected $casts = [

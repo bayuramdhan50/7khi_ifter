@@ -215,6 +215,23 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                                     </div>
                                                 </div>
 
+                                                {/* Jenis Olahraga */}
+                                                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="text-xs text-gray-500">Jenis Olahraga</div>
+                                                            <div className="text-sm font-semibold text-gray-700">
+                                                                {submission?.details.exercise_type?.value ? submission.details.exercise_type.value.replace('_',' ') : '-'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 {/* Approval Orang Tua */}
                                                 <div className={`flex items-center justify-between p-3 rounded-lg ${isApproved ? 'bg-green-50' : 'bg-yellow-50'}`}>
                                                     <div className="flex items-center gap-3">
@@ -272,6 +289,7 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">TANGGAL</th>
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">WAKTU</th>
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">WAKTU BEROLAHRAGA</th>
+                                                <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">JENIS OLAHRAGA</th>
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">APPROVAL</th>
                                                 <th className="py-4 px-4 text-center font-bold text-gray-700 text-sm whitespace-nowrap">FOTO</th>
                                             </tr>
@@ -305,6 +323,13 @@ export default function BerolahragaHistory({ auth, activity, submissions }: Bero
                                                         <td className="py-4 px-4 text-center">
                                                             <span className="text-sm font-medium text-gray-700">
                                                                 {waktuBerolahraga ? `${waktuBerolahraga} Menit` : '-'}
+                                                            </span>
+                                                        </td>
+
+                                                        {/* Jenis Olahraga */}
+                                                        <td className="py-4 px-4 text-center">
+                                                            <span className="text-sm font-medium text-gray-700">
+                                                                {submission?.details.exercise_type?.value ? submission.details.exercise_type.value.replace('_',' ') : '-'}
                                                             </span>
                                                         </td>
 

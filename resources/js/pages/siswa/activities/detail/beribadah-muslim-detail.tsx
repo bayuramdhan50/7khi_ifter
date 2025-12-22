@@ -311,7 +311,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                     </div>
 
                     {/* Main Content Card */}
-                    <div className="bg-white rounded-3xl shadow-xl p-8 border-4 border-gray-800">
+                    <div className="bg-white rounded-3xl shadow-2xl p-8">
                         <h1 className="text-2xl font-bold text-blue-900 mb-8 text-center">
                             Kebiasaan {activity.id}: {activity.title.toUpperCase()}
                         </h1>

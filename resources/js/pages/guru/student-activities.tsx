@@ -138,7 +138,7 @@ export default function StudentActivities({ auth, student, activities = [] }: St
                                         <Link
                                             key={activity.id}
                                             href={`/guru/siswa/${student.id}/activity/${activity.id}`}
-                                            className="relative bg-white rounded-3xl shadow-lg p-4 md:p-6 border-4 border-gray-800 hover:shadow-xl transition-shadow cursor-pointer overflow-visible"
+                                            className="relative bg-white rounded-3xl shadow-lg p-4 md:p-6 hover:shadow-2xl transition-shadow cursor-pointer overflow-visible"
                                         >
                                             {/* Badge */}
                                             <div className={`absolute -top-3 -right-3 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 border-white shadow-lg z-10 ${

@@ -47,23 +47,26 @@ export default function Login({
         <>
             <Head title="Log in" />
 
-            <div className="min-h-screen flex flex-col lg:flex-row relative" style={{ background: 'linear-gradient(to bottom, #a8d8ea 0%, #d4f1f4 100%)' }}>
-                {/* Background Image for Mobile */}
-                <div className="lg:hidden absolute inset-0">
-                    <img
-                        src="/images/bg_login_page.png"
-                        alt="SMPN 37 Bandung"
-                        className="w-full h-full object-cover opacity-30"
+            <div className="min-h-screen flex flex-col lg:flex-row relative bg-white" style={{ backgroundColor: '#ffffff' }}>
+                {/* Decorative background that extends behind the login card */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: "url('/images/cover%202.png')", backgroundPosition: 'center center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
                     />
                 </div>
 
-                {/* Left Side - Illustration */}
-                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
-                    <img
-                        src="/images/bg_login_page.png"
-                        alt="SMPN 37 Bandung"
-                        className="absolute inset-0 w-full h-full object-cover"
+                {/* Mobile background (keeps small-screen behavior) */}
+                <div className="lg:hidden absolute inset-0">
+                    <div
+                        className="w-full h-full bg-cover bg-center"
+                        style={{ backgroundImage: "url('/images/cover%202.png')", backgroundPosition: 'left center', backgroundSize: '160% auto', backgroundRepeat: 'no-repeat' }}
                     />
+                </div>
+
+                {/* Left Side - Illustration (kept for spacing on large screens) */}
+                <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
+                    {/* Intentionally left blank; background image is placed behind the whole layout so it also appears behind the login card */}
                 </div>
 
                 {/* Right Side - Login Form */}

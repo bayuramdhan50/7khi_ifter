@@ -60,10 +60,12 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
     // Flag untuk menyatakan checkbox sedang disimpan
     const [isSubmitting, setIsSubmitting] = useState(false);
     // Lock dropdown jika sudah ada value di todaySubmission
-    const isLocked = !!todaySubmission?.details?.waktu_berolahraga?.value;
+    const isLocked = !!todaySubmission?.details?.waktu_berolahraga?.value || !!todaySubmission?.details?.exercise_type?.value;
 
     // Dropdown state for exercise duration
     const [waktuBerolahraga, setWaktuBerolahraga] = useState('');
+    // Dropdown state for exercise type
+    const [exerciseType, setExerciseType] = useState('');
 
     // Load existing data from todaySubmission
     useEffect(() => {
@@ -75,8 +77,17 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
             }
         }
 
+<<<<<<< HEAD
+        if (todaySubmission?.details?.exercise_type) {
+            const jenis = todaySubmission.details.exercise_type.value;
+            if (jenis) {
+                setExerciseType(jenis);
+                setBerolahraga(true); // Auto-check checkbox jika ada jenis olahraga
+            }
+=======
         if (todaySubmission) {
             setApprovalOrangTua(todaySubmission.status === 'approved');
+>>>>>>> 55c3dfb1d8ac006e6e38e2117c351819deb3905c
         }
     }, [todaySubmission]);
 
@@ -98,10 +109,16 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
     const handleCheckboxChange = (field: string, value: boolean, setter: (val: boolean) => void) => {
         const updatedValue = value;
         setter(updatedValue);
+<<<<<<< HEAD
+        
+        // Jika checkbox unchecked, reset waktu berolahraga dan jenis olahraga
+=======
 
         // Jika checkbox unchecked, reset waktu berolahraga
+>>>>>>> 55c3dfb1d8ac006e6e38e2117c351819deb3905c
         if (!updatedValue) {
             setWaktuBerolahraga('');
+            setExerciseType('');
         }
 
         const year = currentMonth.getFullYear();
@@ -114,6 +131,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
         formData.append('date', dateString);
         formData.append('berolahraga', updatedValue ? '1' : '0');
         formData.append('waktu_berolahraga', updatedValue ? waktuBerolahraga : '');
+        formData.append('exercise_type', updatedValue ? exerciseType : '');
 
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
@@ -146,6 +164,40 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
         formData.append('date', dateString);
         formData.append('berolahraga', value ? '1' : '0'); // Auto-check jika ada value
         formData.append('waktu_berolahraga', value);
+        formData.append('exercise_type', exerciseType);
+
+        router.post('/siswa/activities/submit', formData, {
+            preserveScroll: true,
+            preserveState: true,
+            onBefore: () => setIsSubmitting(true),
+            onFinish: () => setIsSubmitting(false),
+            onError: (errors: any) => {
+                console.error('Gagal menyimpan:', errors);
+                setIsSubmitting(false);
+            }
+        });
+    };
+
+    // Handler untuk jenis olahraga
+    const handleExerciseTypeChange = (value: string) => {
+        setExerciseType(value);
+
+        // Auto-check checkbox ketika dropdown dipilih
+        if (value) {
+            setBerolahraga(true);
+        }
+
+        const year = currentMonth.getFullYear();
+        const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
+
+        const formData = new FormData();
+        formData.append('activity_id', activity.id.toString());
+        formData.append('date', dateString);
+        formData.append('berolahraga', value ? '1' : '0'); // Auto-check jika ada value
+        formData.append('waktu_berolahraga', waktuBerolahraga);
+        formData.append('exercise_type', value);
 
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
@@ -178,9 +230,10 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
         formData.append('activity_id', activity.id.toString());
         formData.append('date', dateString);
         formData.append('photo', image);
-        // Include checkbox dan waktu agar tidak hilang saat upload foto
+        // Include checkbox, waktu dan jenis olahraga agar tidak hilang saat upload foto
         formData.append('berolahraga', berolahraga ? '1' : '0');
         formData.append('waktu_berolahraga', waktuBerolahraga);
+        formData.append('exercise_type', exerciseType);
 
         router.post('/siswa/activities/submit', formData, {
             preserveScroll: true,
@@ -255,7 +308,7 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                     </div>
 
                     {/* Main Content Card */}
-                    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 border-2 sm:border-4 border-gray-800">
+                    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8">
                         <h1 className="text-base sm:text-2xl font-bold text-blue-900 mb-4 sm:mb-8 text-center">
                             Kebiasaan {activity.id}: {activity.title.toUpperCase()}
                         </h1>
@@ -327,6 +380,34 @@ export default function BerolahragaDetail({ auth, activity, nextActivity, previo
                                         <option value="30">30 Menit</option>
                                         <option value="30+">&gt; 30 Menit</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            {/* Jenis Olahraga Dropdown */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <label className="font-semibold text-gray-700 text-sm sm:text-base sm:w-48">JENIS OLAHRAGA</label>
+                                <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                                    <select
+                                        value={exerciseType}
+                                        onChange={(e) => handleExerciseTypeChange(e.target.value)}
+                                        disabled={isLocked}
+                                        className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm sm:text-base hover:border-blue-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <option value="">Pilih Jenis Olahraga</option>
+                                        <option value="lari">Lari</option>
+                                        <option value="senam">Senam/Zumba</option>
+                                        <option value="futsal">Futsal/Sepak Bola</option>
+                                        <option value="basket">Basket</option>
+                                        <option value="voli">Voli</option>
+                                        <option value="renang">Renang</option>
+                                        <option value="jalan_cepat">Jalan Cepat</option>
+                                        <option value="karate">Karate/Silat</option>
+                                        <option value="lainnya">Lainnya</option>
+                                        <option value="tidak_ada">Tidak ada</option>
+                                    </select>
+                                    {!isLocked && !berolahraga && (
+                                        <p className="text-xs text-gray-500 mt-1">Memilih jenis olahraga akan otomatis mencentang kegiatan olahraga.</p>
+                                    )}
                                 </div>
                             </div>
 

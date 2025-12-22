@@ -70,7 +70,7 @@ class FortifyServiceProvider extends ServiceProvider
                     User::ROLE_ORANGTUA => route('orangtua.dashboard'),
                     User::ROLE_GURU => route('guru.dashboard'),
                     User::ROLE_ADMIN => route('admin.dashboard'),
-                    default => route('dashboard'),
+                    default => route('login'),
                 };
 
                 return redirect()->intended($redirectTo);

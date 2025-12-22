@@ -182,15 +182,26 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 py-8">
                 <div className="container mx-auto px-4">
                     {/* Header */}
-                    <div className="mb-8">
+                    <div className="mb-6">
                         <h1 className="text-3xl font-bold text-gray-800 mb-2">Kegiatan Harian</h1>
                         <p className="text-gray-600">Klik jika kamu melakukan kegiatan tersebut!</p>
+
+                        <div className="mt-3 flex items-start gap-3 text-sm text-gray-600">
+                            <div className="flex-shrink-0 bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                                <Check className="w-4 h-4" strokeWidth={3} />
+                            </div>
+                            <div>
+                                <span>
+                                    <span className="font-semibold">Tanggal bertanda centang (✓)</span> menandakan bahwa <span className="font-semibold">semua kegiatan pada hari tersebut telah disetujui orang tua</span>.
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Left Column - Calendar */}
                         <div className="lg:col-span-1">
-                            <Card className="shadow-lg border-2 border-gray-800 bg-white">
+                            <Card className="shadow-lg bg-white">
                                 <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
                                     <CardTitle className="text-xl text-center">BULAN:</CardTitle>
                                 </CardHeader>
@@ -256,7 +267,7 @@ export default function KegiatanHarian({ auth, activities, submissions }: Kegiat
                                     const completedDays = activitySubmissions.filter(s => s.status === 'approved').length;
 
                                     return (
-                                        <Card key={activity.id} className="shadow-lg hover:shadow-xl transition-shadow border-2 border-gray-800 bg-white">
+                                        <Card key={activity.id} className="shadow-lg hover:shadow-2xl transition-shadow bg-white">
                                             <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
                                                 <CardTitle className="text-lg font-bold text-center">
                                                     {activity.title}
