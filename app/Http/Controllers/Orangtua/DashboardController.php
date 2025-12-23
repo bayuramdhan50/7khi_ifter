@@ -70,7 +70,7 @@ class DashboardController extends Controller
                     'activityId' => $submission->activity_id,
                     'date' => $formattedDate,
                     'time' => $submission->time ?? '00:00',
-                    'photo' => $submission->photo ?? '',
+                    'photo' => $submission->photo ? '/storage/' . $submission->photo : '',
                     'status' => $submission->status,
                     'submittedAt' => $submission->created_at->toDateTimeString(),
                     'notes' => $submission->notes ?? '',
@@ -248,7 +248,7 @@ class DashboardController extends Controller
                 'submission' => $submission ? [
                     'id' => $submission->id,
                     'time' => $submission->updated_at->format('H:i:s'),
-                    'photo' => $submission->photo,
+                    'photo' => $submission->photo ? '/storage/' . $submission->photo : null,
                     // Ensure status is set; default to 'pending' if DB value is null/empty
                     'status' => $submission->status ?? 'pending',
                     'details' => $details,

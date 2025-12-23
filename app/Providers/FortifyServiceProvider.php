@@ -73,7 +73,7 @@ class FortifyServiceProvider extends ServiceProvider
                     default => route('login'),
                 };
 
-                return redirect()->intended($redirectTo);
+                return redirect($redirectTo);
             }
         });
     }

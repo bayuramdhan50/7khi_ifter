@@ -23,12 +23,7 @@ Route::get('/storage/{path}', function ($path) {
         abort(404);
     }
     
-    $mimeType = mime_content_type($filePath);
-    
-    return response()->file($filePath, [
-        'Content-Type' => $mimeType,
-        'Cache-Control' => 'public, max-age=31536000',
-    ]);
+    return response()->file($filePath);
 })->where('path', '.*')->name('storage.serve');
 
 Route::middleware(['auth', 'verified'])->group(function () {
