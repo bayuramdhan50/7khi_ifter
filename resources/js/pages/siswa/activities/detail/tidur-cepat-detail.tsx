@@ -85,13 +85,13 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const maxSize = 200 * 1024; // 200KB in bytes
-            
+
             if (file.size > maxSize) {
                 showError(`Ukuran file terlalu besar! Maksimal 200KB. File Anda: ${(file.size / 1024).toFixed(2)}KB`);
                 e.target.value = ''; // Reset input
                 return;
             }
-            
+
             setImage(file);
         }
     };
@@ -317,51 +317,42 @@ export default function TidurCepatDetail({ auth, activity, nextActivity, previou
                                 </div>
                             ) : (
                                 <form onSubmit={handlePhotoSubmit}>
-                                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                                        {/* Preview Section */}
-                                        <div className="flex-shrink-0">
-                                            <label className="cursor-pointer block">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={handleImageChange}
-                                                    className="hidden"
-                                                    disabled={isSubmittingPhoto}
-                                                />
-                                                <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:bg-blue-50 hover:border-blue-400 transition-all duration-200">
-                                                    {image ? (
-                                                        <img
-                                                            src={URL.createObjectURL(image)}
-                                                            alt="Preview"
-                                                            className="w-full h-full object-cover rounded-lg"
-                                                        />
-                                                    ) : (
-                                                        <div className="text-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                            </svg>
-                                                            <p className="text-xs text-gray-500 mt-1">Pilih Foto</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </label>
-                                        </div>
+                                    <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
+                                        <label className="cursor-pointer">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleImageChange}
+                                                className="hidden"
+                                                disabled={isSubmittingPhoto}
+                                            />
+                                            <div className="w-32 h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-200 hover:border-blue-400 transition-all duration-200">
+                                                {image ? (
+                                                    <img
+                                                        src={URL.createObjectURL(image)}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-cover rounded-lg"
+                                                    />
+                                                ) : (
+                                                    <div className="text-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        <span className="text-xs text-gray-500">Pilih Foto</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </label>
 
-                                        {/* Upload Button Section */}
-                                        <div className="flex-1 w-full">
+                                        <div className="w-full">
                                             <Button
                                                 type="submit"
                                                 disabled={!image || isSubmittingPhoto}
-                                                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+                                                className="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500"
                                             >
                                                 {isSubmittingPhoto ? 'Mengupload...' : 'Upload Foto'}
                                             </Button>
                                             <p className="text-xs text-gray-500 mt-2 text-center">Maksimal ukuran foto: 200KB</p>
-                                            {image && (
-                                                <p className="text-xs text-gray-500 mt-2">
-                                                    File: {image.name}
-                                                </p>
-                                            )}
                                         </div>
                                     </div>
                                 </form>

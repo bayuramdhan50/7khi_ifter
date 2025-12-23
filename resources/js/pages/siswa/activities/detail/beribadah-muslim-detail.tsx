@@ -140,13 +140,13 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const maxSize = 200 * 1024; // 200KB in bytes
-            
+
             if (file.size > maxSize) {
                 showError(`Ukuran file terlalu besar! Maksimal 200KB. File Anda: ${(file.size / 1024).toFixed(2)}KB`);
                 e.target.value = ''; // Reset input
                 return;
             }
-            
+
             setImage(file);
         }
     };
@@ -520,7 +520,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center gap-4">
+                                    <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
                                         <label className="cursor-pointer">
                                             <input
                                                 type="file"
@@ -528,7 +528,7 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                                 onChange={handleImageChange}
                                                 className="hidden"
                                             />
-                                            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-200 hover:border-blue-400 transition-all duration-200">
+                                            <div className="w-32 h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-200 hover:border-blue-400 transition-all duration-200">
                                                 {image ? (
                                                     <img
                                                         src={URL.createObjectURL(image)}
@@ -546,19 +546,12 @@ export default function BeribadahMuslimDetail({ auth, activity, nextActivity, pr
                                             </div>
                                         </label>
 
-                                        <div className="flex-1">
-                                            {image && (
-                                                <div className="mb-2">
-                                                    <p className="text-sm text-gray-600">File: {image.name}</p>
-                                                    <p className="text-xs text-gray-500">Ukuran: {(image.size / 1024).toFixed(2)} KB</p>
-                                                </div>
-                                            )}
-
+                                        <div className="w-full">
                                             <Button
                                                 type="button"
                                                 onClick={handlePhotoSubmit}
                                                 disabled={!image || isSubmittingPhoto}
-                                                className="bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-200 text-white px-6 py-2 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                                className="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500"
                                             >
                                                 {isSubmittingPhoto ? 'Mengupload...' : 'Upload Foto'}
                                             </Button>
