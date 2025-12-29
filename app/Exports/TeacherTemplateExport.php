@@ -36,16 +36,16 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
                 'INSTRUKSI: Isi data guru mulai dari baris ke-4. Username akan otomatis dibuat dari Nama Lengkap. Hapus baris ini sebelum import.',
             ],
             [],
-            // Sample data
+            // Sample data (NIP 10 digit to avoid scientific notation in Excel)
             [
                 'Budi Santoso',
-                '198501012010011001', // NIP 18 digit
+                '1985010112', // NIP example (10 digit)
                 '081234567890',
                 'Jl. Merdeka No. 123, Jakarta',
             ],
             [
                 'Siti Nurhaliza',
-                '199002152012012001', // NIP 18 digit
+                '1990021512', // NIP example (10 digit)
                 '082345678901',
                 'Jl. Sudirman No. 456, Bandung',
             ],

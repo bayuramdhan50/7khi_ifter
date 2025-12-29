@@ -40,6 +40,17 @@ export default function AddTeacherModal({
                 </div>
 
                 <form onSubmit={onSubmit} className="space-y-4">
+                    {/* Display validation errors */}
+                    {Object.keys(form.errors).length > 0 && (
+                        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700">
+                            <p className="font-semibold mb-2">Terdapat kesalahan:</p>
+                            <ul className="list-disc list-inside">
+                                {Object.entries(form.errors).map(([key, value]) => (
+                                    <li key={key}>{value}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <label className="mb-2 block text-sm font-semibold text-gray-700">

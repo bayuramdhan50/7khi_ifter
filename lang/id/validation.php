@@ -174,6 +174,7 @@ return [
         ],
         'password' => [
             'confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'min' => 'Kata sandi harus minimal :min karakter.',
         ],
     ],
 
