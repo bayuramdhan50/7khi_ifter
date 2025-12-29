@@ -40,6 +40,7 @@ class StudentController extends Controller
             'name' => $validated['name'],
             'username' => $username,
             'password' => Hash::make('password'), // Default password
+            'plain_password' => 'password', // Store plain password for admin view
             'role' => User::ROLE_SISWA,
             'religion' => $validated['religion'],
         ]);

@@ -50,13 +50,15 @@ class DashboardController extends Controller
      */
     public function users(): Response
     {
-        $users = User::orderBy('created_at', 'desc')->get()->map(function ($user) {
+        $users = User::with('student')->orderBy('created_at', 'desc')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
                 'name' => $user->name,
                 'username' => $user->username ?? $user->email ?? '-',
                 'password' => $user->plain_password ?? '********',
                 'role' => $user->role,
+                'religion' => $user->religion ?? '',
+                'nis' => $user->student->nis ?? null,
                 'createdAt' => $user->created_at->format('Y-m-d'),
             ];
         });
@@ -128,7 +130,7 @@ class DashboardController extends Controller
                     'name' => $student->user->name ?? 'N/A',
                     'nis' => $student->nis ?? 'N/A',
                     'nisn' => $student->nisn ?? 'N/A',
-                    'religion' => $student->religion ?? ($student->biodata->religion ?? 'N/A'),
+                    'religion' => $student->user->religion ?? 'N/A',
                     'gender' => $student->gender ?? ($student->biodata->gender ?? 'N/A'),
                     'date_of_birth' => $student->date_of_birth?->format('Y-m-d') ?? null,
                     'address' => $student->address ?? 'N/A',
@@ -173,7 +175,7 @@ class DashboardController extends Controller
                     'name' => $student->user->name ?? 'N/A',
                     'nis' => $student->nis ?? 'N/A',
                     'nisn' => $student->nisn ?? 'N/A',
-                    'religion' => $student->religion ?? 'N/A',
+                    'religion' => $student->user->religion ?? 'N/A',
                     'gender' => $student->gender ?? 'N/A',
                 ];
             });

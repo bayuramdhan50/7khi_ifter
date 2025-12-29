@@ -32,6 +32,7 @@ class User extends Authenticatable
         'role',
         'religion',
         'password',
+        'plain_password',
     ];
 
     /**

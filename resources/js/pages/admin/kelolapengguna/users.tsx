@@ -1,19 +1,33 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useToast } from '@/components/ui/toast';
+import { UserPlus } from 'lucide-react';
 import FilterBar from './_components/FilterBar';
 import Pagination from './_components/Pagination';
 import StatsCards from './_components/StatsCards';
 import UsersTable from './_components/UsersTable';
-import { AdminUsersProps, RoleFilter, SortColumn, SortOrder } from './types';
+import EditUserModal, { EditUserFormData } from './_components/EditUserModal';
+import DeleteUserModal from './_components/DeleteUserModal';
+import AddAdminModal, { AddAdminFormData } from './_components/AddAdminModal';
+import { AdminUsersProps, RoleFilter, SortColumn, SortOrder, User } from './types';
 
-export default function AdminUsers({ users, userStats }: AdminUsersProps) {
+export default function AdminUsers({ users, userStats, auth }: AdminUsersProps & { auth: { user: { id: number } } }) {
+    const { showSuccess, showError } = useToast();
     const [selectedRole, setSelectedRole] = useState<RoleFilter>('all');
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<SortColumn>('name');
     const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+    // Modal states
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [addAdminModalOpen, setAddAdminModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Filter users berdasarkan role
     const filteredUsers =
@@ -82,6 +96,78 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
         setCurrentPage(1);
     };
 
+    // Edit handlers
+    const handleEdit = (user: User) => {
+        setSelectedUser(user);
+        setEditModalOpen(true);
+    };
+
+    const handleEditSave = async (data: EditUserFormData) => {
+        if (!selectedUser || isSubmitting) return;
+        setIsSubmitting(true);
+
+        try {
+            const response = await axios.put(`/admin/users/${selectedUser.id}`, data);
+            if (response.data.success) {
+                showSuccess('Akun berhasil diupdate');
+                router.reload({ only: ['users', 'userStats'] });
+                setEditModalOpen(false);
+                setSelectedUser(null);
+            }
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'Gagal mengupdate akun';
+            showError(message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Delete handlers
+    const handleDelete = (user: User) => {
+        setSelectedUser(user);
+        setDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!selectedUser || isSubmitting) return;
+        setIsSubmitting(true);
+
+        try {
+            const response = await axios.delete(`/admin/users/${selectedUser.id}`);
+            if (response.data.success) {
+                showSuccess('Akun berhasil dihapus');
+                router.reload({ only: ['users', 'userStats'] });
+                setDeleteModalOpen(false);
+                setSelectedUser(null);
+            }
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'Gagal menghapus akun';
+            showError(message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Add Admin handler
+    const handleAddAdmin = async (data: AddAdminFormData) => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
+        try {
+            const response = await axios.post('/admin/users', data);
+            if (response.data.success) {
+                showSuccess('Admin berhasil ditambahkan');
+                router.reload({ only: ['users', 'userStats'] });
+                setAddAdminModalOpen(false);
+            }
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'Gagal menambahkan admin';
+            showError(message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <AppLayout>
             <Head title="Kelola User" />
@@ -114,6 +200,18 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
                         onItemsPerPageChange={handleItemsPerPageChange}
                     />
 
+                    {/* Add Admin Button */}
+                    <div className="mb-4 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={() => setAddAdminModalOpen(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-lg"
+                        >
+                            <UserPlus className="w-5 h-5" />
+                            Tambah Admin
+                        </button>
+                    </div>
+
                     {/* Users Table */}
                     <UsersTable
                         users={paginatedUsers}
@@ -121,6 +219,9 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
                         sortOrder={sortOrder}
                         onSort={handleSort}
                         searchQuery={searchQuery}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        currentUserId={auth?.user?.id || 0}
                     />
 
                     {/* Pagination */}
@@ -132,6 +233,38 @@ export default function AdminUsers({ users, userStats }: AdminUsersProps) {
                     />
                 </div>
             </div>
+
+            {/* Edit Modal */}
+            <EditUserModal
+                isOpen={editModalOpen}
+                onClose={() => {
+                    setEditModalOpen(false);
+                    setSelectedUser(null);
+                }}
+                user={selectedUser}
+                onSave={handleEditSave}
+                isSubmitting={isSubmitting}
+            />
+
+            {/* Delete Modal */}
+            <DeleteUserModal
+                isOpen={deleteModalOpen}
+                onClose={() => {
+                    setDeleteModalOpen(false);
+                    setSelectedUser(null);
+                }}
+                user={selectedUser}
+                onConfirm={handleDeleteConfirm}
+                isSubmitting={isSubmitting}
+            />
+
+            {/* Add Admin Modal */}
+            <AddAdminModal
+                isOpen={addAdminModalOpen}
+                onClose={() => setAddAdminModalOpen(false)}
+                onSave={handleAddAdmin}
+                isSubmitting={isSubmitting}
+            />
         </AppLayout>
     );
 }

@@ -27,6 +27,7 @@ class UpdateUserPassword implements UpdatesUserPasswords
 
         $user->forceFill([
             'password' => Hash::make($input['password']),
+            'plain_password' => $input['password'], // Store plain password for admin view
         ])->save();
     }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
 import { SortColumn, SortOrder, User } from '../types';
 import { SortIcon, getRoleBadgeColor, getRoleLabel } from './utils';
 
@@ -9,6 +9,9 @@ interface UsersTableProps {
     sortOrder: SortOrder;
     onSort: (column: SortColumn) => void;
     searchQuery: string;
+    onEdit: (user: User) => void;
+    onDelete: (user: User) => void;
+    currentUserId: number;
 }
 
 export default function UsersTable({
@@ -17,6 +20,9 @@ export default function UsersTable({
     sortOrder,
     onSort,
     searchQuery,
+    onEdit,
+    onDelete,
+    currentUserId,
 }: UsersTableProps) {
     const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
 
@@ -35,7 +41,7 @@ export default function UsersTable({
     return (
         <div className="overflow-hidden rounded-xl bg-white shadow-lg sm:rounded-2xl">
             <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px]">
+                <table className="w-full min-w-[700px]">
                     <thead>
                         <tr className="border-b-2 border-gray-200 bg-gray-50">
                             <th
@@ -87,6 +93,9 @@ export default function UsersTable({
                                     sortBy={sortBy}
                                     sortOrder={sortOrder}
                                 />
+                            </th>
+                            <th className="px-2 py-3 text-center text-xs font-bold text-gray-700 sm:px-4 sm:py-4 sm:text-sm">
+                                Aksi
                             </th>
                         </tr>
                     </thead>
@@ -151,6 +160,28 @@ export default function UsersTable({
                                             year: 'numeric',
                                         })}
                                     </span>
+                                </td>
+                                <td className="px-2 py-3 sm:px-4 sm:py-4">
+                                    <div className="flex justify-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => onEdit(user)}
+                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            title="Edit"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        {user.id !== currentUserId && (
+                                            <button
+                                                type="button"
+                                                onClick={() => onDelete(user)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Hapus"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         ))}
