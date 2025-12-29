@@ -103,6 +103,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('kelas', [AdminDashboardController::class, 'kelas'])->name('kelas');
         Route::get('users', [AdminDashboardController::class, 'users'])->name('users');
 
+        // User CRUD API
+        Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+        Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+        Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+
         // Class CRUD API
         Route::post('classes', [\App\Http\Controllers\Admin\ClassController::class, 'store'])->name('classes.store');
         Route::put('classes/{class}', [\App\Http\Controllers\Admin\ClassController::class, 'update'])->name('classes.update');

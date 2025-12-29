@@ -4,6 +4,8 @@ export interface User {
     username: string;
     password: string;
     role: 'siswa' | 'orangtua' | 'guru' | 'admin';
+    religion?: string;
+    nis?: string;
     createdAt: string;
 }
 
