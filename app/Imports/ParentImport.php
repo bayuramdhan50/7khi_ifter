@@ -47,11 +47,15 @@ class ParentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFa
 
             DB::beginTransaction();
 
+            // Generate default password: firstname + current day
+            $defaultPassword = $this->generateDefaultPassword($name);
+
             // Create user account
             $user = User::create([
                 'name' => $name,
                 'username' => $row['username'],
-                'password' => Hash::make('password123'),
+                'password' => Hash::make($defaultPassword),
+                'plain_password' => $defaultPassword, // Store plain password for admin view
                 'role' => User::ROLE_ORANGTUA,
             ]);
 
@@ -73,6 +77,28 @@ class ParentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFa
             $this->errors[] = $e->getMessage();
             throw $e;
         }
+    }
+
+    /**
+     * Generate default password from first name + current day.
+     * Example: "Budi Hartono" created on 29th => "budi29"
+     */
+    private function generateDefaultPassword($name): string
+    {
+        // Get first name (first word) and convert to lowercase
+        $nameParts = explode(' ', trim($name));
+        $firstName = strtolower($nameParts[0]);
+        
+        // Remove special characters from first name
+        $firstName = preg_replace('/[^a-z]/', '', $firstName);
+        
+        // Get current day (2 digits)
+        $day = now()->format('d');
+        
+        // Combine: firstname + day
+        $password = $firstName . $day;
+        
+        return strlen($password) >= 3 ? $password : 'password123';
     }
 
     /**

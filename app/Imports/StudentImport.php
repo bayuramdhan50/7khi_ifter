@@ -51,11 +51,16 @@ class StudentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
             // Generate username from name
             $username = $this->generateUsername($name);
 
+            // Generate default password: firstname + day of birth
+            $dateOfBirth = $this->parseDate($row['tanggal_lahir'] ?? null);
+            $defaultPassword = $this->generateDefaultPassword($name, $dateOfBirth);
+
             // Create user account
             $user = User::create([
                 'name' => $name,
                 'username' => $username,
-                'password' => Hash::make('password'),
+                'password' => Hash::make($defaultPassword),
+                'plain_password' => $defaultPassword, // Store plain password for admin view
                 'role' => User::ROLE_SISWA,
                 'religion' => $row['agama'],
             ]);
@@ -104,6 +109,35 @@ class StudentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
         }
 
         return $username;
+    }
+
+    /**
+     * Generate default password from first name + day of birth.
+     * Example: "Ahmad Fauzi" + "2010-05-15" => "ahmad15"
+     */
+    private function generateDefaultPassword($name, $dateOfBirth): string
+    {
+        // Get first name (first word) and convert to lowercase
+        $nameParts = explode(' ', trim($name));
+        $firstName = strtolower($nameParts[0]);
+        
+        // Remove special characters from first name
+        $firstName = preg_replace('/[^a-z]/', '', $firstName);
+        
+        // Get day from date of birth
+        $day = '';
+        if ($dateOfBirth) {
+            try {
+                $day = \Carbon\Carbon::parse($dateOfBirth)->format('d');
+            } catch (\Exception $e) {
+                $day = '';
+            }
+        }
+        
+        // Combine: firstname + day (fallback to 'password123' if no valid data)
+        $password = $firstName . $day;
+        
+        return !empty($password) && strlen($password) >= 3 ? $password : 'password123';
     }
 
     /**

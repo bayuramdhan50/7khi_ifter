@@ -47,9 +47,9 @@ export default function GuruDashboard({
     // Filter guru berdasarkan search
     const filteredTeachers = teachers.filter(
         (teacher) =>
-            teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            teacher.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            teacher.nip.toLowerCase().includes(searchQuery.toLowerCase()),
+            teacher.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (teacher.email ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (teacher.nip ?? '').toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     const openEditModal = (teacher: Teacher) => {
