@@ -19,6 +19,12 @@ class StudentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
 
     protected $importedCount = 0;
     protected $errors = [];
+    protected $classId;  // Class ID from context
+
+    public function __construct($classId = null)
+    {
+        $this->classId = $classId;
+    }
 
     /**
      * Map each row to a model.
@@ -54,16 +60,16 @@ class StudentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
                 'religion' => $row['agama'],
             ]);
 
-            // Create student record (cast numeric fields to string)
+            // Create student record (use classId from context, is_active always true)
             $student = Student::create([
                 'user_id' => $user->id,
-                'class_id' => !empty($row['id_kelas']) ? $row['id_kelas'] : null,
+                'class_id' => $this->classId,  // Auto-filled from context
                 'nis' => (string) $row['nis'],
                 'nisn' => !empty($row['nisn']) ? (string) $row['nisn'] : null,
                 'gender' => $row['jenis_kelamin'],
                 'date_of_birth' => $this->parseDate($row['tanggal_lahir'] ?? null),
                 'address' => !empty($row['alamat']) ? $row['alamat'] : null,
-                'is_active' => $this->parseIsActive($row['status_aktif'] ?? 'Ya'),
+                'is_active' => true,  // Always active for new imports
             ]);
 
             DB::commit();
@@ -188,13 +194,6 @@ class StudentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
                 'nullable',
                 'string',
             ],
-            'id_kelas' => [
-                'nullable',
-                'exists:classes,id',
-            ],
-            'status_aktif' => [
-                'required',
-            ],
         ];
     }
 
@@ -213,7 +212,6 @@ class StudentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
             'jenis_kelamin.required' => 'Jenis kelamin wajib diisi',
             'jenis_kelamin.in' => 'Jenis kelamin harus L (Laki-laki) atau P (Perempuan)',
             'tanggal_lahir.date' => 'Format tanggal lahir tidak valid (gunakan format YYYY-MM-DD)',
-            'id_kelas.exists' => 'ID kelas tidak valid',
         ];
     }
 

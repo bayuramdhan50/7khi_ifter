@@ -34,8 +34,6 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             'Jenis Kelamin',
             'Tanggal Lahir',
             'Alamat',
-            'ID Kelas',
-            'Status Aktif',
         ];
     }
 
@@ -47,10 +45,10 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
         return [
             // Instructions row
             [
-                'INSTRUKSI: Isi data siswa mulai dari baris ke-4. Username akan otomatis dibuat dari Nama Lengkap. Hapus baris ini sebelum import.',
+                'INSTRUKSI: Isi data siswa mulai dari baris ke-3. Username akan otomatis dibuat dari Nama Lengkap. Hapus baris ini sebelum import.',
             ],
             [],
-            // Sample data with pre-filled class ID
+            // Sample data
             [
                 'Ahmad Fauzi',
                 '2023001',
@@ -59,8 +57,6 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
                 'L',
                 '2010-05-15',
                 'Jl. Kenanga No. 10, Jakarta',
-                $this->classId ?? '1', // Pre-filled class ID
-                'Ya',
             ],
             [
                 'Siti Aminah',
@@ -70,8 +66,6 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
                 'P',
                 '2010-08-22',
                 'Jl. Melati No. 25, Bogor',
-                $this->classId ?? '1', // Pre-filled class ID
-                'Ya',
             ],
         ];
     }
@@ -81,8 +75,8 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
      */
     public function styles(Worksheet $sheet)
     {
-        // Style header row
-        $sheet->getStyle('A1:I1')->applyFromArray([
+        // Style header row (A to G, 7 columns)
+        $sheet->getStyle('A1:G1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -104,8 +98,8 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
         $sheet->getStyle('C:C')->getNumberFormat()
             ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
 
-        // Style sample data rows
-        $sheet->getStyle('A3:I5')->applyFromArray([
+        // Style sample data rows (A to G)
+        $sheet->getStyle('A3:G5')->applyFromArray([
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'E7E6E6'],
@@ -125,10 +119,9 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             "4. Agama: WAJIB diisi (Islam/Kristen/Katolik/Hindu/Buddha/Konghucu)\n" .
             "5. Jenis Kelamin: WAJIB diisi (L untuk Laki-laki, P untuk Perempuan)\n" .
             "6. Tanggal Lahir: Opsional (format: YYYY-MM-DD, contoh: 2010-05-15)\n" .
-            "7. Alamat: Opsional\n" .
-            "8. ID Kelas: Opsional (harus ID kelas yang valid)\n" .
-            "9. Status Aktif: WAJIB diisi (Ya/Tidak)\n\n" .
+            "7. Alamat: Opsional\n\n" .
             "CATATAN:\n" .
+            "- ID Kelas dan Status Aktif akan diisi otomatis oleh sistem\n" .
             "- Username akan otomatis dibuat dari Nama Lengkap (format: nama.lengkap)\n" .
             "- Baris 2 kosong, baris 3 dan 4 adalah contoh data\n" .
             "- Password default untuk semua siswa: 'password'\n" .
@@ -151,8 +144,6 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             'E' => 18, // Jenis Kelamin
             'F' => 18, // Tanggal Lahir
             'G' => 35, // Alamat
-            'H' => 12, // ID Kelas
-            'I' => 15, // Status Aktif
         ];
     }
 }

@@ -180,10 +180,13 @@ class StudentController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls|max:5120', // Max 5MB
+            'class_id' => 'nullable|exists:classes,id',  // Accept class_id from context
         ]);
 
         try {
-            $import = new StudentImport();
+            // Pass class_id to import so students are auto-assigned
+            $classId = $request->input('class_id');
+            $import = new StudentImport($classId);
             Excel::import($import, $request->file('file'));
 
             $imported = $import->getImportedCount();
