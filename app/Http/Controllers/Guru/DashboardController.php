@@ -60,7 +60,7 @@ class DashboardController extends Controller
                         'name' => strtoupper($studentUser->name),
                         'class' => $selectedClass->name,
                         'nis' => $student->nis ?? '-',
-                        'religion' => $student->religion ?? 'ISLAM',
+                        'religion' => $studentUser->religion ?? 'ISLAM',
                         'gender' => $student->gender ?? 'L',
                         'progress' => $this->getStudentProgress($student->id),
                     ];
@@ -137,7 +137,7 @@ class DashboardController extends Controller
             'student' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'religion' => $student->religion ?? 'ISLAM',
+                'religion' => $student->user->religion ?? 'ISLAM',
                 'gender' => $student->gender ?? 'L',
                 'progress' => $this->getStudentProgress($student->id),
             ],
@@ -233,7 +233,7 @@ class DashboardController extends Controller
             'student' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'religion' => $student->religion ?? 'ISLAM',
+                'religion' => $student->user->religion ?? 'ISLAM',
                 'gender' => $student->gender ?? 'L',
                 'progress' => $this->getStudentProgress($student->id),
             ],
@@ -375,7 +375,7 @@ class DashboardController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email ?? '-',
-                'religion' => $student->religion ?? '-',
+                'religion' => $student->user->religion ?? '-',
                 'gender' => $student->gender ?? '-',
                 'nis' => $student->nis ?? '-',
                 'birth_date' => $student->date_of_birth ? $student->date_of_birth->format('d-m-Y') : '-',

@@ -126,7 +126,7 @@ class DashboardController extends Controller
                     'name' => $student->user->name ?? 'N/A',
                     'nis' => $student->nis ?? 'N/A',
                     'nisn' => $student->nisn ?? 'N/A',
-                    'religion' => $student->religion ?? ($student->biodata->religion ?? 'N/A'),
+                    'religion' => $student->user->religion ?? 'N/A',
                     'gender' => $student->gender ?? ($student->biodata->gender ?? 'N/A'),
                     'date_of_birth' => $student->date_of_birth?->format('Y-m-d') ?? null,
                     'address' => $student->address ?? 'N/A',
@@ -171,7 +171,7 @@ class DashboardController extends Controller
                     'name' => $student->user->name ?? 'N/A',
                     'nis' => $student->nis ?? 'N/A',
                     'nisn' => $student->nisn ?? 'N/A',
-                    'religion' => $student->religion ?? 'N/A',
+                    'religion' => $student->user->religion ?? 'N/A',
                     'gender' => $student->gender ?? 'N/A',
                 ];
             });

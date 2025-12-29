@@ -63,7 +63,6 @@ class StudentImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
                 'gender' => $row['jenis_kelamin'],
                 'date_of_birth' => $this->parseDate($row['tanggal_lahir'] ?? null),
                 'address' => !empty($row['alamat']) ? $row['alamat'] : null,
-                'religion' => $row['agama'],
                 'is_active' => $this->parseIsActive($row['status_aktif'] ?? 'Ya'),
             ]);
 

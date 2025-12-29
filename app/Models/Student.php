@@ -17,7 +17,6 @@ class Student extends Model
         'nisn',
         'gender',
         'date_of_birth',
-        'religion',
         'address',
         'photo',
         'is_active',
@@ -55,10 +54,5 @@ class Student extends Model
     public function activitySubmissions(): HasMany
     {
         return $this->hasMany(ActivitySubmission::class);
-    }
-
-    public function progressTracking(): HasMany
-    {
-        return $this->hasMany(ProgressTracking::class);
     }
 }

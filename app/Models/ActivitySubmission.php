@@ -41,10 +41,6 @@ class ActivitySubmission extends Model
         return $this->belongsTo(ParentModel::class, 'approved_by');
     }
 
-    public function details(): HasMany
-    {
-        return $this->hasMany(ActivityDetail::class, 'submission_id');
-    }
 
     // New relationships for separate detail tables
     public function bangunPagiDetail()

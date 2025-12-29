@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Siswa;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\ActivitySubmission;
-use App\Models\ActivityDetail;
 use App\Models\Student;
 use App\Models\BangunPagiDetail;
 use App\Models\BeribadahDetail;
@@ -1373,54 +1372,7 @@ class DashboardController extends Controller
                 $dataToUpdate
             );
 
-            // Store activity details (checkboxes) - Convert string to boolean
-            $membereskan = $request->input('membereskan_tempat_tidur');
-            $mandi = $request->input('mandi');
-            $berpakaianRapi = $request->input('berpakaian_rapi');
-            $sarapan = $request->input('sarapan');
-            
-            $details = [
-                [
-                    'field_type' => 'checkbox',
-                    'field_name' => 'membereskan_tempat_tidur',
-                    'field_label' => 'Membereskan Tempat Tidur',
-                    'is_checked' => ($membereskan === '1' || $membereskan === 1 || $membereskan === true),
-                ],
-                [
-                    'field_type' => 'checkbox',
-                    'field_name' => 'mandi',
-                    'field_label' => 'Mandi',
-                    'is_checked' => ($mandi === '1' || $mandi === 1 || $mandi === true),
-                ],
-                [
-                    'field_type' => 'checkbox',
-                    'field_name' => 'berpakaian_rapi',
-                    'field_label' => 'Berpakaian Rapi',
-                    'is_checked' => ($berpakaianRapi === '1' || $berpakaianRapi === 1 || $berpakaianRapi === true),
-                ],
-                [
-                    'field_type' => 'checkbox',
-                    'field_name' => 'sarapan',
-                    'field_label' => 'Sarapan',
-                    'is_checked' => ($sarapan === '1' || $sarapan === 1 || $sarapan === true),
-                ],
-            ];
-
-            // Delete existing details for this submission
-            ActivityDetail::where('submission_id', $submission->id)->delete();
-
-            // Insert new details
-            foreach ($details as $detail) {
-                ActivityDetail::create([
-                    'submission_id' => $submission->id,
-                    'field_type' => $detail['field_type'],
-                    'field_name' => $detail['field_name'],
-                    'field_label' => $detail['field_label'],
-                    'is_checked' => $detail['is_checked'],
-                ]);
-            }
-
-            // Save to bangun_pagi_details table (new structure)
+            // Save to bangun_pagi_details table
             $this->saveBangunPagiDetails($submission->id, $request);
 
             DB::commit();
@@ -1509,9 +1461,6 @@ class DashboardController extends Controller
                     return $value !== null;
                 })
             );
-
-            // Delete existing details from old table (for backward compatibility)
-            ActivityDetail::where('submission_id', $submission->id)->delete();
 
             // Save to appropriate detail table based on activity_id
             $this->saveActivityDetails($submission->id, $validated['activity_id'], $request);
