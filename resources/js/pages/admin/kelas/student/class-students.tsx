@@ -7,6 +7,7 @@ import ActionBar from './_components/ActionBar';
 import StudentsTable from './_components/StudentsTable';
 import StudentViewModal from './_components/StudentViewModal';
 import StudentFormModal from './_components/StudentFormModal';
+import DeleteStudentModal from './_components/DeleteStudentModal';
 import MonthSelectionModal from './_components/MonthSelectionModal';
 import ExcelImportModal from '@/components/excel-import-modal';
 import {
@@ -26,12 +27,15 @@ export default function ClassStudents({
     const [searchQuery, setSearchQuery] = useState('');
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
     const [showMonthModal, setShowMonthModal] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(
         null,
     );
+    const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [formData, setFormData] = useState<FormData>({
         name: '',
         nis: '',
@@ -140,23 +144,25 @@ export default function ClassStudents({
         setShowEditModal(true);
     };
 
-    const handleDeleteStudent = async (student: Student) => {
-        if (
-            !confirm(
-                `Apakah Anda yakin ingin menghapus siswa "${student.name}"?`,
-            )
-        ) {
-            return;
-        }
+    const openDeleteModal = (student: Student) => {
+        setStudentToDelete(student);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!studentToDelete || isDeleting) return;
+        setIsDeleting(true);
 
         try {
             const response = await axios.delete(
-                `/admin/students/${student.id}`,
+                `/admin/students/${studentToDelete.id}`,
             );
 
             if (response.data.success) {
                 router.reload({ only: ['students'] });
                 showSuccess('Siswa berhasil dihapus');
+                setShowDeleteModal(false);
+                setStudentToDelete(null);
             }
         } catch (error) {
             const message =
@@ -164,6 +170,8 @@ export default function ClassStudents({
                     .response?.data?.message ||
                 'Terjadi kesalahan saat menghapus siswa';
             showError(message);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -221,7 +229,7 @@ export default function ClassStudents({
                         students={filteredStudents}
                         onView={openViewModal}
                         onEdit={openEditModal}
-                        onDelete={handleDeleteStudent}
+                        onDelete={openDeleteModal}
                         onExport={exportActivities}
                     />
 
@@ -264,6 +272,18 @@ export default function ClassStudents({
                         isOpen={showMonthModal}
                         onClose={() => setShowMonthModal(false)}
                         onConfirm={handleMonthConfirm}
+                    />
+
+                    {/* Modal Hapus Siswa */}
+                    <DeleteStudentModal
+                        isOpen={showDeleteModal}
+                        onClose={() => {
+                            setShowDeleteModal(false);
+                            setStudentToDelete(null);
+                        }}
+                        onConfirm={confirmDelete}
+                        studentName={studentToDelete?.name || ''}
+                        isSubmitting={isDeleting}
                     />
                 </div>
             </div>

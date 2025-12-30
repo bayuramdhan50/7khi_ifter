@@ -51,8 +51,9 @@ class MonthlySummarySheet implements FromArray, WithTitle, WithStyles, WithColum
         $data[] = ['RINGKASAN BULANAN AKTIVITAS SISWA'];
         $data[] = ['Kelas:', $this->className];
         $data[] = ['Periode:', $this->startDate->format('d M Y') . ' - ' . $this->endDate->format('d M Y')];
+        $data[] = [];
         
-        // Column headers (row 4)
+        // Column headers
         $headers = ['No', 'Nama', 'NIS'];
         foreach ($activities as $activity) {
             $headers[] = $activity->title;
@@ -143,8 +144,8 @@ class MonthlySummarySheet implements FromArray, WithTitle, WithStyles, WithColum
         $sheet->mergeCells("A1:{$lastColumn}1");
         $sheet->getRowDimension(1)->setRowHeight(30);
         
-        // Column header row (row 4 = header blue, row 5+ = data white)
-        $headerRow = 4;
+        // Column header row
+        $headerRow = 5;
         $sheet->getStyle("A{$headerRow}:{$lastColumn}{$headerRow}")->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
@@ -168,10 +169,10 @@ class MonthlySummarySheet implements FromArray, WithTitle, WithStyles, WithColum
         ]);
         
         // Freeze panes
-        $sheet->freezePane('D5');
+        $sheet->freezePane('D6');
         
         // Add borders
-        $sheet->getStyle("A4:{$lastColumn}{$lastRow}")->applyFromArray([
+        $sheet->getStyle("A5:{$lastColumn}{$lastRow}")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
