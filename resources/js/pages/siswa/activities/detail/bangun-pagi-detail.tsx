@@ -78,18 +78,19 @@ export default function BangunPagiDetail({ auth, activity, nextActivity, previou
             // Load jam bangun from time field
             setJamBangun(todaySubmission.time || '');
 
-            // Load checkbox states from details
-            if (todaySubmission.details.membereskan_tempat_tidur) {
-                setMembereskanTempat(todaySubmission.details.membereskan_tempat_tidur.is_checked);
+            // Load checkbox states from details (with null checks)
+            const details = todaySubmission.details || {};
+            if (details?.membereskan_tempat_tidur) {
+                setMembereskanTempat(details.membereskan_tempat_tidur.is_checked);
             }
-            if (todaySubmission.details.mandi) {
-                setMandi(todaySubmission.details.mandi.is_checked);
+            if (details?.mandi) {
+                setMandi(details.mandi.is_checked);
             }
-            if (todaySubmission.details.berpakaian_rapi) {
-                setBerpakaianRapi(todaySubmission.details.berpakaian_rapi.is_checked);
+            if (details?.berpakaian_rapi) {
+                setBerpakaianRapi(details.berpakaian_rapi.is_checked);
             }
-            if (todaySubmission.details.sarapan) {
-                setSarapan(todaySubmission.details.sarapan.is_checked);
+            if (details?.sarapan) {
+                setSarapan(details.sarapan.is_checked);
             }
 
             // Set approval status
