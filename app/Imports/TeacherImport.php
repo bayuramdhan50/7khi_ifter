@@ -11,8 +11,10 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 
-class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow, SkipsEmptyRows
 {
     use SkipsFailures;
 
@@ -172,5 +174,22 @@ class TeacherImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * Define starting row for import (skip header row 1 and instruction row 2).
+     * Data starts from row 3.
+     */
+    public function startRow(): int
+    {
+        return 3;
+    }
+
+    /**
+     * Define which row contains the headings.
+     */
+    public function headingRow(): int
+    {
+        return 1;
     }
 }

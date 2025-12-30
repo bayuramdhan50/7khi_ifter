@@ -110,15 +110,78 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             ],
         ]);
 
+        // Add dropdown validation for Agama (column D) - rows 3 to 100
+        $agamaValidation = $sheet->getCell('D3')->getDataValidation();
+        $agamaValidation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+        $agamaValidation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+        $agamaValidation->setAllowBlank(false);
+        $agamaValidation->setShowInputMessage(true);
+        $agamaValidation->setShowErrorMessage(true);
+        $agamaValidation->setShowDropDown(true);
+        $agamaValidation->setErrorTitle('Input Error');
+        $agamaValidation->setError('Pilih agama dari daftar yang tersedia.');
+        $agamaValidation->setPromptTitle('Pilih Agama');
+        $agamaValidation->setPrompt('Pilih salah satu: Islam, Kristen, Katolik, Hindu, Buddha, Konghucu');
+        $agamaValidation->setFormula1('"Islam,Kristen,Katolik,Hindu,Buddha,Konghucu"');
+        
+        // Apply to rows 3-100
+        for ($row = 3; $row <= 100; $row++) {
+            $sheet->getCell("D{$row}")->setDataValidation(clone $agamaValidation);
+        }
+
+        // Add dropdown validation for Jenis Kelamin (column E) - rows 3 to 100
+        $genderValidation = $sheet->getCell('E3')->getDataValidation();
+        $genderValidation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+        $genderValidation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+        $genderValidation->setAllowBlank(false);
+        $genderValidation->setShowInputMessage(true);
+        $genderValidation->setShowErrorMessage(true);
+        $genderValidation->setShowDropDown(true);
+        $genderValidation->setErrorTitle('Input Error');
+        $genderValidation->setError('Pilih L (Laki-laki) atau P (Perempuan).');
+        $genderValidation->setPromptTitle('Pilih Jenis Kelamin');
+        $genderValidation->setPrompt('L = Laki-laki, P = Perempuan');
+        $genderValidation->setFormula1('"L,P"');
+        
+        // Apply to rows 3-100
+        for ($row = 3; $row <= 100; $row++) {
+            $sheet->getCell("E{$row}")->setDataValidation(clone $genderValidation);
+        }
+
+        // Format Tanggal Lahir column (F) as Date and add validation
+        $sheet->getStyle('F:F')->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDD2);
+        
+        // Add date validation for Tanggal Lahir (column F) - rows 3 to 100
+        $dateValidation = $sheet->getCell('F3')->getDataValidation();
+        $dateValidation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_DATE);
+        $dateValidation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+        $dateValidation->setAllowBlank(true); // Tanggal lahir opsional
+        $dateValidation->setShowInputMessage(true);
+        $dateValidation->setShowErrorMessage(true);
+        $dateValidation->setErrorTitle('Format Tanggal Salah');
+        $dateValidation->setError('Masukkan tanggal yang valid. Contoh: 2010-05-15');
+        $dateValidation->setPromptTitle('Tanggal Lahir');
+        $dateValidation->setPrompt('Ketik tanggal lahir. Format akan otomatis dikonversi.');
+        // Date range from 1990 to 2020 (reasonable birth year range for students)
+        $dateValidation->setFormula1('DATE(1990,1,1)');
+        $dateValidation->setFormula2('DATE(2020,12,31)');
+        $dateValidation->setOperator(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::OPERATOR_BETWEEN);
+        
+        // Apply to rows 3-100
+        for ($row = 3; $row <= 100; $row++) {
+            $sheet->getCell("F{$row}")->setDataValidation(clone $dateValidation);
+        }
+
         // Add instructions comment to header
         $sheet->getComment('A1')->getText()->createTextRun(
             "INSTRUKSI PENGISIAN:\n\n" .
             "1. Nama Lengkap: WAJIB diisi (username akan otomatis dibuat dari nama)\n" .
             "2. NIS: WAJIB diisi, harus unik\n" .
             "3. NISN: Opsional, jika diisi harus unik\n" .
-            "4. Agama: WAJIB diisi (Islam/Kristen/Katolik/Hindu/Buddha/Konghucu)\n" .
-            "5. Jenis Kelamin: WAJIB diisi (L untuk Laki-laki, P untuk Perempuan)\n" .
-            "6. Tanggal Lahir: Opsional (format: YYYY-MM-DD, contoh: 2010-05-15)\n" .
+            "4. Agama: WAJIB diisi (pilih dari dropdown)\n" .
+            "5. Jenis Kelamin: WAJIB diisi (pilih dari dropdown: L/P)\n" .
+            "6. Tanggal Lahir: Opsional (ketik tanggal, format otomatis dikonversi)\n" .
             "7. Alamat: Opsional\n\n" .
             "CATATAN:\n" .
             "- ID Kelas dan Status Aktif akan diisi otomatis oleh sistem\n" .
