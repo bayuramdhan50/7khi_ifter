@@ -63,17 +63,14 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
         $data[] = ['Periode:', $this->startDate->format('d M Y') . ' - ' . $this->endDate->format('d M Y')];
         $data[] = [];
         
-        // Column headers (Waktu only for Bangun Pagi)
-        $headers = ['No', 'Nama', 'NIS', 'Tanggal'];
-        if ($this->activity->title === 'Bangun Pagi') {
-            $headers[] = 'Waktu';
-        }
-        $headers[] = 'Status';
+        // Column headers
+        $headers = ['No', 'Nama', 'NIS', 'Tanggal', 'Waktu', 'Status'];
         
         // Add activity-specific headers
         $detailHeaders = $this->getActivityDetailHeaders();
         $headers = array_merge($headers, $detailHeaders);
         $headers[] = 'Foto';
+        $headers[] = 'Catatan';
         
         $data[] = $headers;
         
@@ -86,20 +83,16 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
                     $student->user->name,
                     $student->nis,
                     $submission->date->format('d M Y'),
+                    $submission->time ?? '-',
+                    $this->getStatusText($submission->status),
                 ];
-                
-                // Add Waktu only for Bangun Pagi
-                if ($this->activity->title === 'Bangun Pagi') {
-                    $row[] = $submission->time ?? '-';
-                }
-                
-                $row[] = $this->getStatusText($submission->status);
                 
                 // Add activity-specific details
                 $details = $this->getActivityDetails($submission);
                 $row = array_merge($row, $details);
                 
                 $row[] = $submission->photo ? 'Ya' : 'Tidak';
+                $row[] = $submission->notes ?? '-';
                 
                 $data[] = $row;
             }
@@ -125,15 +118,13 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
                 return ['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya', 'Mengaji', 'Berdoa', 'Bersedekah', 'Doa Pagi', 'Baca Firman', 'Renungan', 'Doa Malam', 'Ibadah Bersama'];
             
             case 'Gemar Belajar':
-                return ['Gemar Belajar', 'Ekstrakurikuler', 'Bimbingan Belajar', 'Mengerjakan Tugas', 'Lainnya'];
+                return ['Gemar Belajar', 'Ekstrakurikuler', 'Bimbingan Belajar', 'Mengerjakan Tugas'];
             
             case 'Makan Sehat':
-            case 'Makan Makanan Sehat dan Bergizi':
-            case (str_contains($this->activity->title, 'Makan') ? $this->activity->title : ''):
                 return ['Karbohidrat', 'Protein', 'Sayur', 'Buah'];
             
             case 'Bermasyarakat':
-                return ['TARKA', 'Kerja Bakti', 'Gotong Royong', 'Lainnya'];
+                return ['TARKA', 'Kerja Bakti', 'Gotong Royong'];
             
             case 'Tidur Cepat':
                 return ['Jam Tidur'];
@@ -149,7 +140,7 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
             case 'Bangun Pagi':
                 $detail = $submission->bangunPagiDetail;
                 return [
-                    $this->formatTime($detail->jam_bangun ?? null),
+                    $detail->jam_bangun ?? '-',
                     $this->formatBoolean($detail->membereskan_tempat_tidur ?? null),
                     $this->formatBoolean($detail->mandi ?? null),
                     $this->formatBoolean($detail->berpakaian_rapi ?? null),
@@ -189,12 +180,9 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
                     $this->formatBoolean($detail->ekstrakurikuler ?? null),
                     $this->formatBoolean($detail->bimbingan_belajar ?? null),
                     $this->formatBoolean($detail->mengerjakan_tugas ?? null),
-                    $this->formatBoolean($detail->lainnya ?? null),
                 ];
             
             case 'Makan Sehat':
-            case 'Makan Makanan Sehat dan Bergizi':
-            case (str_contains($this->activity->title, 'Makan') ? $this->activity->title : ''):
                 $detail = $submission->makanSehatDetail;
                 return [
                     $detail->karbohidrat ?? '-',
@@ -209,13 +197,12 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
                     $this->formatBoolean($detail->tarka ?? null),
                     $this->formatBoolean($detail->kerja_bakti ?? null),
                     $this->formatBoolean($detail->gotong_royong ?? null),
-                    $this->formatBoolean($detail->lainnya ?? null),
                 ];
             
             case 'Tidur Cepat':
                 $detail = $submission->tidurCepatDetail;
                 return [
-                    $this->formatTime($detail->sleep_time ?? null),
+                    $detail->sleep_time ?? '-',
                 ];
             
             default:
@@ -226,18 +213,7 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
     private function formatBoolean($value): string
     {
         if ($value === null) return '-';
-        return $value ? '1' : '0';
-    }
-
-    private function formatTime($value): string
-    {
-        if ($value === null) return '-';
-        try {
-            // Parse and return only time (HH:MM)
-            return \Carbon\Carbon::parse($value)->format('H:i');
-        } catch (\Exception $e) {
-            return $value;
-        }
+        return $value ? '✓' : '✗';
     }
 
     private function getStatusText($status): string
@@ -316,28 +292,21 @@ class ActivitySheet implements FromArray, WithTitle, WithStyles, WithColumnWidth
             'B' => 25,  // Nama
             'C' => 15,  // NIS
             'D' => 15,  // Tanggal
+            'E' => 12,  // Waktu
+            'F' => 15,  // Status
         ];
-        
-        // For Bangun Pagi, include Waktu column
-        if ($this->activity->title === 'Bangun Pagi') {
-            $widths['E'] = 12;  // Waktu
-            $widths['F'] = 15;  // Status
-            $startCol = 71; // G
-        } else {
-            $widths['E'] = 15;  // Status (no Waktu)
-            $startCol = 70; // F
-        }
         
         // Dynamic widths for activity-specific columns
         $detailCount = count($this->getActivityDetailHeaders());
         for ($i = 0; $i < $detailCount; $i++) {
-            $column = chr($startCol + $i);
+            $column = chr(71 + $i); // Start from G
             $widths[$column] = 18;
         }
         
-        // Last column (Foto)
-        $lastDetailColumn = chr($startCol + $detailCount - 1);
+        // Last two columns (Foto, Catatan)
+        $lastDetailColumn = chr(71 + $detailCount - 1);
         $widths[chr(ord($lastDetailColumn) + 1)] = 10; // Foto
+        $widths[chr(ord($lastDetailColumn) + 2)] = 30; // Catatan
         
         return $widths;
     }

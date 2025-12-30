@@ -126,10 +126,9 @@ class SummarySheet implements FromArray, WithTitle, WithStyles, WithColumnWidths
         $sheet->getRowDimension(1)->setRowHeight(30);
         
         // Headers for sections
-        $this->styleHeader($sheet, 'A5:E5'); // STATISTIK header
-        // Row 8 = Aktivitas, Total Pengumpulan, Rata-rata per Siswa header (BLUE)
-        // Row 9 onwards = actual activity data (NO BLUE)
-        $this->styleHeader($sheet, 'A8:C8');
+        $this->styleHeader($sheet, 'A5:E5');
+        $this->styleHeader($sheet, 'A9:C9');
+        $this->styleHeader($sheet, 'A10:C10');
         
         // Dynamic header for student details
         $studentHeaderRow = $this->findRow($sheet, 'DETAIL SISWA');
