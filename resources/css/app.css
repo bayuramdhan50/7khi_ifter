@@ -140,4 +140,16 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Text selection styling */
+    ::selection {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    input::selection,
+    textarea::selection {
+        background-color: #3b82f6;
+        color: white;
+    }
 }
