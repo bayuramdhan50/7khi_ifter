@@ -45,12 +45,12 @@ interface GuruDashboardProps {
     studentJournals?: Record<number, StudentJournal[]>;
 }
 
-export default function GuruDashboard({ 
-    auth, 
-    classes = [], 
+export default function GuruDashboard({
+    auth,
+    classes = [],
     selectedClass = null,
-    students = [], 
-    studentJournals = {} 
+    students = [],
+    studentJournals = {}
 }: GuruDashboardProps) {
     const currentDate = new Date();
     const currentMonth = new Date();
@@ -109,8 +109,6 @@ export default function GuruDashboard({
                 return 'bg-green-100 text-green-800';
             case 'pending':
                 return 'bg-yellow-100 text-yellow-800';
-            case 'rejected':
-                return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
@@ -226,243 +224,241 @@ export default function GuruDashboard({
                                 </div>
                             </div>
                         ) : (
-                        <div className="flex flex-col lg:flex-row gap-8">
-                            {/* Left Side - Students Table */}
-                            <div className="flex-1">
-                                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                                    {/* Table Header */}
-                                    <div className="p-3 md:p-4 border-b border-gray-200">
-                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                                            <h2 className="text-lg md:text-xl font-bold text-blue-600">List Nama Siswa</h2>
-                                            <input
-                                                type="text"
-                                                placeholder="Cari Murid"
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
-                                                style={{
-                                                    width: '100%',
-                                                    maxWidth: '20rem',
-                                                    padding: '8px 12px',
-                                                    border: '2px solid #d1d5db',
-                                                    borderRadius: '8px',
-                                                    fontSize: '14px',
-                                                    fontWeight: '600',
-                                                    backgroundColor: '#ffffff',
-                                                    color: '#000000',
-                                                    outline: 'none'
-                                                }}
-                                                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                                                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                                            />
+                            <div className="flex flex-col lg:flex-row gap-8">
+                                {/* Left Side - Students Table */}
+                                <div className="flex-1">
+                                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                                        {/* Table Header */}
+                                        <div className="p-3 md:p-4 border-b border-gray-200">
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                                <h2 className="text-lg md:text-xl font-bold text-blue-600">List Nama Siswa</h2>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Cari Murid"
+                                                    value={searchQuery}
+                                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                                    style={{
+                                                        width: '100%',
+                                                        maxWidth: '20rem',
+                                                        padding: '8px 12px',
+                                                        border: '2px solid #d1d5db',
+                                                        borderRadius: '8px',
+                                                        fontSize: '14px',
+                                                        fontWeight: '600',
+                                                        backgroundColor: '#ffffff',
+                                                        color: '#000000',
+                                                        outline: 'none'
+                                                    }}
+                                                    onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                                                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    {/* Table - Desktop View */}
-                                    <div className="hidden md:block overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead>
-                                                <tr className="bg-gray-50 border-b border-gray-200">
-                                                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-20">
-                                                        NO
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
-                                                        NAMA
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-32">
-                                                        NIS
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-24">
-                                                        KELAS
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
-                                                        AGAMA
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-40">
-                                                        JENIS KELAMIN
-                                                    </th>
-                                                    <th className="px-6 py-4 text-center text-sm font-bold text-gray-900 w-40">
-                                                        LIHAT JURNAL
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {filteredStudents.map((student, index) => (
-                                                    <tr
-                                                        key={student.id}
-                                                        className={`border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer ${
-                                                            selectedStudentId === student.id ? 'bg-blue-50' : ''
-                                                        }`}
-                                                        onClick={() => setSelectedStudentId(student.id)}
-                                                    >
-                                                        <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                                                            {index + 1}.
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                                            {student.name}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                                            {student.nis}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                                            {student.class}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                                            {student.religion}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-900 text-center">
-                                                            {student.gender}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-center">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleViewActivities(student.id);
-                                                                }}
-                                                                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors"
-                                                                title="Lihat Aktivitas"
-                                                            >
-                                                                <Eye className="w-5 h-5 text-white" />
-                                                            </button>
-                                                        </td>
+                                        {/* Table - Desktop View */}
+                                        <div className="hidden md:block overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="bg-gray-50 border-b border-gray-200">
+                                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-20">
+                                                            NO
+                                                        </th>
+                                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
+                                                            NAMA
+                                                        </th>
+                                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-32">
+                                                            NIS
+                                                        </th>
+                                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-24">
+                                                            KELAS
+                                                        </th>
+                                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
+                                                            AGAMA
+                                                        </th>
+                                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 w-40">
+                                                            JENIS KELAMIN
+                                                        </th>
+                                                        <th className="px-6 py-4 text-center text-sm font-bold text-gray-900 w-40">
+                                                            LIHAT JURNAL
+                                                        </th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {/* Mobile Card View */}
-                                    <div className="md:hidden divide-y divide-gray-200">
-                                        {filteredStudents.map((student, index) => (
-                                            <div 
-                                                key={student.id} 
-                                                className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                                                    selectedStudentId === student.id ? 'bg-blue-50' : ''
-                                                }`}
-                                                onClick={() => setSelectedStudentId(student.id)}
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="flex-1 space-y-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm font-bold text-gray-900 bg-blue-100 px-2 py-1 rounded">{index + 1}</span>
-                                                            <div className="flex-1">
-                                                                <div className="text-xs text-gray-500 font-medium">NAMA SISWA</div>
-                                                                <div className="text-sm font-bold text-gray-900">{student.name}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="grid grid-cols-3 gap-2 pl-10">
-                                                            <div>
-                                                                <div className="text-xs text-gray-500 font-medium">NIS</div>
-                                                                <div className="text-sm text-gray-900 font-semibold">{student.nis}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-xs text-gray-500 font-medium">KELAS</div>
-                                                                <div className="text-sm text-gray-900 font-semibold">{student.class}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-xs text-gray-500 font-medium">AGAMA</div>
-                                                                <div className="text-sm text-gray-900">{student.religion}</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleViewActivities(student.id);
-                                                        }}
-                                                        className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors flex-shrink-0"
-                                                        title="Lihat Aktivitas"
-                                                    >
-                                                        <Eye className="w-5 h-5 text-white" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Empty State */}
-                                    {filteredStudents.length === 0 && (
-                                        <div className="p-8 text-center">
-                                            <p className="text-gray-500">Tidak ada siswa yang cocok dengan pencarian</p>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredStudents.map((student, index) => (
+                                                        <tr
+                                                            key={student.id}
+                                                            className={`border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer ${selectedStudentId === student.id ? 'bg-blue-50' : ''
+                                                                }`}
+                                                            onClick={() => setSelectedStudentId(student.id)}
+                                                        >
+                                                            <td className="px-6 py-4 text-sm font-bold text-gray-900">
+                                                                {index + 1}.
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                                {student.name}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                                {student.nis}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                                {student.class}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                                {student.religion}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                                                                {student.gender}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-center">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleViewActivities(student.id);
+                                                                    }}
+                                                                    className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors"
+                                                                    title="Lihat Aktivitas"
+                                                                >
+                                                                    <Eye className="w-5 h-5 text-white" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
 
-                            {/* Right Side - Student Journal */}
-                            <div className="w-full lg:w-96">
-                                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:sticky lg:top-4">
-                                    {/* Student Info or No Selection Message */}
-                                    {selectedStudent ? (
-                                        <>
-                                            {/* Student Header */}
-                                            <div className="mb-6 pb-4 border-b border-gray-200">
-                                                <div className="flex items-center gap-3 mb-3">
-                                                    <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                                                        <span className="text-white font-bold text-lg">
-                                                            {selectedStudent.name.charAt(0)}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="font-bold text-gray-900">{selectedStudent.name}</h3>
-                                                        <p className="text-sm text-gray-600">Kelas {selectedStudent.class}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Student Info */}
-                                            <div className="mb-6 space-y-2">
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-600">NIS:</span>
-                                                    <span className="font-medium text-gray-900">{selectedStudent.nis}</span>
-                                                </div>
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-600">Agama:</span>
-                                                    <span className="font-medium text-gray-900">{selectedStudent.religion}</span>
-                                                </div>
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-600">Jenis Kelamin:</span>
-                                                    <span className="font-medium text-gray-900">{selectedStudent.gender}</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Journal Section */}
-                                            <div className="border-t border-gray-200 pt-4">
-                                                <h4 className="font-bold text-gray-900 mb-3">Jurnal Terbaru</h4>
-                                                {selectedStudentJournals.length > 0 ? (
-                                                    <div className="space-y-3">
-                                                        {selectedStudentJournals.map((journal) => (
-                                                            <div key={journal.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                                                <div className="flex items-start justify-between mb-2">
-                                                                    <span className="font-semibold text-sm text-gray-900">
-                                                                        {journal.activity}
-                                                                    </span>
-                                                                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusBadgeColor(journal.status)}`}>
-                                                                        {journal.status}
-                                                                    </span>
+                                        {/* Mobile Card View */}
+                                        <div className="md:hidden divide-y divide-gray-200">
+                                            {filteredStudents.map((student, index) => (
+                                                <div
+                                                    key={student.id}
+                                                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${selectedStudentId === student.id ? 'bg-blue-50' : ''
+                                                        }`}
+                                                    onClick={() => setSelectedStudentId(student.id)}
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="flex-1 space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm font-bold text-gray-900 bg-blue-100 px-2 py-1 rounded">{index + 1}</span>
+                                                                <div className="flex-1">
+                                                                    <div className="text-xs text-gray-500 font-medium">NAMA SISWA</div>
+                                                                    <div className="text-sm font-bold text-gray-900">{student.name}</div>
                                                                 </div>
-                                                                <p className="text-xs text-gray-600 mb-1">{journal.date}</p>
-                                                                {journal.notes && (
-                                                                    <p className="text-xs text-gray-700 italic">{journal.notes}</p>
-                                                                )}
                                                             </div>
-                                                        ))}
+                                                            <div className="grid grid-cols-3 gap-2 pl-10">
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500 font-medium">NIS</div>
+                                                                    <div className="text-sm text-gray-900 font-semibold">{student.nis}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500 font-medium">KELAS</div>
+                                                                    <div className="text-sm text-gray-900 font-semibold">{student.class}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500 font-medium">AGAMA</div>
+                                                                    <div className="text-sm text-gray-900">{student.religion}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleViewActivities(student.id);
+                                                            }}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors flex-shrink-0"
+                                                            title="Lihat Aktivitas"
+                                                        >
+                                                            <Eye className="w-5 h-5 text-white" />
+                                                        </button>
                                                     </div>
-                                                ) : (
-                                                    <p className="text-sm text-gray-500 text-center py-6">Belum ada jurnal siswa</p>
-                                                )}
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div className="text-center py-12">
-                                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <span className="text-2xl">👤</span>
-                                            </div>
-                                            <p className="text-gray-600 font-medium">Pilih siswa untuk melihat jurnal</p>
+                                                </div>
+                                            ))}
                                         </div>
-                                    )}
+
+                                        {/* Empty State */}
+                                        {filteredStudents.length === 0 && (
+                                            <div className="p-8 text-center">
+                                                <p className="text-gray-500">Tidak ada siswa yang cocok dengan pencarian</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Right Side - Student Journal */}
+                                <div className="w-full lg:w-96">
+                                    <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:sticky lg:top-4">
+                                        {/* Student Info or No Selection Message */}
+                                        {selectedStudent ? (
+                                            <>
+                                                {/* Student Header */}
+                                                <div className="mb-6 pb-4 border-b border-gray-200">
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                                                            <span className="text-white font-bold text-lg">
+                                                                {selectedStudent.name.charAt(0)}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-bold text-gray-900">{selectedStudent.name}</h3>
+                                                            <p className="text-sm text-gray-600">Kelas {selectedStudent.class}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Student Info */}
+                                                <div className="mb-6 space-y-2">
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-600">NIS:</span>
+                                                        <span className="font-medium text-gray-900">{selectedStudent.nis}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-600">Agama:</span>
+                                                        <span className="font-medium text-gray-900">{selectedStudent.religion}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-600">Jenis Kelamin:</span>
+                                                        <span className="font-medium text-gray-900">{selectedStudent.gender}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Journal Section */}
+                                                <div className="border-t border-gray-200 pt-4">
+                                                    <h4 className="font-bold text-gray-900 mb-3">Jurnal Terbaru</h4>
+                                                    {selectedStudentJournals.length > 0 ? (
+                                                        <div className="space-y-3">
+                                                            {selectedStudentJournals.map((journal) => (
+                                                                <div key={journal.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                                    <div className="flex items-start justify-between mb-2">
+                                                                        <span className="font-semibold text-sm text-gray-900">
+                                                                            {journal.activity}
+                                                                        </span>
+                                                                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusBadgeColor(journal.status)}`}>
+                                                                            {journal.status}
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="text-xs text-gray-600 mb-1">{journal.date}</p>
+                                                                    {journal.notes && (
+                                                                        <p className="text-xs text-gray-700 italic">{journal.notes}</p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-sm text-gray-500 text-center py-6">Belum ada jurnal siswa</p>
+                                                    )}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="text-center py-12">
+                                                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <span className="text-2xl">👤</span>
+                                                </div>
+                                                <p className="text-gray-600 font-medium">Pilih siswa untuk melihat jurnal</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         )
                     ) : (
                         <div className="bg-white rounded-lg shadow-md p-12 text-center border border-gray-200">
