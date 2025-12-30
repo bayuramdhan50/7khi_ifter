@@ -149,11 +149,9 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                         </thead>
                                         <tbody>
                                             {activity.tasks.map((task, index) => (
-                                                <tr key={task.date} className={`hover:bg-gray-50 ${
-                                                    task.status === 'approved' ? 'bg-green-50' :
-                                                    task.status === 'rejected' ? 'bg-red-50' :
-                                                    task.status === 'pending' ? 'bg-yellow-50' : ''
-                                                }`}>
+                                                <tr key={task.date} className={`hover:bg-gray-50 ${task.status === 'approved' ? 'bg-green-50' :
+                                                        task.status === 'pending' ? 'bg-yellow-50' : ''
+                                                    }`}>
                                                     <td className="border border-gray-300 px-4 py-3 text-center">
                                                         <div className="bg-gray-200 rounded px-3 py-2 inline-block font-medium">
                                                             {task.tanggal}
@@ -177,16 +175,6 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                                                 <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
                                                                     ✓ Approved
                                                                 </span>
-                                                            )}
-                                                            {task.status === 'rejected' && (
-                                                                <div className="text-center">
-                                                                    <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">
-                                                                        ✗ Rejected
-                                                                    </span>
-                                                                    {task.rejection_reason && (
-                                                                        <p className="text-xs text-red-600 mt-1">{task.rejection_reason}</p>
-                                                                    )}
-                                                                </div>
                                                             )}
                                                             {task.status === 'pending' && (
                                                                 <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">
@@ -222,11 +210,9 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                 {/* Tasks - Mobile Card View */}
                                 <div className="md:hidden space-y-4">
                                     {activity.tasks.map((task, index) => (
-                                        <div key={task.date} className={`border border-gray-300 rounded-lg p-4 ${
-                                            task.status === 'approved' ? 'bg-green-50' :
-                                            task.status === 'rejected' ? 'bg-red-50' :
-                                            task.status === 'pending' ? 'bg-yellow-50' : 'bg-gray-50'
-                                        }`}>
+                                        <div key={task.date} className={`border border-gray-300 rounded-lg p-4 ${task.status === 'approved' ? 'bg-green-50' :
+                                                task.status === 'pending' ? 'bg-yellow-50' : 'bg-gray-50'
+                                            }`}>
                                             <div className="flex items-center justify-between mb-3">
                                                 <div className="bg-gray-200 rounded px-3 py-1.5 font-bold text-gray-900">
                                                     Tanggal: {task.tanggal}
@@ -234,11 +220,6 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                                 {task.status === 'approved' && (
                                                     <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
                                                         ✓ Approved
-                                                    </span>
-                                                )}
-                                                {task.status === 'rejected' && (
-                                                    <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">
-                                                        ✗ Rejected
                                                     </span>
                                                 )}
                                                 {task.status === 'pending' && (
@@ -271,14 +252,6 @@ export default function StudentActivityDetail({ auth, student, activity }: Activ
                                                     </div>
                                                 )}
 
-                                                {task.rejection_reason && (
-                                                    <div>
-                                                        <label className="text-xs font-bold text-red-700 mb-1 block">ALASAN REJECT</label>
-                                                        <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200">
-                                                            {task.rejection_reason}
-                                                        </div>
-                                                    </div>
-                                                )}
 
                                                 <div className="flex gap-2 items-center">
                                                     <label className="text-xs font-bold text-gray-700">BUKTI FOTO:</label>

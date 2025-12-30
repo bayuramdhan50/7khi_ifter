@@ -16,7 +16,6 @@ interface DailySubmission {
 interface ActivityStats {
     approved: number;
     pending: number;
-    rejected: number;
     total: number;
 }
 
@@ -98,8 +97,6 @@ export default function StudentAllActivities({
                 return <CheckCircle2 className="w-4 h-4 text-green-600" />;
             case 'pending':
                 return <Clock className="w-4 h-4 text-yellow-600" />;
-            case 'rejected':
-                return <XCircle className="w-4 h-4 text-red-600" />;
             default:
                 return <AlertCircle className="w-4 h-4 text-gray-400" />;
         }
@@ -111,8 +108,6 @@ export default function StudentAllActivities({
                 return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 font-medium">✓ Approved</span>;
             case 'pending':
                 return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 font-medium">⏳ Pending</span>;
-            case 'rejected':
-                return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700 font-medium">✗ Rejected</span>;
             default:
                 return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium">- Belum Submit</span>;
         }
@@ -122,10 +117,9 @@ export default function StudentAllActivities({
     const overallStats = activities.reduce((acc, activity) => {
         acc.approved += activity.stats.approved;
         acc.pending += activity.stats.pending;
-        acc.rejected += activity.stats.rejected;
         acc.total += activity.stats.total;
         return acc;
-    }, { approved: 0, pending: 0, rejected: 0, total: 0 });
+    }, { approved: 0, pending: 0, total: 0 });
 
     const totalPossible = daysInMonth * 7;
     const completionRate = totalPossible > 0 ? Math.round((overallStats.approved / totalPossible) * 100) : 0;
@@ -205,7 +199,7 @@ export default function StudentAllActivities({
                         </div>
 
                         {/* Overall Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                             <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
                                 <div className="text-3xl font-bold mb-1">{completionRate}%</div>
                                 <div className="text-sm opacity-90">Progress Bulan Ini</div>
@@ -223,13 +217,6 @@ export default function StudentAllActivities({
                                     <span className="text-2xl font-bold text-yellow-600">{overallStats.pending}</span>
                                 </div>
                                 <div className="text-sm text-gray-600">Pending</div>
-                            </div>
-                            <div className="bg-white rounded-xl p-4 border-2 border-red-200 shadow-sm">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <XCircle className="w-5 h-5 text-red-600" />
-                                    <span className="text-2xl font-bold text-red-600">{overallStats.rejected}</span>
-                                </div>
-                                <div className="text-sm text-gray-600">Rejected</div>
                             </div>
                             <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
                                 <div className="flex items-center gap-2 mb-1">
@@ -273,11 +260,6 @@ export default function StudentAllActivities({
                                                 <div className="text-xl font-bold text-yellow-600">{activity.stats.pending}</div>
                                                 <div className="text-xs text-gray-600">Pending</div>
                                             </div>
-                                            <div className="w-px h-10 bg-gray-300"></div>
-                                            <div className="text-center">
-                                                <div className="text-xl font-bold text-red-600">{activity.stats.rejected}</div>
-                                                <div className="text-xs text-gray-600">Rejected</div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -292,7 +274,6 @@ export default function StudentAllActivities({
                                                     relative rounded-lg border-2 p-3 transition-all hover:shadow-md
                                                     ${submission.status === 'approved' ? 'bg-green-50 border-green-300' :
                                                     submission.status === 'pending' ? 'bg-yellow-50 border-yellow-300' :
-                                                    submission.status === 'rejected' ? 'bg-red-50 border-red-300' :
                                                     'bg-gray-50 border-gray-200'}
                                                 `}
                                             >
