@@ -16,7 +16,7 @@ class ActivitySubmissionSeeder extends Seeder
         $activities = \App\Models\Activity::all();
         $parents = \App\Models\ParentModel::all();
         
-        $statuses = ['pending', 'approved', 'rejected'];
+        $statuses = ['pending', 'approved'];
         
         // Generate submissions untuk 15 hari terakhir
         foreach ($students as $student) {
@@ -28,7 +28,7 @@ class ActivitySubmissionSeeder extends Seeder
                 
                 foreach ($randomActivities as $activity) {
                     $status = $statuses[array_rand($statuses)];
-                    $approver = $status === 'approved' || $status === 'rejected' ? $parents->first() : null;
+                    $approver = $status === 'approved' ? $parents->first() : null;
                     
                     $submission = \App\Models\ActivitySubmission::create([
                         'student_id' => $student->id,
@@ -40,7 +40,7 @@ class ActivitySubmissionSeeder extends Seeder
                         'status' => $status,
                         'approved_by' => $approver?->id,
                         'approved_at' => $status !== 'pending' ? now() : null,
-                        'rejection_reason' => $status === 'rejected' ? 'Foto kurang jelas' : null,
+                        'rejection_reason' => null,
                     ]);
 
                     // Add details based on activity
