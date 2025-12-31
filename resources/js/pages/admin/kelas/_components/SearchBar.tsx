@@ -18,7 +18,7 @@ export default function SearchBar({
                 placeholder="Cari Kelas"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-9 text-sm sm:pl-10 sm:text-base"
+                className="pl-9 text-gray-900 text-sm sm:pl-10 sm:text-base"
             />
         </div>
     );
