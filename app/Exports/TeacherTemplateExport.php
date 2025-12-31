@@ -33,7 +33,7 @@ class TeacherTemplateExport implements FromArray, WithHeadings, WithStyles, With
         return [
             // Instructions row
             [
-                'INSTRUKSI: Isi data guru mulai dari baris ke-3. Username akan otomatis dibuat dari Nama Lengkap. Hapus baris ini sebelum import.',
+                'INSTRUKSI: Isi data guru mulai dari baris ke-4. Username akan otomatis dibuat dari Nama Lengkap. Hapus baris ini sebelum import.',
             ],
             [],
             // Sample data (NIP 10 digit to avoid scientific notation in Excel)
