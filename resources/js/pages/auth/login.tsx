@@ -5,13 +5,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
 }
+
+// Storage keys for remembered credentials
+const STORAGE_KEYS = {
+    PASSWORD: 'remembered_password',
+    REMEMBER: 'remember_credentials',
+};
 
 export default function Login({
     status,
@@ -29,8 +35,36 @@ export default function Login({
         email: '',
     });
 
+    // Load remembered password on mount
+    useEffect(() => {
+        const remembered = localStorage.getItem(STORAGE_KEYS.REMEMBER) === 'true';
+        if (remembered) {
+            const savedPassword = localStorage.getItem(STORAGE_KEYS.PASSWORD) || '';
+
+            setData(prev => ({
+                ...prev,
+                password: savedPassword,
+                remember: true,
+            }));
+        }
+    }, []);
+
+    // Save or clear password based on remember checkbox
+    const saveCredentials = () => {
+        if (data.remember) {
+            localStorage.setItem(STORAGE_KEYS.REMEMBER, 'true');
+            localStorage.setItem(STORAGE_KEYS.PASSWORD, data.password);
+        } else {
+            localStorage.removeItem(STORAGE_KEYS.REMEMBER);
+            localStorage.removeItem(STORAGE_KEYS.PASSWORD);
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Save credentials if remember is checked
+        saveCredentials();
 
         // Clear unused field based on login type before submit
         if (loginType === 'siswa') {
@@ -152,6 +186,8 @@ export default function Login({
                                             placeholder="Masukkan NIS Anda"
                                             value={data.nis}
                                             onChange={(e) => setData('nis', e.target.value)}
+                                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Harap isi kolom NIS')}
+                                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                                             className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
                                         />
                                         <InputError message={errors.nis} />
@@ -173,6 +209,8 @@ export default function Login({
                                             placeholder="Masukkan Username Anda"
                                             value={data.username}
                                             onChange={(e) => setData('username', e.target.value)}
+                                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Harap isi kolom Username')}
+                                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                                             className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
                                         />
                                         <InputError message={errors.username} />
@@ -195,6 +233,8 @@ export default function Login({
                                             placeholder="Masukkan kata sandi"
                                             value={data.password}
                                             onChange={(e) => setData('password', e.target.value)}
+                                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Harap isi kolom Kata Sandi')}
+                                            onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                                             className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14 sm:pr-16 text-black text-sm sm:text-base"
                                         />
                                         <button
