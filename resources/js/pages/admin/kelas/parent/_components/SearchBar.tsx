@@ -83,10 +83,10 @@ export default function SearchBar({
                 <div className="relative w-full sm:w-64">
                     <input
                         type="text"
-                        placeholder="Cari Nama Guru"
+                        placeholder="Cari Nama Orang Tua"
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 py-2 pr-4 pl-9 text-sm focus:border-transparent focus:ring-2 focus:ring-purple-500 sm:pl-10 sm:text-base"
+                        className="w-full rounded-lg border border-gray-300 py-2 pr-4 pl-9 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-purple-500 sm:pl-10 sm:text-base"
                     />
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
