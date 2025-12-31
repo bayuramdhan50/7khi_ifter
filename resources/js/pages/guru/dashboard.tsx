@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { Eye, BookOpen, Users, Calendar, Loader2 } from 'lucide-react';
+import { Eye, BookOpen, Users, Calendar, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface StudentJournal {
@@ -57,6 +57,8 @@ export default function GuruDashboard({
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
     const [isLoadingClass, setIsLoadingClass] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Use actual data from backend
     const studentsList: Student[] = students.length > 0 ? students : [];
@@ -66,6 +68,31 @@ export default function GuruDashboard({
         student.religion.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.class.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    // Reset to page 1 when search query changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
+
+    // Auto-select first student when class is loaded
+    useEffect(() => {
+        if (selectedClass && filteredStudents.length > 0 && !selectedStudentId) {
+            setSelectedStudentId(filteredStudents[0].id);
+        }
+    }, [selectedClass, filteredStudents.length]);
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     const getDaysInMonth = (date: Date) => {
         const year = date.getFullYear();
@@ -224,10 +251,10 @@ export default function GuruDashboard({
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-col lg:flex-row gap-8">
+                            <div className="flex flex-col lg:flex-row gap-8 items-stretch">
                                 {/* Left Side - Students Table */}
                                 <div className="flex-1">
-                                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
                                         {/* Table Header */}
                                         <div className="p-3 md:p-4 border-b border-gray-200">
                                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -256,7 +283,7 @@ export default function GuruDashboard({
                                         </div>
 
                                         {/* Table - Desktop View */}
-                                        <div className="hidden md:block overflow-x-auto">
+                                        <div className="hidden md:block overflow-x-auto flex-1">
                                             <table className="w-full">
                                                 <thead>
                                                     <tr className="bg-gray-50 border-b border-gray-200">
@@ -284,7 +311,7 @@ export default function GuruDashboard({
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {filteredStudents.map((student, index) => (
+                                                    {paginatedStudents.map((student, index) => (
                                                         <tr
                                                             key={student.id}
                                                             className={`border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer ${selectedStudentId === student.id ? 'bg-blue-50' : ''
@@ -292,7 +319,7 @@ export default function GuruDashboard({
                                                             onClick={() => setSelectedStudentId(student.id)}
                                                         >
                                                             <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                                                                {index + 1}.
+                                                                {startIndex + index + 1}.
                                                             </td>
                                                             <td className="px-6 py-4 text-sm text-gray-900">
                                                                 {student.name}
@@ -328,8 +355,8 @@ export default function GuruDashboard({
                                         </div>
 
                                         {/* Mobile Card View */}
-                                        <div className="md:hidden divide-y divide-gray-200">
-                                            {filteredStudents.map((student, index) => (
+                                        <div className="md:hidden divide-y divide-gray-200 flex-1">
+                                            {paginatedStudents.map((student, index) => (
                                                 <div
                                                     key={student.id}
                                                     className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${selectedStudentId === student.id ? 'bg-blue-50' : ''
@@ -339,7 +366,7 @@ export default function GuruDashboard({
                                                     <div className="flex items-start justify-between gap-3">
                                                         <div className="flex-1 space-y-2">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-sm font-bold text-gray-900 bg-blue-100 px-2 py-1 rounded">{index + 1}</span>
+                                                                <span className="text-sm font-bold text-gray-900 bg-blue-100 px-2 py-1 rounded">{startIndex + index + 1}</span>
                                                                 <div className="flex-1">
                                                                     <div className="text-xs text-gray-500 font-medium">NAMA SISWA</div>
                                                                     <div className="text-sm font-bold text-gray-900">{student.name}</div>
@@ -381,12 +408,84 @@ export default function GuruDashboard({
                                                 <p className="text-gray-500">Tidak ada siswa yang cocok dengan pencarian</p>
                                             </div>
                                         )}
+
+                                        {/* Pagination */}
+                                        {filteredStudents.length > 0 && (
+                                            <div className="px-4 py-4 border-t border-gray-200 bg-gray-50">
+                                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                                    {/* Info */}
+                                                    <div className="text-sm text-gray-600">
+                                                        Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(endIndex, filteredStudents.length)}</span> dari <span className="font-semibold text-gray-900">{filteredStudents.length}</span> siswa
+                                                    </div>
+
+                                                    {/* Pagination Controls */}
+                                                    <div className="flex items-center gap-2">
+                                                        {/* Previous Button */}
+                                                        <button
+                                                            onClick={() => handlePageChange(currentPage - 1)}
+                                                            disabled={currentPage === 1}
+                                                            className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                            title="Halaman Sebelumnya"
+                                                        >
+                                                            <ChevronLeft className="w-4 h-4" />
+                                                        </button>
+
+                                                        {/* Page Numbers */}
+                                                        <div className="flex items-center gap-1">
+                                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                                                // Show first page, last page, current page, and pages around current
+                                                                const showPage =
+                                                                    page === 1 ||
+                                                                    page === totalPages ||
+                                                                    (page >= currentPage - 1 && page <= currentPage + 1);
+
+                                                                const showEllipsisBefore = page === currentPage - 2 && currentPage > 3;
+                                                                const showEllipsisAfter = page === currentPage + 2 && currentPage < totalPages - 2;
+
+                                                                if (showEllipsisBefore || showEllipsisAfter) {
+                                                                    return (
+                                                                        <span key={page} className="px-2 text-gray-400">
+                                                                            ...
+                                                                        </span>
+                                                                    );
+                                                                }
+
+                                                                if (!showPage) return null;
+
+                                                                return (
+                                                                    <button
+                                                                        key={page}
+                                                                        onClick={() => handlePageChange(page)}
+                                                                        className={`inline-flex items-center justify-center min-w-[2.25rem] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                                                                            ? 'bg-blue-600 text-white'
+                                                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                                                            }`}
+                                                                    >
+                                                                        {page}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+
+                                                        {/* Next Button */}
+                                                        <button
+                                                            onClick={() => handlePageChange(currentPage + 1)}
+                                                            disabled={currentPage === totalPages}
+                                                            className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                            title="Halaman Berikutnya"
+                                                        >
+                                                            <ChevronRight className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Right Side - Student Journal */}
                                 <div className="w-full lg:w-96">
-                                    <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:sticky lg:top-4">
+                                    <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:sticky lg:top-4 h-full flex flex-col">
                                         {/* Student Info or No Selection Message */}
                                         {selectedStudent ? (
                                             <>
